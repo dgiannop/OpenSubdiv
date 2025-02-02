@@ -1,11 +1,15 @@
 BasedOnStyle: LLVM
 IndentWidth: 4
-BreakBeforeBraces: Allman
-SpaceBeforeParens: true
-SpaceAfterControlStatementKeyword: true
-IndentWidth: 4
-ColumnLimit: 256
-SortIncludes: true
-AllowShortIfStatementsOnASingleLine: false
-AlignConsecutiveAssignments: true
-AlignConsecutiveDeclarations: true
+BraceWrapping:
+  AfterClass: true
+  AfterControlStatement: true
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterStruct: true
+  BeforeCatch: true
+  BeforeElse: true
+  IndentBraces: false
+  SplitEmptyFunction: false  # Keep empty function braces on the same line
+  SplitEmptyRecord: false    # Keep empty class/struct braces on the same line
+AccessModifierOffset: -4
