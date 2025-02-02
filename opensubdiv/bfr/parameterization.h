@@ -25,14 +25,16 @@
 #ifndef OPENSUBDIV3_BFR_PARAMETERIZATION_H
 #define OPENSUBDIV3_BFR_PARAMETERIZATION_H
 
+#include "../sdc/types.h"
 #include "../version.h"
 
-#include "../sdc/types.h"
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Bfr {
+namespace Bfr
+{
 
 ///
 /// @brief Simple class defining the 2D parameterization of a face
@@ -49,8 +51,9 @@ namespace Bfr {
 /// an irregular face that must first be subdivided -- making its limit
 /// surface a piecewise collection of quadrilateral patches.
 ///
-class Parameterization {
-public:
+class Parameterization
+{
+  public:
     ///
     /// @brief Enumerated type for the different kinds of Parameterizations.
     ///
@@ -59,12 +62,14 @@ public:
     /// common use, but is publicly available for situations when it is
     /// necessary to distinguish:
     ///
-    enum Type { QUAD,          ///<  Quadrilateral
-                TRI,           ///<  Triangle
-                QUAD_SUBFACES  ///<  Partitioned into quadrilateral sub-faces
+    enum Type
+    {
+        QUAD,         ///<  Quadrilateral
+        TRI,          ///<  Triangle
+        QUAD_SUBFACES ///<  Partitioned into quadrilateral sub-faces
     };
 
-public:
+  public:
     //@{
     /// @name Construction and initialization
     ///
@@ -81,11 +86,11 @@ public:
     bool IsValid() const { return (_faceSize > 0); }
 
     /// @brief Default construction produces an invalid instance
-    Parameterization() : _type(0), _uDim(0), _faceSize(0) { }
+    Parameterization() : _type(0), _uDim(0), _faceSize(0) {}
 
     Parameterization(Parameterization const &) = default;
-    Parameterization & operator=(Parameterization const &) = default;
-    ~Parameterization() = default;
+    Parameterization &operator=(Parameterization const &) = default;
+    ~Parameterization()                                   = default;
     //@}
 
     //@{
@@ -95,13 +100,13 @@ public:
     ///
 
     /// @brief Returns the type of parameterization assigned
-    Type GetType() const { return (Type) _type; }
+    Type GetType() const { return (Type)_type; }
 
     /// @brief Returns the size (number of vertices) of the corresponding face
-    int  GetFaceSize() const { return _faceSize; }
+    int GetFaceSize() const { return _faceSize; }
     //@}
 
-public:
+  public:
     //@{
     /// @name Methods to inspect parametric features
     ///
@@ -115,19 +120,16 @@ public:
     ///
 
     /// @brief Returns the (u,v) coordinate of a given vertex
-    template <typename REAL>
-    void GetVertexCoord(int vertexIndex, REAL uvCoord[2]) const;
+    template <typename REAL> void GetVertexCoord(int vertexIndex, REAL uvCoord[2]) const;
 
     /// @brief Returns the (u,v) coordinate at any point on a given edge
-    template <typename REAL>
-    void GetEdgeCoord(int edgeIndex, REAL t, REAL uvCoord[2]) const;
+    template <typename REAL> void GetEdgeCoord(int edgeIndex, REAL t, REAL uvCoord[2]) const;
 
     /// @brief Returns the (u,v) coordinate for the center of the face
-    template <typename REAL>
-    void GetCenterCoord(REAL uvCoord[2]) const;
+    template <typename REAL> void GetCenterCoord(REAL uvCoord[2]) const;
     //@}
 
-public:
+  public:
     //@{
     /// @name Methods to deal with discontinuous parameterizations
     ///
@@ -149,41 +151,28 @@ public:
     bool HasSubFaces() const;
 
     /// @brief Returns the integer sub-face containing the given (u,v)
-    template <typename REAL>
-    int GetSubFace(REAL const uvCoord[2]) const;
+    template <typename REAL> int GetSubFace(REAL const uvCoord[2]) const;
 
     /// @brief Convert (u,v) to a sub-face (return value) and its local (u,v)
     ///        coordinate
-    template <typename REAL>
-    int ConvertCoordToSubFace(
-                REAL const uvCoord[2], REAL subFaceCoord[2]) const;
+    template <typename REAL> int ConvertCoordToSubFace(REAL const uvCoord[2], REAL subFaceCoord[2]) const;
 
     /// @brief Convert a sub-face and its local (u,v) coordinate to (u,v)
-    template <typename REAL>
-    void ConvertSubFaceToCoord(int subFace,
-                REAL const subFaceCoord[2], REAL uvCoord[2]) const;
+    template <typename REAL> void ConvertSubFaceToCoord(int subFace, REAL const subFaceCoord[2], REAL uvCoord[2]) const;
 
     /// @brief Convert (u,v) to a sub-face (return value) and its normalized
     ///        (u,v) coordinate
-    template <typename REAL>
-    int ConvertCoordToNormalizedSubFace(
-                REAL const uvCoord[2], REAL subFaceCoord[2]) const;
+    template <typename REAL> int ConvertCoordToNormalizedSubFace(REAL const uvCoord[2], REAL subFaceCoord[2]) const;
 
     /// @brief Convert a sub-face and its normalized (u,v) coordinate to (u,v)
-    template <typename REAL>
-    void ConvertNormalizedSubFaceToCoord(int subFace,
-                REAL const subFaceCoord[2], REAL uvCoord[2]) const;
+    template <typename REAL> void ConvertNormalizedSubFaceToCoord(int subFace, REAL const subFaceCoord[2], REAL uvCoord[2]) const;
     //@}
 
-private:
-    template <typename REAL>
-    int convertCoordToSubFace(bool normalized,
-                REAL const uvCoord[2], REAL subFaceCoord[2]) const;
-    template <typename REAL>
-    void convertSubFaceToCoord(bool normalized, int subFace,
-                REAL const subFaceCoord[2], REAL uvCoord[2]) const;
+  private:
+    template <typename REAL> int  convertCoordToSubFace(bool normalized, REAL const uvCoord[2], REAL subFaceCoord[2]) const;
+    template <typename REAL> void convertSubFaceToCoord(bool normalized, int subFace, REAL const subFaceCoord[2], REAL uvCoord[2]) const;
 
-private:
+  private:
     unsigned char  _type;
     unsigned char  _uDim;
     unsigned short _faceSize;
@@ -192,50 +181,25 @@ private:
 //
 //  Inline sub-face coordinate conversion methods:
 //
-inline bool
-Parameterization::HasSubFaces() const {
-    return (_type == QUAD_SUBFACES);
-}
+inline bool Parameterization::HasSubFaces() const { return (_type == QUAD_SUBFACES); }
 
-template <typename REAL>
-inline int
-Parameterization::GetSubFace(REAL const uvCoord[2]) const {
+template <typename REAL> inline int Parameterization::GetSubFace(REAL const uvCoord[2]) const
+{
+    if (!HasSubFaces())
+        return 0;
 
-    if (!HasSubFaces()) return 0;
-
-    int uTile = (int) uvCoord[0];
-    int vTile = (int) uvCoord[1];
-    return (vTile + ((uvCoord[1] - (REAL) vTile) > 0.75f)) * _uDim +
-           (uTile + ((uvCoord[0] - (REAL) uTile) > 0.75f));
+    int uTile = (int)uvCoord[0];
+    int vTile = (int)uvCoord[1];
+    return (vTile + ((uvCoord[1] - (REAL)vTile) > 0.75f)) * _uDim + (uTile + ((uvCoord[0] - (REAL)uTile) > 0.75f));
 }
 
 //  Conversions to unnormalized sub-face coordinates:
-template <typename REAL>
-inline int
-Parameterization::ConvertCoordToSubFace(
-        REAL const uvCoord[2], REAL subCoord[2]) const {
-    return convertCoordToSubFace<REAL>(false, uvCoord, subCoord);
-}
-template <typename REAL>
-inline void
-Parameterization::ConvertSubFaceToCoord(
-        int subFace, REAL const subCoord[2], REAL uvCoord[2]) const {
-    convertSubFaceToCoord<REAL>(false, subFace, subCoord, uvCoord);
-}
+template <typename REAL> inline int  Parameterization::ConvertCoordToSubFace(REAL const uvCoord[2], REAL subCoord[2]) const { return convertCoordToSubFace<REAL>(false, uvCoord, subCoord); }
+template <typename REAL> inline void Parameterization::ConvertSubFaceToCoord(int subFace, REAL const subCoord[2], REAL uvCoord[2]) const { convertSubFaceToCoord<REAL>(false, subFace, subCoord, uvCoord); }
 
 //  Conversions to normalized sub-face coordinates:
-template <typename REAL>
-inline int
-Parameterization::ConvertCoordToNormalizedSubFace(
-        REAL const uvCoord[2], REAL subCoord[2]) const {
-    return convertCoordToSubFace<REAL>(true, uvCoord, subCoord);
-}
-template <typename REAL>
-inline void
-Parameterization::ConvertNormalizedSubFaceToCoord(
-        int subFace, REAL const subCoord[2], REAL uvCoord[2]) const {
-    convertSubFaceToCoord<REAL>(true, subFace, subCoord, uvCoord);
-}
+template <typename REAL> inline int  Parameterization::ConvertCoordToNormalizedSubFace(REAL const uvCoord[2], REAL subCoord[2]) const { return convertCoordToSubFace<REAL>(true, uvCoord, subCoord); }
+template <typename REAL> inline void Parameterization::ConvertNormalizedSubFaceToCoord(int subFace, REAL const subCoord[2], REAL uvCoord[2]) const { convertSubFaceToCoord<REAL>(true, subFace, subCoord, uvCoord); }
 
 } // end namespace Bfr
 

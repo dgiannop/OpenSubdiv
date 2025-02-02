@@ -25,14 +25,16 @@
 #ifndef OPENSUBDIV3_BFR_TESSELLATION_H
 #define OPENSUBDIV3_BFR_TESSELLATION_H
 
+#include "../bfr/parameterization.h"
 #include "../version.h"
 
-#include "../bfr/parameterization.h"
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Bfr {
+namespace Bfr
+{
 
 ///
 /// @brief Encapsulates a specific tessellation pattern of a Parameterization
@@ -48,8 +50,9 @@ namespace Bfr {
 /// (to distinguish from the faces of the mesh, to which a Tessellation is
 /// applied).
 ///
-class Tessellation {
-public:
+class Tessellation
+{
+  public:
     ///
     /// @brief Options configure a Tessellation to specify the nature of
     ///        both its results and the structure of the coordinate and
@@ -62,42 +65,42 @@ public:
     /// Modifiers of Options return a reference to itself to facilitate
     /// inline usage.
     ///
-    class Options {
-    public:
-        Options() : _preserveQuads(false), _facetSize4(false),
-                    _coordStride(0), _facetStride(0) { }
+    class Options
+    {
+      public:
+        Options() : _preserveQuads(false), _facetSize4(false), _coordStride(0), _facetStride(0) {}
 
         /// @brief Select preservation of quads for quad-based subdivision
         ///        (requires 4-sided facets, default is off)
-        Options & PreserveQuads(bool on);
+        Options &PreserveQuads(bool on);
         /// @brief Return if preservation of quads is set
-        bool      PreserveQuads() const { return _preserveQuads; }
+        bool PreserveQuads() const { return _preserveQuads; }
 
         /// @brief Assign the number of indices per facet (must be 3 or 4,
         ///        default is 3)
-        Options & SetFacetSize(int numIndices);
+        Options &SetFacetSize(int numIndices);
         //  @brief Return the number of indices per facet
-        int       GetFacetSize() const { return 3 + (int)_facetSize4; }
+        int GetFacetSize() const { return 3 + (int)_facetSize4; }
 
         /// @brief Assign the stride between facets (default is facet size)
-        Options & SetFacetStride(int stride);
+        Options &SetFacetStride(int stride);
         /// @brief Return the stride between facets
-        int       GetFacetStride() const { return _facetStride; }
+        int GetFacetStride() const { return _facetStride; }
 
         /// @brief Assign the stride between (u,v) pairs (default is 2)
-        Options & SetCoordStride(int stride);
+        Options &SetCoordStride(int stride);
         /// @brief Return the stride between (u,v) pairs
-        int       GetCoordStride() const { return _coordStride; }
+        int GetCoordStride() const { return _coordStride; }
 
-    private:
+      private:
         unsigned int _preserveQuads : 1;
-        unsigned int _facetSize4    : 1;
+        unsigned int _facetSize4 : 1;
 
         short _coordStride;
         short _facetStride;
     };
 
-public:
+  public:
     //@{
     /// @name Construction and initialization
     ///
@@ -115,8 +118,7 @@ public:
     /// @param  uniformRate Integer tessellation rate (non-zero)
     /// @param  options     Options describing tessellation results
     ///
-    Tessellation(Parameterization const & p, int uniformRate,
-                 Options const & options = Options());
+    Tessellation(Parameterization const &p, int uniformRate, Options const &options = Options());
 
     ///
     /// @brief General constructor providing multiple tessellation rates for
@@ -155,8 +157,7 @@ public:
     /// i+1 -- but differs from the conventions used with many hardware
     ///  tessellation interfaces.
     ///
-    Tessellation(Parameterization const & p, int numRates, int const rates[],
-                 Options const & options = Options());
+    Tessellation(Parameterization const &p, int numRates, int const rates[], Options const &options = Options());
 
     /// @brief Return true if correctly initialized
     bool IsValid() const { return _isValid; }
@@ -165,7 +166,7 @@ public:
     Tessellation() = delete;
 
     Tessellation(Tessellation const &) = delete;
-    Tessellation & operator=(Tessellation const &) = delete;
+    Tessellation &operator=(Tessellation const &) = delete;
     ~Tessellation();
     //@}
 
@@ -218,25 +219,20 @@ public:
     int GetNumEdgeCoords(int edge) const { return _outerRates[edge] - 1; }
 
     /// @brief Retrieve the coordinates for the entire pattern
-    template <typename REAL>
-    int GetCoords(REAL coordTuples[]) const;
+    template <typename REAL> int GetCoords(REAL coordTuples[]) const;
 
     /// @brief Retrieve the coordinates for the boundary
-    template <typename REAL>
-    int GetBoundaryCoords(REAL coordTuples[]) const;
+    template <typename REAL> int GetBoundaryCoords(REAL coordTuples[]) const;
 
     /// @brief Retrieve the coordinates for the boundary
-    template <typename REAL>
-    int GetInteriorCoords(REAL coordTuples[]) const;
+    template <typename REAL> int GetInteriorCoords(REAL coordTuples[]) const;
 
     /// @brief Retrieve the coordinate for a given vertex of the face
-    template <typename REAL>
-    int GetVertexCoord(int vertex, REAL coordTuples[]) const;
+    template <typename REAL> int GetVertexCoord(int vertex, REAL coordTuples[]) const;
 
     /// @brief Retrieve the coordinates for a given edge of the face
     ///        (excluding those at its end vertices)
-    template <typename REAL>
-    int GetEdgeCoords(int edge,  REAL coordTuples[]) const;
+    template <typename REAL> int GetEdgeCoords(int edge, REAL coordTuples[]) const;
     //@}
 
     //@{
@@ -248,7 +244,7 @@ public:
     ///
     /// Unlike the coordinates -- which can be separated into those on
     /// the boundary or interior of the pattern -- the facets are not
-    /// distinguished in any way. 
+    /// distinguished in any way.
     ///
 
     /// @brief Return the number of facets in the entire pattern
@@ -286,23 +282,17 @@ public:
 
     /// @brief Reassign indices of boundary coordinates while offseting
     ///        those of interior coordinates
-    void TransformFacetCoordIndices(int facetTuples[],
-                                    int const boundaryIndices[],
-                                    int       interiorOffset);
+    void TransformFacetCoordIndices(int facetTuples[], int const boundaryIndices[], int interiorOffset);
 
     /// @brief Reassign all facet coordinate indices
-    void TransformFacetCoordIndices(int facetTuples[],
-                                    int const boundaryIndices[],
-                                    int const interiorIndices[]);
+    void TransformFacetCoordIndices(int facetTuples[], int const boundaryIndices[], int const interiorIndices[]);
     //@}
 
-private:
+  private:
     //  Private initialization methods:
-    bool validateArguments(Parameterization const & p,
-                    int nRates, int const rates[], Options const & options);
+    bool validateArguments(Parameterization const &p, int nRates, int const rates[], Options const &options);
 
-    void initialize(Parameterization const & p,
-                    int nRates, int const rates[], Options const & options);
+    void initialize(Parameterization const &p, int nRates, int const rates[], Options const &options);
 
     void initializeDefaults();
     int  initializeRates(int nRates, int const rates[]);
@@ -310,17 +300,17 @@ private:
     void initializeInventoryForParamQuad(int sumOfOuterRates);
     void initializeInventoryForParamQPoly(int sumOfOuterRates);
 
-private:
+  private:
     //  Private members:
     Parameterization _param;
 
-    unsigned short _isValid       :  1;
-    unsigned short _isUniform     :  1;
-    unsigned short _triangulate   :  1;
-    unsigned short _singleFace    :  1;
-    unsigned short _segmentedFace :  1;
-    unsigned short _triangleFan   :  1;
-    unsigned short _splitQuad     :  1;
+    unsigned short _isValid : 1;
+    unsigned short _isUniform : 1;
+    unsigned short _triangulate : 1;
+    unsigned short _singleFace : 1;
+    unsigned short _segmentedFace : 1;
+    unsigned short _triangleFan : 1;
+    unsigned short _splitQuad : 1;
 
     short _facetSize;
     int   _facetStride;
@@ -332,44 +322,42 @@ private:
     int _numFacets;
 
     int  _innerRates[2];
-    int* _outerRates;
+    int *_outerRates;
     int  _outerRatesLocal[4];
 };
 
 //
 //  Inline implementations:
 //
-inline Tessellation::Options &
-Tessellation::Options::PreserveQuads(bool on) {
+inline Tessellation::Options &Tessellation::Options::PreserveQuads(bool on)
+{
     _preserveQuads = on;
     return *this;
 }
-inline Tessellation::Options &
-Tessellation::Options::SetFacetSize(int numIndices) {
+inline Tessellation::Options &Tessellation::Options::SetFacetSize(int numIndices)
+{
     _facetSize4 = (numIndices == 4);
     return *this;
 }
-inline Tessellation::Options &
-Tessellation::Options::SetFacetStride(int stride)  {
-    _facetStride = (short) stride;
+inline Tessellation::Options &Tessellation::Options::SetFacetStride(int stride)
+{
+    _facetStride = (short)stride;
     return *this;
 }
-inline Tessellation::Options &
-Tessellation::Options::SetCoordStride(int stride) {
-    _coordStride = (short) stride;
+inline Tessellation::Options &Tessellation::Options::SetCoordStride(int stride)
+{
+    _coordStride = (short)stride;
     return *this;
 }
 
-template <typename REAL>
-inline int
-Tessellation::GetVertexCoord(int vertex, REAL coord[]) const {
+template <typename REAL> inline int Tessellation::GetVertexCoord(int vertex, REAL coord[]) const
+{
     _param.GetVertexCoord(vertex, coord);
     return 1;
 }
 
-template <typename REAL>
-inline int
-Tessellation::GetCoords(REAL coordTuples[]) const {
+template <typename REAL> inline int Tessellation::GetCoords(REAL coordTuples[]) const
+{
     int nCoords = GetBoundaryCoords(coordTuples);
     nCoords += GetInteriorCoords(coordTuples + nCoords * _coordStride);
     return nCoords;

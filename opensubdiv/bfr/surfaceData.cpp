@@ -23,38 +23,33 @@
 //
 
 #include "../bfr/surfaceData.h"
+
 #include "../bfr/patchTree.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Bfr {
-namespace internal {
+namespace Bfr
+{
+namespace internal
+{
 
 //
 //  Constructors and other methods to manage data members for copy and
 //  destruction:
 //
-SurfaceData::SurfaceData() : _cvIndices(), _param(),
-    _isValid(false),
-    _isDouble(false),
-    _isRegular(true),
-    _isLinear(false),
-    _regPatchType(0),
-    _regPatchMask(0),
-    _irregPatch() {
-}
+SurfaceData::SurfaceData() : _cvIndices(), _param(), _isValid(false), _isDouble(false), _isRegular(true), _isLinear(false), _regPatchType(0), _regPatchMask(0), _irregPatch() {}
 
-SurfaceData & 
-SurfaceData::operator=(SurfaceData const & src) {
-
+SurfaceData &SurfaceData::operator=(SurfaceData const &src)
+{
     //  No need to explicitly manage pre-existing resources in destination
     //  as they will be either re-used or released when re-assigned
 
     //  No copy/operator= supported by StackBuffer so resize and copy:
     _cvIndices.SetSize(src._cvIndices.GetSize());
-    std::memcpy(&_cvIndices[0],
-        &src._cvIndices[0], src._cvIndices.GetSize() * sizeof(Index));
+    std::memcpy(&_cvIndices[0], &src._cvIndices[0], src._cvIndices.GetSize() * sizeof(Index));
 
     _param = src._param;
 
@@ -69,9 +64,8 @@ SurfaceData::operator=(SurfaceData const & src) {
     return *this;
 }
 
-void
-SurfaceData::invalidate() {
-
+void SurfaceData::invalidate()
+{
     //  Release any attached memory before marking as invalid:
     _irregPatch = 0;
 

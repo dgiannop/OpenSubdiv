@@ -24,24 +24,26 @@
 #ifndef OPENSUBDIV3_VTR_FVAR_REFINEMENT_H
 #define OPENSUBDIV3_VTR_FVAR_REFINEMENT_H
 
-#include "../version.h"
-
-#include "../sdc/types.h"
-#include "../sdc/crease.h"
-#include "../vtr/types.h"
-#include "../vtr/refinement.h"
-#include "../vtr/fvarLevel.h"
-
-#include <vector>
 #include <cassert>
 #include <cstring>
+#include <vector>
 
+#include "../sdc/crease.h"
+#include "../sdc/types.h"
+#include "../version.h"
+#include "../vtr/fvarLevel.h"
+#include "../vtr/refinement.h"
+#include "../vtr/types.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Vtr {
-namespace internal {
+namespace Vtr
+{
+namespace internal
+{
 
 //
 //  FVarRefinement:
@@ -56,18 +58,15 @@ namespace internal {
 //  the refinement between Levels serves most purposes and all that is required
 //  in addition is a mapping from values in the child FVarLevel to the parent.
 //
-class FVarRefinement {
-public:
-    FVarRefinement(Refinement const& refinement, FVarLevel& parent, FVarLevel& child);
+class FVarRefinement
+{
+  public:
+    FVarRefinement(Refinement const &refinement, FVarLevel &parent, FVarLevel &child);
     ~FVarRefinement();
 
-    int getChildValueParentSource(Index vIndex, int sibling) const {
-        return _childValueParentSource[_childFVar.getVertexValueOffset(vIndex, (LocalIndex)sibling)];
-    }
+    int getChildValueParentSource(Index vIndex, int sibling) const { return _childValueParentSource[_childFVar.getVertexValueOffset(vIndex, (LocalIndex)sibling)]; }
 
-    float getFractionalWeight(Index pVert, LocalIndex pSibling,
-                              Index cVert, LocalIndex cSibling) const;
-
+    float getFractionalWeight(Index pVert, LocalIndex pSibling, Index cVert, LocalIndex cSibling) const;
 
     //  Modifiers supporting application of the refinement:
     void applyRefinement();
@@ -86,18 +85,18 @@ public:
     void propagateValueCreases();
     void reclassifySemisharpValues();
 
-private:
+  private:
     //
     //  Identify the Refinement, its Levels and assigned FVarLevels for more
     //  immediate access -- child FVarLevel is non-const as it is to be assigned:
     //
-    Refinement const & _refinement;
+    Refinement const &_refinement;
 
-    Level const &     _parentLevel;
-    FVarLevel const & _parentFVar;
+    Level const &    _parentLevel;
+    FVarLevel const &_parentFVar;
 
-    Level const & _childLevel;
-    FVarLevel &   _childFVar;
+    Level const &_childLevel;
+    FVarLevel &  _childFVar;
 
     //  When refinement is sparse, we need a mapping between siblings of a vertex
     //  value in the parent and child -- and for some child values, there will not

@@ -22,7 +22,6 @@
 //   language governing permissions and limitations under the Apache License.
 //
 
-
 //------------------------------------------------------------------------------
 // Tutorial description:
 //
@@ -40,59 +39,52 @@
 // systems that show the tangent and bi-tangent at the random samples locations.
 //
 
-#include <opensubdiv/far/topologyDescriptor.h>
-#include <opensubdiv/far/primvarRefiner.h>
-#include <opensubdiv/far/patchTableFactory.h>
 #include <opensubdiv/far/patchMap.h>
+#include <opensubdiv/far/patchTableFactory.h>
+#include <opensubdiv/far/primvarRefiner.h>
 #include <opensubdiv/far/ptexIndices.h>
+#include <opensubdiv/far/topologyDescriptor.h>
 
 #include <cassert>
+#include <cfloat>
 #include <cstdio>
 #include <cstring>
-#include <cfloat>
 
 using namespace OpenSubdiv;
 
 typedef double Real;
 
 // pyramid geometry from catmark_pyramid_crease0.h
-static int const g_nverts = 5;
-static Real  const g_verts[24] = { 0.0f,  0.0f, 2.0f,
-                                   0.0f, -2.0f, 0.0f,
-                                   2.0f,  0.0f, 0.0f,
-                                   0.0f,  2.0f, 0.0f,
-                                  -2.0f,  0.0f, 0.0f, };
+static int const  g_nverts    = 5;
+static Real const g_verts[24] = {
+    0.0f, 0.0f, 2.0f, 0.0f, -2.0f, 0.0f, 2.0f, 0.0f, 0.0f, 0.0f, 2.0f, 0.0f, -2.0f, 0.0f, 0.0f,
+};
 
+static int const g_vertsperface[5] = {3, 3, 3, 3, 4};
 
-static int const g_vertsperface[5] = { 3, 3, 3, 3, 4 };
+static int const g_nfaces        = 5;
+static int const g_faceverts[16] = {0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1, 4, 3, 2, 1};
 
-static int const g_nfaces = 5;
-static int const g_faceverts[16] = { 0, 1, 2,
-                                     0, 2, 3,
-                                     0, 3, 4,
-                                     0, 4, 1,
-                                     4, 3, 2, 1 };
-
-static int const g_ncreases = 4;
-static int const g_creaseverts[8] = { 4, 3, 3, 2, 2, 1, 1, 4 };
-static float const g_creaseweights[4] = { 3.0f, 3.0f, 3.0f, 3.0f };
+static int const   g_ncreases         = 4;
+static int const   g_creaseverts[8]   = {4, 3, 3, 2, 2, 1, 1, 4};
+static float const g_creaseweights[4] = {3.0f, 3.0f, 3.0f, 3.0f};
 
 // Creates a Far::TopologyRefiner from the pyramid shape above
-static Far::TopologyRefiner * createTopologyRefiner();
+static Far::TopologyRefiner *createTopologyRefiner();
 
 //------------------------------------------------------------------------------
 // Vertex container implementation.
 //
-struct Vertex {
+struct Vertex
+{
 
     // Minimal required interface ----------------------
-    Vertex() { }
+    Vertex() {}
 
-    void Clear( void * =0 ) {
-         point[0] = point[1] = point[2] = 0.0f;
-    }
+    void Clear(void * = 0) { point[0] = point[1] = point[2] = 0.0f; }
 
-    void AddWithWeight(Vertex const & src, Real weight) {
+    void AddWithWeight(Vertex const &src, Real weight)
+    {
         point[0] += weight * src.point[0];
         point[1] += weight * src.point[1];
         point[2] += weight * src.point[2];
@@ -105,16 +97,18 @@ struct Vertex {
 // Limit frame container implementation -- this interface is not strictly
 // required but follows a similar pattern to Vertex.
 //
-struct LimitFrame {
+struct LimitFrame
+{
 
-    void Clear( void * =0 ) {
-         point[0] =  point[1] =  point[2] = 0.0f;
+    void Clear(void * = 0)
+    {
+        point[0] = point[1] = point[2] = 0.0f;
         deriv1[0] = deriv1[1] = deriv1[2] = 0.0f;
         deriv2[0] = deriv2[1] = deriv2[2] = 0.0f;
     }
 
-    void AddWithWeight(Vertex const & src,
-        Real weight, Real d1Weight, Real d2Weight) {
+    void AddWithWeight(Vertex const &src, Real weight, Real d1Weight, Real d2Weight)
+    {
 
         point[0] += weight * src.point[0];
         point[1] += weight * src.point[1];
@@ -129,16 +123,15 @@ struct LimitFrame {
         deriv2[2] += d2Weight * src.point[2];
     }
 
-    Real point[3],
-         deriv1[3],
-         deriv2[3];
+    Real point[3], deriv1[3], deriv2[3];
 };
 
 //------------------------------------------------------------------------------
-int main(int, char **) {
+int main(int, char **)
+{
 
     // Generate a Far::TopologyRefiner (see tutorial_1_1 for details).
-    Far::TopologyRefiner * refiner = createTopologyRefiner();
+    Far::TopologyRefiner *refiner = createTopologyRefiner();
 
     // Patches are constructed from adaptively refined faces, but the processes
     // of constructing the PatchTable and of applying adaptive refinement have
@@ -159,18 +152,20 @@ int main(int, char **) {
 
     Far::PatchTableFactory::Options patchOptions(maxPatchLevel);
     patchOptions.SetPatchPrecision<Real>();
-    patchOptions.useInfSharpPatch = true;
+    patchOptions.useInfSharpPatch      = true;
     patchOptions.generateVaryingTables = false;
-    patchOptions.endCapType =
-        Far::PatchTableFactory::Options::ENDCAP_GREGORY_BASIS;
+    patchOptions.endCapType            = Far::PatchTableFactory::Options::ENDCAP_GREGORY_BASIS;
 
     // Initialize corresonding options for adaptive refinement:
     Far::TopologyRefiner::AdaptiveOptions adaptiveOptions(maxPatchLevel);
 
     bool assignAdaptiveOptionsExplicitly = false;
-    if (assignAdaptiveOptionsExplicitly) {
+    if (assignAdaptiveOptionsExplicitly)
+    {
         adaptiveOptions.useInfSharpPatch = true;
-    } else {
+    }
+    else
+    {
         // Be sure patch options were intialized with the desired max level
         adaptiveOptions = patchOptions.GetRefineAdaptiveOptions();
     }
@@ -180,20 +175,19 @@ int main(int, char **) {
     // evaluate the limit surface:
     refiner->RefineAdaptive(adaptiveOptions);
 
-    Far::PatchTable const * patchTable =
-        Far::PatchTableFactory::Create(*refiner, patchOptions);
+    Far::PatchTable const *patchTable = Far::PatchTableFactory::Create(*refiner, patchOptions);
 
     // Compute the total number of points we need to evaluate the PatchTable.
     // Approximations at irregular or extraordinary features require the use
     // of additional points associated with the patches that are referred to
     // as "local points" (i.e. local to the PatchTable).
     int nRefinerVertices = refiner->GetNumVerticesTotal();
-    int nLocalPoints = patchTable->GetNumLocalPoints();
+    int nLocalPoints     = patchTable->GetNumLocalPoints();
 
     // Create a buffer to hold the position of the refined verts and
     // local points, then copy the coarse positions at the beginning.
     std::vector<Vertex> verts(nRefinerVertices + nLocalPoints);
-    std::memcpy(&verts[0], g_verts, g_nverts*3*sizeof(Real));
+    std::memcpy(&verts[0], g_verts, g_nverts * 3 * sizeof(Real));
 
     // Adaptive refinement may result in fewer levels than the max specified.
     int nRefinedLevels = refiner->GetNumLevels();
@@ -202,17 +196,18 @@ int main(int, char **) {
     // of the limit patches (see tutorial_1_1 for details)
     Far::PrimvarRefinerReal<Real> primvarRefiner(*refiner);
 
-    Vertex * src = &verts[0];
-    for (int level = 1; level < nRefinedLevels; ++level) {
-        Vertex * dst = src + refiner->GetLevel(level-1).GetNumVertices();
+    Vertex *src = &verts[0];
+    for (int level = 1; level < nRefinedLevels; ++level)
+    {
+        Vertex *dst = src + refiner->GetLevel(level - 1).GetNumVertices();
         primvarRefiner.Interpolate(level, src, dst);
         src = dst;
     }
 
     // Evaluate local points from interpolated vertex primvars.
-    if (nLocalPoints) {
-        patchTable->GetLocalPointStencilTable<Real>()->UpdateValues(
-            &verts[0], &verts[nRefinerVertices]);
+    if (nLocalPoints)
+    {
+        patchTable->GetLocalPointStencilTable<Real>()->UpdateValues(&verts[0], &verts[nRefinerVertices]);
     }
 
     // Create a Far::PatchMap to help locating patches in the table
@@ -222,25 +217,24 @@ int main(int, char **) {
     Far::PtexIndices ptexIndices(*refiner);
 
     // Generate random samples on each ptex face
-    int nsamplesPerFace = 200,
-        nfaces = ptexIndices.GetNumFaces();
+    int nsamplesPerFace = 200, nfaces = ptexIndices.GetNumFaces();
 
     std::vector<LimitFrame> samples(nsamplesPerFace * nfaces);
 
-    srand( static_cast<int>(2147483647) );
+    srand(static_cast<int>(2147483647));
 
     Real pWeights[20], dsWeights[20], dtWeights[20];
 
-    for (int face=0, count=0; face<nfaces; ++face) {
+    for (int face = 0, count = 0; face < nfaces; ++face)
+    {
 
-        for (int sample=0; sample<nsamplesPerFace; ++sample, ++count) {
+        for (int sample = 0; sample < nsamplesPerFace; ++sample, ++count)
+        {
 
-            Real s = (Real)rand()/(Real)RAND_MAX,
-                 t = (Real)rand()/(Real)RAND_MAX;
+            Real s = (Real)rand() / (Real)RAND_MAX, t = (Real)rand() / (Real)RAND_MAX;
 
             // Locate the patch corresponding to the face ptex idx and (s,t)
-            Far::PatchTable::PatchHandle const * handle =
-                patchmap.FindPatch(face, s, t);
+            Far::PatchTable::PatchHandle const *handle = patchmap.FindPatch(face, s, t);
             assert(handle);
 
             // Evaluate the patch weights, identify the CVs and compute the limit frame:
@@ -248,12 +242,12 @@ int main(int, char **) {
 
             Far::ConstIndexArray cvs = patchTable->GetPatchVertices(*handle);
 
-            LimitFrame & dst = samples[count];
+            LimitFrame &dst = samples[count];
             dst.Clear();
-            for (int cv=0; cv < cvs.size(); ++cv) {
+            for (int cv = 0; cv < cvs.size(); ++cv)
+            {
                 dst.AddWithWeight(verts[cvs[cv]], pWeights[cv], dsWeights[cv], dtWeights[cv]);
             }
-
         }
     }
 
@@ -266,31 +260,35 @@ int main(int, char **) {
 
         // Output particle positions for the tangent
         printf("particle -n deriv1 ");
-        for (int sample=0; sample<nsamples; ++sample) {
-            Real const * pos = samples[sample].point;
+        for (int sample = 0; sample < nsamples; ++sample)
+        {
+            Real const *pos = samples[sample].point;
             printf("-p %f %f %f\n", pos[0], pos[1], pos[2]);
         }
         printf(";\n");
         // Set per-particle direction using the limit tangent (display as 'Streak')
         printf("setAttr \"deriv1.particleRenderType\" 6;\n");
-        printf("setAttr \"deriv1.velocity\" -type \"vectorArray\" %d ",nsamples);
-        for (int sample=0; sample<nsamples; ++sample) {
-            Real const * tan1 = samples[sample].deriv1;
+        printf("setAttr \"deriv1.velocity\" -type \"vectorArray\" %d ", nsamples);
+        for (int sample = 0; sample < nsamples; ++sample)
+        {
+            Real const *tan1 = samples[sample].deriv1;
             printf("%f %f %f\n", tan1[0], tan1[1], tan1[2]);
         }
         printf(";\n");
 
         // Output particle positions for the bi-tangent
         printf("particle -n deriv2 ");
-        for (int sample=0; sample<nsamples; ++sample) {
-            Real const * pos = samples[sample].point;
+        for (int sample = 0; sample < nsamples; ++sample)
+        {
+            Real const *pos = samples[sample].point;
             printf("-p %f %f %f\n", pos[0], pos[1], pos[2]);
         }
         printf(";\n");
         printf("setAttr \"deriv2.particleRenderType\" 6;\n");
-        printf("setAttr \"deriv2.velocity\" -type \"vectorArray\" %d ",nsamples);
-        for (int sample=0; sample<nsamples; ++sample) {
-            Real const * tan2 = samples[sample].deriv2;
+        printf("setAttr \"deriv2.velocity\" -type \"vectorArray\" %d ", nsamples);
+        for (int sample = 0; sample < nsamples; ++sample)
+        {
+            Real const *tan2 = samples[sample].deriv2;
             printf("%f %f %f\n", tan2[0], tan2[1], tan2[2]);
         }
         printf(";\n");
@@ -309,9 +307,8 @@ int main(int, char **) {
 }
 
 //------------------------------------------------------------------------------
-static Far::TopologyRefiner *
-createTopologyRefiner() {
-
+static Far::TopologyRefiner *createTopologyRefiner()
+{
 
     typedef Far::TopologyDescriptor Descriptor;
 
@@ -321,18 +318,16 @@ createTopologyRefiner() {
     options.SetVtxBoundaryInterpolation(Sdc::Options::VTX_BOUNDARY_EDGE_ONLY);
 
     Descriptor desc;
-    desc.numVertices = g_nverts;
-    desc.numFaces = g_nfaces;
-    desc.numVertsPerFace = g_vertsperface;
-    desc.vertIndicesPerFace = g_faceverts;
-    desc.numCreases = g_ncreases;
+    desc.numVertices            = g_nverts;
+    desc.numFaces               = g_nfaces;
+    desc.numVertsPerFace        = g_vertsperface;
+    desc.vertIndicesPerFace     = g_faceverts;
+    desc.numCreases             = g_ncreases;
     desc.creaseVertexIndexPairs = g_creaseverts;
-    desc.creaseWeights = g_creaseweights;
+    desc.creaseWeights          = g_creaseweights;
 
     // Instantiate a Far::TopologyRefiner from the descriptor.
-    Far::TopologyRefiner * refiner =
-        Far::TopologyRefinerFactory<Descriptor>::Create(desc,
-            Far::TopologyRefinerFactory<Descriptor>::Options(type, options));
+    Far::TopologyRefiner *refiner = Far::TopologyRefinerFactory<Descriptor>::Create(desc, Far::TopologyRefinerFactory<Descriptor>::Options(type, options));
 
     return refiner;
 }

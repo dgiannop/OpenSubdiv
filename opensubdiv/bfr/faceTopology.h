@@ -25,17 +25,19 @@
 #ifndef OPENSUBDIV3_BFR_FACE_TOPOLOGY_H
 #define OPENSUBDIV3_BFR_FACE_TOPOLOGY_H
 
-#include "../version.h"
-
 #include "../bfr/faceVertex.h"
-#include "../vtr/stackBuffer.h"
-#include "../sdc/types.h"
 #include "../sdc/options.h"
+#include "../sdc/types.h"
+#include "../version.h"
+#include "../vtr/stackBuffer.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Bfr {
+namespace Bfr
+{
 
 //
 //  The FaceTopology class describes the full topological neighborhood
@@ -60,32 +62,32 @@ namespace Bfr {
 //  and the indices associated with vertices that FaceTopology describes
 //  (which become the control points of the limit surface).
 //
-class FaceTopology {
-public:
+class FaceTopology
+{
+  public:
     typedef FaceVertex::Index Index;
 
-public:
-    FaceTopology(Sdc::SchemeType schemeType,
-                 Sdc::Options    schemeOptions);
-    ~FaceTopology() { }
+  public:
+    FaceTopology(Sdc::SchemeType schemeType, Sdc::Options schemeOptions);
+    ~FaceTopology() {}
 
     void Initialize(int faceSize);
     void Finalize();
 
-public:
-    Sdc::SchemeType GetSchemeType()    const { return _schemeType; }
+  public:
+    Sdc::SchemeType GetSchemeType() const { return _schemeType; }
     Sdc::Options    GetSchemeOptions() const { return _schemeOptions; }
 
-    int GetFaceSize()    const { return _faceSize; }
+    int GetFaceSize() const { return _faceSize; }
     int GetRegFaceSize() const { return _regFaceSize; }
 
-    FaceVertex       & GetTopology(int i)       { return _corner[i]; }
-    FaceVertex const & GetTopology(int i) const { return _corner[i]; }
+    FaceVertex &      GetTopology(int i) { return _corner[i]; }
+    FaceVertex const &GetTopology(int i) const { return _corner[i]; }
 
     MultiVertexTag const GetTag() const { return _combinedTag; }
 
     int GetNumFaceVertices() const { return _numFaceVertsTotal; }
-    int GetNumFaceVertices(int i) const{return _corner[i].GetNumFaceVertices();}
+    int GetNumFaceVertices(int i) const { return _corner[i].GetNumFaceVertices(); }
 
     //  Methods to test for and resolve unordered corners of the face:
     bool HasUnOrderedCorners() const { return GetTag().HasUnOrderedVertices(); }
@@ -94,7 +96,7 @@ public:
     //  Debugging...
     void print(Index const faceVertIndices[]) const;
 
-public:
+  public:
     Sdc::SchemeType _schemeType;
     Sdc::Options    _schemeOptions;
 
@@ -105,9 +107,9 @@ public:
     MultiVertexTag _combinedTag;
 
     unsigned short _isInitialized : 1;
-    unsigned short _isFinalized   : 1;
+    unsigned short _isFinalized : 1;
 
-    Vtr::internal::StackBuffer<FaceVertex,4> _corner;
+    Vtr::internal::StackBuffer<FaceVertex, 4> _corner;
 };
 
 } // end namespace Bfr

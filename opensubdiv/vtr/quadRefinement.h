@@ -25,15 +25,17 @@
 #define OPENSUBDIV3_VTR_QUAD_REFINEMENT_H
 
 #include "../version.h"
-
 #include "../vtr/refinement.h"
 
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Vtr {
-namespace internal {
+namespace Vtr
+{
+namespace internal
+{
 
 //
 //  QuadRefinement:
@@ -41,13 +43,13 @@ namespace internal {
 //  It provides the configuration of parent-to-child components and the population of
 //  all required topological relations in order to complete a valid Refinement.
 //
-class QuadRefinement : public Refinement {
-
-public:
-    QuadRefinement(Level const & parent, Level & child, Sdc::Options const & options);
+class QuadRefinement : public Refinement
+{
+  public:
+    QuadRefinement(Level const &parent, Level &child, Sdc::Options const &options);
     ~QuadRefinement();
 
-protected:
+  protected:
     //
     //  Virtual methods to complete the configuration of the parent-to-child mapping:
     //
@@ -87,7 +89,7 @@ protected:
     void populateVertexEdgesFromParentEdges();
     void populateVertexEdgesFromParentVertices();
 
-private:
+  private:
     //
     //  Data members -- currently none
     //

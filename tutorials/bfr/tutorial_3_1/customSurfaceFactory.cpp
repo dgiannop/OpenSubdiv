@@ -30,68 +30,51 @@
 
 #include <limits>
 
-
-using OpenSubdiv::Far::TopologyRefiner;
 using OpenSubdiv::Far::TopologyLevel;
+using OpenSubdiv::Far::TopologyRefiner;
 
-using OpenSubdiv::Far::Index;
 using OpenSubdiv::Far::ConstIndexArray;
 using OpenSubdiv::Far::ConstLocalIndexArray;
-
+using OpenSubdiv::Far::Index;
 
 //
 //  Main constructor and destructor:
 //
-CustomSurfaceFactory::CustomSurfaceFactory(
-    TopologyRefiner const & mesh, Options const & factoryOptions) :
-        SurfaceFactory(mesh.GetSchemeType(),
-                       mesh.GetSchemeOptions(),
-                       factoryOptions),
-        _mesh(mesh),
-        _localCache() {
+CustomSurfaceFactory::CustomSurfaceFactory(TopologyRefiner const &mesh, Options const &factoryOptions) : SurfaceFactory(mesh.GetSchemeType(), mesh.GetSchemeOptions(), factoryOptions), _mesh(mesh), _localCache()
+{
 
     SurfaceFactory::setInternalCache(&_localCache);
 }
-
 
 //
 //  Inline support method to provide a valid face-varying channel from
 //  a given face-varying ID used in the factory interface:
 //
-inline int
-CustomSurfaceFactory::getFaceVaryingChannel(FVarID fvarID) const {
+inline int CustomSurfaceFactory::getFaceVaryingChannel(FVarID fvarID) const
+{
 
     //  Verify bounds as the FVarIDs are specified by end users:
-    if ((fvarID >= 0) && (fvarID < GetNumFVarChannels())) {
-        return (int) fvarID;
+    if ((fvarID >= 0) && (fvarID < GetNumFVarChannels()))
+    {
+        return (int)fvarID;
     }
     return -1;
 }
-
 
 //
 //  Virtual methods supporting Surface creation and population:
 //
 //  Simple/trivial face queries:
 //
-bool
-CustomSurfaceFactory::isFaceHole(Index face) const {
+bool CustomSurfaceFactory::isFaceHole(Index face) const { return _mesh.HasHoles() && _mesh.GetLevel(0).IsFaceHole(face); }
 
-    return _mesh.HasHoles() && _mesh.GetLevel(0).IsFaceHole(face);
-}
-
-int
-CustomSurfaceFactory::getFaceSize(Index baseFace) const {
-
-    return _mesh.GetLevel(0).GetFaceVertices(baseFace).size();
-}
+int CustomSurfaceFactory::getFaceSize(Index baseFace) const { return _mesh.GetLevel(0).GetFaceVertices(baseFace).size(); }
 
 //
 //  Specifying vertex or face-varying indices for a face:
 //
-int
-CustomSurfaceFactory::getFaceVertexIndices(Index baseFace,
-        Index indices[]) const {
+int CustomSurfaceFactory::getFaceVertexIndices(Index baseFace, Index indices[]) const
+{
 
     ConstIndexArray fVerts = _mesh.GetLevel(0).GetFaceVertices(baseFace);
 
@@ -99,15 +82,14 @@ CustomSurfaceFactory::getFaceVertexIndices(Index baseFace,
     return fVerts.size();
 }
 
-int
-CustomSurfaceFactory::getFaceFVarValueIndices(Index baseFace,
-        FVarID fvarID, Index indices[]) const {
+int CustomSurfaceFactory::getFaceFVarValueIndices(Index baseFace, FVarID fvarID, Index indices[]) const
+{
 
     int fvarChannel = getFaceVaryingChannel(fvarID);
-    if (fvarChannel < 0) return 0;
+    if (fvarChannel < 0)
+        return 0;
 
-    ConstIndexArray fvarValues =
-            _mesh.GetLevel(0).GetFaceFVarValues(baseFace, fvarChannel);
+    ConstIndexArray fvarValues = _mesh.GetLevel(0).GetFaceFVarValues(baseFace, fvarChannel);
 
     std::memcpy(indices, &fvarValues[0], fvarValues.size() * sizeof(Index));
     return fvarValues.size();
@@ -116,14 +98,12 @@ CustomSurfaceFactory::getFaceFVarValueIndices(Index baseFace,
 //
 //  Specifying the topology around a face-vertex:
 //
-int
-CustomSurfaceFactory::populateFaceVertexDescriptor(
-        Index baseFace, int cornerVertex,
-        OpenSubdiv::Bfr::VertexDescriptor * vertexDescriptor) const {
+int CustomSurfaceFactory::populateFaceVertexDescriptor(Index baseFace, int cornerVertex, OpenSubdiv::Bfr::VertexDescriptor *vertexDescriptor) const
+{
 
-    OpenSubdiv::Bfr::VertexDescriptor & vd = *vertexDescriptor;
+    OpenSubdiv::Bfr::VertexDescriptor &vd = *vertexDescriptor;
 
-    TopologyLevel const & baseLevel = _mesh.GetLevel(0);
+    TopologyLevel const &baseLevel = _mesh.GetLevel(0);
 
     //
     //  Identify the vertex index for the specified corner of the face
@@ -155,7 +135,8 @@ CustomSurfaceFactory::populateFaceVertexDescriptor(
         vd.SetBoundary(baseLevel.IsVertexBoundary(vIndex));
 
         //  Assign sizes of all incident faces:
-        for (int i = 0; i < numFaces; ++i) {
+        for (int i = 0; i < numFaces; ++i)
+        {
             int incFaceSize = baseLevel.GetFaceVertices(vFaces[i]).size();
             assert(incFaceSize <= OpenSubdiv::Bfr::Limits::MaxFaceSize());
 
@@ -166,28 +147,29 @@ CustomSurfaceFactory::populateFaceVertexDescriptor(
         vd.SetVertexSharpness(baseLevel.GetVertexSharpness(vIndex));
 
         //  Assign edge sharpness:
-        if (isManifold) {
+        if (isManifold)
+        {
             //  Can use manifold (ordered) edge indices here:
             ConstIndexArray vEdges = baseLevel.GetVertexEdges(vIndex);
 
-            for (int i = 0; i < vEdges.size(); ++i) {
-                vd.SetManifoldEdgeSharpness(i,
-                        baseLevel.GetEdgeSharpness(vEdges[i]));
+            for (int i = 0; i < vEdges.size(); ++i)
+            {
+                vd.SetManifoldEdgeSharpness(i, baseLevel.GetEdgeSharpness(vEdges[i]));
             }
-        } else {
+        }
+        else
+        {
             //  Must use face-edges and identify next/prev edges in face:
-            ConstLocalIndexArray vInFace =
-                baseLevel.GetVertexFaceLocalIndices(vIndex);
+            ConstLocalIndexArray vInFace = baseLevel.GetVertexFaceLocalIndices(vIndex);
 
-            for (int i = 0; i < numFaces; ++i) {
+            for (int i = 0; i < numFaces; ++i)
+            {
                 ConstIndexArray fEdges = baseLevel.GetFaceEdges(vFaces[i]);
 
                 int eLeading  = vInFace[i];
                 int eTrailing = (eLeading ? eLeading : fEdges.size()) - 1;
 
-                vd.SetIncidentFaceEdgeSharpness(i,
-                        baseLevel.GetEdgeSharpness(fEdges[eLeading]),
-                        baseLevel.GetEdgeSharpness(fEdges[eTrailing]));
+                vd.SetIncidentFaceEdgeSharpness(i, baseLevel.GetEdgeSharpness(fEdges[eLeading]), baseLevel.GetEdgeSharpness(fEdges[eTrailing]));
             }
         }
     }
@@ -197,19 +179,23 @@ CustomSurfaceFactory::populateFaceVertexDescriptor(
     //  Return the index of the base face in the set of incident faces
     //  around the vertex:
     //
-    if (isManifold) {
+    if (isManifold)
+    {
         return vFaces.FindIndex(baseFace);
-    } else {
+    }
+    else
+    {
         //
         //  Remember that for some non-manifold cases the face may occur
         //  multiple times around this vertex, so make sure to identify
         //  the instance of the base face whose corner face-vertex matches
         //  the one that was specified:
         //
-        ConstLocalIndexArray vInFace =
-                baseLevel.GetVertexFaceLocalIndices(vIndex);
-        for (int i = 0; i < numFaces; ++i) {
-            if ((vFaces[i] == baseFace) && (vInFace[i] == cornerVertex)) {
+        ConstLocalIndexArray vInFace = baseLevel.GetVertexFaceLocalIndices(vIndex);
+        for (int i = 0; i < numFaces; ++i)
+        {
+            if ((vFaces[i] == baseFace) && (vInFace[i] == cornerVertex))
+            {
                 return i;
             }
         }
@@ -218,37 +204,27 @@ CustomSurfaceFactory::populateFaceVertexDescriptor(
     }
 }
 
-
 //
 //  Specifying vertex and face-varying indices around a face-vertex --
 //  both virtual methods trivially use a common internal method to get
 //  the indices for a particular vertex Index:
 //
-int
-CustomSurfaceFactory::getFaceVertexIncidentFaceVertexIndices(
-        Index baseFace, int cornerVertex,
-        Index indices[]) const {
+int CustomSurfaceFactory::getFaceVertexIncidentFaceVertexIndices(Index baseFace, int cornerVertex, Index indices[]) const { return getFaceVertexPointIndices(baseFace, cornerVertex, indices, -1); }
 
-    return getFaceVertexPointIndices(baseFace, cornerVertex, indices, -1);
-}
-
-int
-CustomSurfaceFactory::getFaceVertexIncidentFaceFVarValueIndices(
-        Index baseFace, int corner,
-        FVarID fvarID, Index indices[]) const {
+int CustomSurfaceFactory::getFaceVertexIncidentFaceFVarValueIndices(Index baseFace, int corner, FVarID fvarID, Index indices[]) const
+{
 
     int fvarChannel = getFaceVaryingChannel(fvarID);
-    if (fvarChannel < 0) return 0;
+    if (fvarChannel < 0)
+        return 0;
 
     return getFaceVertexPointIndices(baseFace, corner, indices, fvarChannel);
 }
 
-int
-CustomSurfaceFactory::getFaceVertexPointIndices(
-        Index baseFace, int cornerVertex,
-        Index indices[], int vtxOrFVarChannel) const {
+int CustomSurfaceFactory::getFaceVertexPointIndices(Index baseFace, int cornerVertex, Index indices[], int vtxOrFVarChannel) const
+{
 
-    TopologyLevel const & baseLevel = _mesh.GetLevel(0);
+    TopologyLevel const &baseLevel = _mesh.GetLevel(0);
 
     Index vIndex = baseLevel.GetFaceVertices(baseFace)[cornerVertex];
 
@@ -256,19 +232,20 @@ CustomSurfaceFactory::getFaceVertexPointIndices(
     ConstLocalIndexArray vInFace = baseLevel.GetVertexFaceLocalIndices(vIndex);
 
     int nIndices = 0;
-    for (int i = 0; i < vFaces.size(); ++i) {
-        ConstIndexArray srcIndices = (vtxOrFVarChannel < 0) ?
-                baseLevel.GetFaceVertices(vFaces[i]) :
-                baseLevel.GetFaceFVarValues(vFaces[i], vtxOrFVarChannel);
+    for (int i = 0; i < vFaces.size(); ++i)
+    {
+        ConstIndexArray srcIndices = (vtxOrFVarChannel < 0) ? baseLevel.GetFaceVertices(vFaces[i]) : baseLevel.GetFaceFVarValues(vFaces[i], vtxOrFVarChannel);
 
         //  The location of this vertex in each incident face is known,
         //  rotate the order as we copy face-vertices to make it first:
         int srcStart = vInFace[i];
         int srcCount = srcIndices.size();
-        for (int j = srcStart; j < srcCount; ++j) {
+        for (int j = srcStart; j < srcCount; ++j)
+        {
             indices[nIndices++] = srcIndices[j];
         }
-        for (int j = 0; j < srcStart; ++j) {
+        for (int j = 0; j < srcStart; ++j)
+        {
             indices[nIndices++] = srcIndices[j];
         }
     }

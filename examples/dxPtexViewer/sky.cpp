@@ -22,7 +22,6 @@
 //   language governing permissions and limitations under the Apache License.
 //
 
-
 #include "./sky.h"
 
 #include "../common/d3d11Utils.h"
@@ -32,34 +31,33 @@
 
 static const char *g_skyShaderSource =
 #include "skyshader.gen.h"
-;
+    ;
 
-#define SAFE_RELEASE(p) { if(p) { (p)->Release(); (p)=NULL; } }
+#define SAFE_RELEASE(p)                                                                                                                                                                                                                                        \
+    {                                                                                                                                                                                                                                                          \
+        if (p)                                                                                                                                                                                                                                                 \
+        {                                                                                                                                                                                                                                                      \
+            (p)->Release();                                                                                                                                                                                                                                    \
+            (p) = NULL;                                                                                                                                                                                                                                        \
+        }                                                                                                                                                                                                                                                      \
+    }
 
 // shader constants
-__declspec(align(16)) struct CB_CONSTANTS {
-        float ModelViewMatrix[16];
+__declspec(align(16)) struct CB_CONSTANTS
+{
+    float ModelViewMatrix[16];
 };
 
-
-Sky::Sky(ID3D11Device * device, ID3D11Texture2D * environmentMap) :
-    numIndices(0), 
-    vertexShader(0),
-    pixelShader(0),
-    shaderConstants(0),
-    texture(environmentMap), // we do not own this - we do not release it !
-    textureSRV(0),
-    textureSS(0),
-    inputLayout(0),
-    rasterizerState(0),
-    depthStencilState(0),
-    sphere(0),
-    sphereIndices(0) { 
+Sky::Sky(ID3D11Device *device, ID3D11Texture2D *environmentMap)
+    : numIndices(0), vertexShader(0), pixelShader(0), shaderConstants(0), texture(environmentMap), // we do not own this - we do not release it !
+      textureSRV(0), textureSS(0), inputLayout(0), rasterizerState(0), depthStencilState(0), sphere(0), sphereIndices(0)
+{
 
     initialize(device);
 }
 
-Sky::~Sky() {
+Sky::~Sky()
+{
     SAFE_RELEASE(vertexShader);
     SAFE_RELEASE(pixelShader);
     SAFE_RELEASE(shaderConstants);
@@ -72,39 +70,35 @@ Sky::~Sky() {
     SAFE_RELEASE(sphereIndices);
 }
 
-void
-Sky::initialize(ID3D11Device * device) {
+void Sky::initialize(ID3D11Device *device)
+{
 
     // compile shaders
-    ID3DBlob * pVSBlob = D3D11Utils::CompileShader(g_skyShaderSource, "vs_main", "vs_5_0"),
-             * pPSBlob = D3D11Utils::CompileShader(g_skyShaderSource, "ps_main", "ps_5_0");
+    ID3DBlob *pVSBlob = D3D11Utils::CompileShader(g_skyShaderSource, "vs_main", "vs_5_0"), *pPSBlob = D3D11Utils::CompileShader(g_skyShaderSource, "ps_main", "ps_5_0");
     assert(pVSBlob && pPSBlob);
 
-    device->CreateVertexShader(pVSBlob->GetBufferPointer(),
-        pVSBlob->GetBufferSize(), NULL, &vertexShader);
+    device->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &vertexShader);
     assert(vertexShader);
 
-    device->CreatePixelShader(pPSBlob->GetBufferPointer(),
-        pPSBlob->GetBufferSize(), NULL, &pixelShader);
+    device->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &pixelShader);
     assert(pixelShader);
 
     // VBO layout
     D3D11_INPUT_ELEMENT_DESC inputElementDesc[] = {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(float)*3, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(float) * 3, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
-    device->CreateInputLayout(inputElementDesc, ARRAYSIZE(inputElementDesc),
-        pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &inputLayout);
+    device->CreateInputLayout(inputElementDesc, ARRAYSIZE(inputElementDesc), pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &inputLayout);
     assert(inputLayout);
 
     // shader constants
     D3D11_BUFFER_DESC cbDesc;
     ZeroMemory(&cbDesc, sizeof(cbDesc));
-    cbDesc.Usage = D3D11_USAGE_DYNAMIC;
-    cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    cbDesc.Usage          = D3D11_USAGE_DYNAMIC;
+    cbDesc.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
     cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    cbDesc.MiscFlags = 0;
-    cbDesc.ByteWidth = sizeof(CB_CONSTANTS);
+    cbDesc.MiscFlags      = 0;
+    cbDesc.ByteWidth      = sizeof(CB_CONSTANTS);
     device->CreateBuffer(&cbDesc, NULL, &shaderConstants);
     assert(shaderConstants);
 
@@ -112,101 +106,103 @@ Sky::initialize(ID3D11Device * device) {
     assert(texture);
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
     ZeroMemory(&srvDesc, sizeof(srvDesc));
-    srvDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Format                    = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    srvDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MostDetailedMip = 0;
-    srvDesc.Texture2D.MipLevels = 1;
+    srvDesc.Texture2D.MipLevels       = 1;
     device->CreateShaderResourceView(texture, &srvDesc, &textureSRV);
     assert(textureSRV);
 
     // texture sampler
     D3D11_SAMPLER_DESC samplerDesc;
     ZeroMemory(&samplerDesc, sizeof(samplerDesc));
-    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+    samplerDesc.Filter   = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
     samplerDesc.AddressU = samplerDesc.AddressV = samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-    samplerDesc.MaxAnisotropy = 0;
-    samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-    samplerDesc.MinLOD = 0;
-    samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+    samplerDesc.MaxAnisotropy                                          = 0;
+    samplerDesc.ComparisonFunc                                         = D3D11_COMPARISON_NEVER;
+    samplerDesc.MinLOD                                                 = 0;
+    samplerDesc.MaxLOD                                                 = D3D11_FLOAT32_MAX;
     samplerDesc.BorderColor[0] = samplerDesc.BorderColor[1] = samplerDesc.BorderColor[2] = samplerDesc.BorderColor[3] = 0.0f;
     device->CreateSamplerState(&samplerDesc, &textureSS);
 
     // depth stencil state
     D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
     ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
-    depthStencilDesc.DepthEnable = true;
+    depthStencilDesc.DepthEnable    = true;
     depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-    depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-    depthStencilDesc.StencilEnable = false;
+    depthStencilDesc.DepthFunc      = D3D11_COMPARISON_LESS_EQUAL;
+    depthStencilDesc.StencilEnable  = false;
     device->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
 
     // rasterizer state
     D3D11_RASTERIZER_DESC rasDesc;
-    rasDesc.FillMode = D3D11_FILL_SOLID;
-    rasDesc.CullMode = D3D11_CULL_NONE;
+    rasDesc.FillMode              = D3D11_FILL_SOLID;
+    rasDesc.CullMode              = D3D11_CULL_NONE;
     rasDesc.FrontCounterClockwise = FALSE;
-    rasDesc.DepthBias = 0;
-    rasDesc.DepthBiasClamp = 0;
-    rasDesc.DepthClipEnable = FALSE;
-    rasDesc.SlopeScaledDepthBias = 0.0f;
-    rasDesc.ScissorEnable = FALSE;
-    rasDesc.MultisampleEnable = FALSE;
+    rasDesc.DepthBias             = 0;
+    rasDesc.DepthBiasClamp        = 0;
+    rasDesc.DepthClipEnable       = FALSE;
+    rasDesc.SlopeScaledDepthBias  = 0.0f;
+    rasDesc.ScissorEnable         = FALSE;
+    rasDesc.MultisampleEnable     = FALSE;
     rasDesc.AntialiasedLineEnable = FALSE;
     device->CreateRasterizerState(&rasDesc, &rasterizerState);
     assert(rasterizerState);
 
-    const int U_DIV = 20,
-              V_DIV = 20;
+    const int U_DIV = 20, V_DIV = 20;
 
     std::vector<float> vbo;
-    std::vector<int> indices;
-    for (int u = 0; u <= U_DIV; ++u) {
-        for (int v = 0; v < V_DIV; ++v) {
-            float s = float(2*M_PI*float(u)/U_DIV);
-            float t = float(M_PI*float(v)/(V_DIV-1));
-            vbo.push_back(-sinf(t)*sinf(s));
+    std::vector<int>   indices;
+    for (int u = 0; u <= U_DIV; ++u)
+    {
+        for (int v = 0; v < V_DIV; ++v)
+        {
+            float s = float(2 * M_PI * float(u) / U_DIV);
+            float t = float(M_PI * float(v) / (V_DIV - 1));
+            vbo.push_back(-sinf(t) * sinf(s));
             vbo.push_back(cosf(t));
-            vbo.push_back(-sinf(t)*cosf(s));
-            vbo.push_back(u/float(U_DIV));
-            vbo.push_back(v/float(V_DIV));
+            vbo.push_back(-sinf(t) * cosf(s));
+            vbo.push_back(u / float(U_DIV));
+            vbo.push_back(v / float(V_DIV));
 
-            if (v > 0 && u > 0) {
-                indices.push_back((u-1)*V_DIV+v-1);
-                indices.push_back(u*V_DIV+v-1);
-                indices.push_back((u-1)*V_DIV+v);
-                indices.push_back((u-1)*V_DIV+v);
-                indices.push_back(u*V_DIV+v-1);
-                indices.push_back(u*V_DIV+v);
+            if (v > 0 && u > 0)
+            {
+                indices.push_back((u - 1) * V_DIV + v - 1);
+                indices.push_back(u * V_DIV + v - 1);
+                indices.push_back((u - 1) * V_DIV + v);
+                indices.push_back((u - 1) * V_DIV + v);
+                indices.push_back(u * V_DIV + v - 1);
+                indices.push_back(u * V_DIV + v);
             }
         }
     }
 
-    D3D11_BUFFER_DESC bufferDesc;
+    D3D11_BUFFER_DESC      bufferDesc;
     D3D11_SUBRESOURCE_DATA subData;
 
     // topology indices
     ZeroMemory(&bufferDesc, sizeof(bufferDesc));
-    bufferDesc.ByteWidth = (int)indices.size() * sizeof(int);
-    bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    bufferDesc.CPUAccessFlags = 0;
-    bufferDesc.MiscFlags = 0;
+    bufferDesc.ByteWidth           = (int)indices.size() * sizeof(int);
+    bufferDesc.Usage               = D3D11_USAGE_DEFAULT;
+    bufferDesc.BindFlags           = D3D11_BIND_INDEX_BUFFER;
+    bufferDesc.CPUAccessFlags      = 0;
+    bufferDesc.MiscFlags           = 0;
     bufferDesc.StructureByteStride = sizeof(int);
 
     ZeroMemory(&subData, sizeof(subData));
-    subData.pSysMem = &indices[0];
-    subData.SysMemPitch = 0;
+    subData.pSysMem          = &indices[0];
+    subData.SysMemPitch      = 0;
     subData.SysMemSlicePitch = 0;
     device->CreateBuffer(&bufferDesc, &subData, &sphereIndices);
     assert(sphereIndices);
 
     // VBO
     ZeroMemory(&bufferDesc, sizeof(bufferDesc));
-    bufferDesc.ByteWidth = (int)vbo.size() * sizeof(float);
-    bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    bufferDesc.ByteWidth      = (int)vbo.size() * sizeof(float);
+    bufferDesc.Usage          = D3D11_USAGE_DEFAULT;
+    bufferDesc.BindFlags      = D3D11_BIND_VERTEX_BUFFER;
     bufferDesc.CPUAccessFlags = 0;
-    bufferDesc.MiscFlags = 0;
+    bufferDesc.MiscFlags      = 0;
 
     ZeroMemory(&subData, sizeof(subData));
     subData.pSysMem = &vbo[0];
@@ -216,21 +212,24 @@ Sky::initialize(ID3D11Device * device) {
     numIndices = (int)indices.size();
 }
 
-void
-Sky::Draw(ID3D11DeviceContext * deviceContext, float const mvp[16]) {
+void Sky::Draw(ID3D11DeviceContext *deviceContext, float const mvp[16])
+{
 
-    if (vertexShader==0 || pixelShader==0 || shaderConstants==0) return;
+    if (vertexShader == 0 || pixelShader == 0 || shaderConstants == 0)
+        return;
 
-    if (texture==0 || textureSRV==0 || textureSS==0) return;
+    if (texture == 0 || textureSRV == 0 || textureSS == 0)
+        return;
 
-    if (sphere==0 || sphereIndices==0) return;
+    if (sphere == 0 || sphereIndices == 0)
+        return;
 
     // update shader constants
     D3D11_MAPPED_SUBRESOURCE MappedResource;
     deviceContext->Map(shaderConstants, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedResource);
-    CB_CONSTANTS* pData = (CB_CONSTANTS*)MappedResource.pData;
+    CB_CONSTANTS *pData = (CB_CONSTANTS *)MappedResource.pData;
 
-    memcpy(pData->ModelViewMatrix, mvp, 16*sizeof(float));
+    memcpy(pData->ModelViewMatrix, mvp, 16 * sizeof(float));
 
     deviceContext->Unmap(shaderConstants, 0);
 
@@ -245,7 +244,7 @@ Sky::Draw(ID3D11DeviceContext * deviceContext, float const mvp[16]) {
     deviceContext->PSSetShaderResources(0, 1, &textureSRV);
     deviceContext->PSSetSamplers(0, 1, &textureSS);
 
-    UINT hStrides = 5*sizeof(float);
+    UINT hStrides = 5 * sizeof(float);
     UINT hOffsets = 0;
     deviceContext->IASetVertexBuffers(0, 1, &sphere, &hStrides, &hOffsets);
     deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

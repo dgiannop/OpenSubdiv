@@ -29,10 +29,9 @@
 
 #include <vector>
 
-class ArgOptions 
+class ArgOptions
 {
-public:
-
+  public:
     ArgOptions();
 
     // Uses argc and argv to initialize the members of this object.
@@ -44,7 +43,6 @@ public:
 
     // Print unrecognized warning for arg
     void PrintUnrecognizedArgWarning(const char *arg) const;
-
 
     // Accessors to parsed arguments
     //
@@ -60,23 +58,19 @@ public:
     bool GetYUp() const { return _yup; }
 
     int GetRepeatCount() const { return _repeatCount; }
-    
+
     Scheme GetDefaultScheme() const { return _defaultScheme; }
 
     const std::vector<const char *> GetObjFiles() const { return _objFiles; }
 
-    const std::vector<const char *> GetRemainingArgs() const {
-        return _remainingArgs; }
-
+    const std::vector<const char *> GetRemainingArgs() const { return _remainingArgs; }
 
     // Operations on parsed arguments
     //
 
-    size_t AppendObjShapes(std::vector<ShapeDesc>& shapes,
-                           bool warn = true) const;
+    size_t AppendObjShapes(std::vector<ShapeDesc> &shapes, bool warn = true) const;
 
-private:
-
+  private:
     bool _adaptive;
 
     bool _fullscreen;
@@ -96,7 +90,6 @@ private:
 
     // Remaining args that we have not parsed, in order that they've appeared
     std::vector<const char *> _remainingArgs;
-
 };
 
 #endif // COMMON_ARGS_H

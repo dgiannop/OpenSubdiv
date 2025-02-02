@@ -27,12 +27,12 @@
 #include "clDeviceContext.h"
 
 #if defined(_WIN32)
-    #define WIN32_LEAN_AND_MEAN
-    #include <windows.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #elif defined(__APPLE__)
-    #include <OpenGL/OpenGL.h>
+#include <OpenGL/OpenGL.h>
 #else
-    #include <GL/glx.h>
+#include <GL/glx.h>
 #endif
 
 #include <cstdio>
@@ -50,34 +50,35 @@
 
 #endif
 
-
-
-#define message(...)    // fprintf(stderr, __VA_ARGS__)
-#define error(...)  fprintf(stderr, __VA_ARGS__)
+#define message(...) // fprintf(stderr, __VA_ARGS__)
+#define error(...) fprintf(stderr, __VA_ARGS__)
 
 // returns the first found platform.
 //
-static cl_platform_id
-findPlatform() {
+static cl_platform_id findPlatform()
+{
     cl_uint numPlatforms;
-    cl_int ciErrNum = clGetPlatformIDs(0, NULL, &numPlatforms);
+    cl_int  ciErrNum = clGetPlatformIDs(0, NULL, &numPlatforms);
 
-    if (ciErrNum != CL_SUCCESS) {
+    if (ciErrNum != CL_SUCCESS)
+    {
         error("Error %d in clGetPlatformIDs call.\n", ciErrNum);
         return NULL;
     }
-    if (numPlatforms == 0) {
+    if (numPlatforms == 0)
+    {
         error("No OpenCL platform found.\n");
         return NULL;
     }
 
     cl_platform_id *clPlatformIDs = new cl_platform_id[numPlatforms];
-    ciErrNum = clGetPlatformIDs(numPlatforms, clPlatformIDs, NULL);
+    ciErrNum                      = clGetPlatformIDs(numPlatforms, clPlatformIDs, NULL);
     char chBuffer[1024];
-    for (cl_uint i = 0; i < numPlatforms; ++i) {
-        ciErrNum = clGetPlatformInfo(clPlatformIDs[i], CL_PLATFORM_NAME,
-                                     1024, chBuffer,NULL);
-        if (ciErrNum == CL_SUCCESS) {
+    for (cl_uint i = 0; i < numPlatforms; ++i)
+    {
+        ciErrNum = clGetPlatformInfo(clPlatformIDs[i], CL_PLATFORM_NAME, 1024, chBuffer, NULL);
+        if (ciErrNum == CL_SUCCESS)
+        {
             cl_platform_id platformId = clPlatformIDs[i];
             delete[] clPlatformIDs;
             return platformId;
@@ -87,36 +88,33 @@ findPlatform() {
     return NULL;
 }
 
-
 // returns the device in clDevices which supports the extension.
 //
-static int
-findExtensionSupportedDevice(cl_device_id *clDevices,
-                             int numDevices,
-                             const char *extensionName) {
+static int findExtensionSupportedDevice(cl_device_id *clDevices, int numDevices, const char *extensionName)
+{
     // find a device that supports sharing with GL/D3D11
     // (SLI / X-fire configurations)
     cl_int ciErrNum;
 
-    for (int i = 0; i < numDevices; ++i) {
+    for (int i = 0; i < numDevices; ++i)
+    {
         // get extensions string size
         size_t extensionSize;
-        ciErrNum = clGetDeviceInfo(clDevices[i],
-                                   CL_DEVICE_EXTENSIONS, 0, NULL,
-                                   &extensionSize );
+        ciErrNum = clGetDeviceInfo(clDevices[i], CL_DEVICE_EXTENSIONS, 0, NULL, &extensionSize);
 
-        if (ciErrNum != CL_SUCCESS) {
+        if (ciErrNum != CL_SUCCESS)
+        {
             error("Error %d in clGetDeviceInfo\n", ciErrNum);
             return -1;
         }
 
-        if (extensionSize>0) {
+        if (extensionSize > 0)
+        {
             // get extensions string
             char *extensions = new char[extensionSize];
-            ciErrNum = clGetDeviceInfo(clDevices[i], CL_DEVICE_EXTENSIONS,
-                                       extensionSize, extensions,
-                                       &extensionSize);
-            if (ciErrNum != CL_SUCCESS) {
+            ciErrNum         = clGetDeviceInfo(clDevices[i], CL_DEVICE_EXTENSIONS, extensionSize, extensions, &extensionSize);
+            if (ciErrNum != CL_SUCCESS)
+            {
                 error("Error %d in clGetDeviceInfo\n", ciErrNum);
                 delete[] extensions;
                 continue;
@@ -129,7 +127,8 @@ findExtensionSupportedDevice(cl_device_id *clDevices,
             //
             // The actual string would be "cl_khr_d3d11_sharing"
             //                         or "cl_nv_d3d11_sharing"
-            if (extString.find(extensionName) != std::string::npos) {
+            if (extString.find(extensionName) != std::string::npos)
+            {
                 return i;
             }
         }
@@ -139,11 +138,10 @@ findExtensionSupportedDevice(cl_device_id *clDevices,
 
 // --------------------------------------------------------------------------
 
-CLDeviceContext::CLDeviceContext() :
-    _clContext(NULL), _clCommandQueue(NULL) {
-}
+CLDeviceContext::CLDeviceContext() : _clContext(NULL), _clCommandQueue(NULL) {}
 
-CLDeviceContext::~CLDeviceContext() {
+CLDeviceContext::~CLDeviceContext()
+{
 
     if (_clCommandQueue)
         clReleaseCommandQueue(_clCommandQueue);
@@ -152,16 +150,18 @@ CLDeviceContext::~CLDeviceContext() {
 }
 
 /*static*/
-bool
-CLDeviceContext::HAS_CL_VERSION_1_1 () {
+bool CLDeviceContext::HAS_CL_VERSION_1_1()
+{
 
 #ifdef OPENSUBDIV_HAS_CLEW
     static bool clewInitialized = false;
     static bool clewLoadSuccess;
-    if (!clewInitialized) {
+    if (!clewInitialized)
+    {
         clewInitialized = true;
         clewLoadSuccess = clewInit() == CLEW_SUCCESS;
-        if (!clewLoadSuccess) {
+        if (!clewLoadSuccess)
+        {
             error("Loading OpenCL failed.\n");
         }
     }
@@ -170,71 +170,57 @@ CLDeviceContext::HAS_CL_VERSION_1_1 () {
     return true;
 }
 
-bool
-CLDeviceContext::Initialize() {
+bool CLDeviceContext::Initialize()
+{
 
 #ifdef OPENSUBDIV_HAS_CLEW
-    if (!clGetPlatformIDs) {
+    if (!clGetPlatformIDs)
+    {
         error("Error clGetPlatformIDs function not bound.\n");
         return false;
     }
 #endif
 
-    cl_int ciErrNum;
+    cl_int         ciErrNum;
     cl_platform_id cpPlatform = findPlatform();
 
 #if defined(_WIN32)
-    cl_context_properties props[] = {
-        CL_GL_CONTEXT_KHR, (cl_context_properties)wglGetCurrentContext(),
-        CL_WGL_HDC_KHR, (cl_context_properties)wglGetCurrentDC(),
-        CL_CONTEXT_PLATFORM, (cl_context_properties)cpPlatform,
-        0
-    };
+    cl_context_properties props[] = {CL_GL_CONTEXT_KHR, (cl_context_properties)wglGetCurrentContext(), CL_WGL_HDC_KHR, (cl_context_properties)wglGetCurrentDC(), CL_CONTEXT_PLATFORM, (cl_context_properties)cpPlatform, 0};
 #elif defined(__APPLE__)
-    CGLContextObj kCGLContext = CGLGetCurrentContext();
-    CGLShareGroupObj kCGLShareGroup = CGLGetShareGroup(kCGLContext);
-    cl_context_properties props[] = {
-        CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE, (cl_context_properties)kCGLShareGroup,
-        0
-    };
+    CGLContextObj         kCGLContext    = CGLGetCurrentContext();
+    CGLShareGroupObj      kCGLShareGroup = CGLGetShareGroup(kCGLContext);
+    cl_context_properties props[]        = {CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE, (cl_context_properties)kCGLShareGroup, 0};
 #else
-    cl_context_properties props[] = {
-        CL_GL_CONTEXT_KHR, (cl_context_properties)glXGetCurrentContext(),
-        CL_GLX_DISPLAY_KHR, (cl_context_properties)glXGetCurrentDisplay(),
-        CL_CONTEXT_PLATFORM, (cl_context_properties)cpPlatform,
-        0
-    };
+    cl_context_properties props[] = {CL_GL_CONTEXT_KHR, (cl_context_properties)glXGetCurrentContext(), CL_GLX_DISPLAY_KHR, (cl_context_properties)glXGetCurrentDisplay(), CL_CONTEXT_PLATFORM, (cl_context_properties)cpPlatform, 0};
 #endif
 
 #if defined(__APPLE__)
-    _clContext = clCreateContext(props, 0, NULL, clLogMessagesToStdoutAPPLE,
-                                 NULL, &ciErrNum);
-    if (ciErrNum != CL_SUCCESS) {
+    _clContext = clCreateContext(props, 0, NULL, clLogMessagesToStdoutAPPLE, NULL, &ciErrNum);
+    if (ciErrNum != CL_SUCCESS)
+    {
         error("Error %d in clCreateContext\n", ciErrNum);
         return false;
     }
 
     size_t devicesSize = 0;
-    clGetGLContextInfoAPPLE(_clContext, kCGLContext,
-                            CL_CGL_DEVICES_FOR_SUPPORTED_VIRTUAL_SCREENS_APPLE,
-                            0, NULL, &devicesSize);
+    clGetGLContextInfoAPPLE(_clContext, kCGLContext, CL_CGL_DEVICES_FOR_SUPPORTED_VIRTUAL_SCREENS_APPLE, 0, NULL, &devicesSize);
     int numDevices = int(devicesSize / sizeof(cl_device_id));
-    if (numDevices == 0) {
+    if (numDevices == 0)
+    {
         error("No sharable devices.\n");
         return false;
     }
     cl_device_id *clDevices = new cl_device_id[numDevices];
-    clGetGLContextInfoAPPLE(_clContext, kCGLContext,
-                            CL_CGL_DEVICES_FOR_SUPPORTED_VIRTUAL_SCREENS_APPLE,
-                            numDevices * sizeof(cl_device_id), clDevices, NULL);
+    clGetGLContextInfoAPPLE(_clContext, kCGLContext, CL_CGL_DEVICES_FOR_SUPPORTED_VIRTUAL_SCREENS_APPLE, numDevices * sizeof(cl_device_id), clDevices, NULL);
     int clDeviceUsed = 0;
 
-#else   // not __APPLE__
+#else // not __APPLE__
 
     // get the number of GPU devices available to the platform
     cl_uint numDevices = 0;
     clGetDeviceIDs(cpPlatform, CL_DEVICE_TYPE_GPU, 0, NULL, &numDevices);
-    if (numDevices == 0) {
+    if (numDevices == 0)
+    {
         error("No CL GPU device found.\n");
         return false;
     }
@@ -243,31 +229,31 @@ CLDeviceContext::Initialize() {
     cl_device_id *clDevices = new cl_device_id[numDevices];
     clGetDeviceIDs(cpPlatform, CL_DEVICE_TYPE_GPU, numDevices, clDevices, NULL);
 
-    const char *extension = "cl_khr_gl_sharing";
-    int clDeviceUsed = findExtensionSupportedDevice(clDevices, numDevices,
-                                                    extension);
+    const char *extension    = "cl_khr_gl_sharing";
+    int         clDeviceUsed = findExtensionSupportedDevice(clDevices, numDevices, extension);
 
-    if (clDeviceUsed < 0) {
+    if (clDeviceUsed < 0)
+    {
         error("No device found that supports CL/GL context sharing\n");
         delete[] clDevices;
         return false;
     }
 
-    _clContext = clCreateContext(props, 1, &clDevices[clDeviceUsed],
-                                 NULL, NULL, &ciErrNum);
+    _clContext = clCreateContext(props, 1, &clDevices[clDeviceUsed], NULL, NULL, &ciErrNum);
 
-#endif   // not __APPLE__
+#endif // not __APPLE__
 
-    if (ciErrNum != CL_SUCCESS) {
+    if (ciErrNum != CL_SUCCESS)
+    {
         error("Error %d in clCreateContext\n", ciErrNum);
         delete[] clDevices;
         return false;
     }
 
-    _clCommandQueue = clCreateCommandQueue(_clContext, clDevices[clDeviceUsed],
-                                    0, &ciErrNum);
+    _clCommandQueue = clCreateCommandQueue(_clContext, clDevices[clDeviceUsed], 0, &ciErrNum);
     delete[] clDevices;
-    if (ciErrNum != CL_SUCCESS) {
+    if (ciErrNum != CL_SUCCESS)
+    {
         error("Error %d in clCreateCommandQueue\n", ciErrNum);
         return false;
     }
@@ -276,38 +262,30 @@ CLDeviceContext::Initialize() {
 
 // ---------------------------------------------------------------------------
 
-bool
-CLD3D11DeviceContext::Initialize(ID3D11DeviceContext *d3dDeviceContext) {
+bool CLD3D11DeviceContext::Initialize(ID3D11DeviceContext *d3dDeviceContext)
+{
 
-#if defined(OPENSUBDIV_HAS_DX11SDK) && \
-    (defined(OPENSUBDIV_HAS_CL_D3D11_H) || defined(OPENSUBDIV_HAS_CL_D3D11_EXT_H))
+#if defined(OPENSUBDIV_HAS_DX11SDK) && (defined(OPENSUBDIV_HAS_CL_D3D11_H) || defined(OPENSUBDIV_HAS_CL_D3D11_EXT_H))
 
     _d3dDeviceContext = d3dDeviceContext;
 
-    cl_int ciErrNum;
+    cl_int         ciErrNum;
     cl_platform_id cpPlatform = findPlatform();
 
     ID3D11Device *device;
     d3dDeviceContext->GetDevice(&device);
 
 #if defined(OPENSUBDIV_HAS_CL_D3D11_H)
-    cl_context_properties props[] = {
-        CL_CONTEXT_D3D11_DEVICE_KHR, (cl_context_properties)device,
-        CL_CONTEXT_PLATFORM, (cl_context_properties)cpPlatform,
-        0
-    };
+    cl_context_properties props[] = {CL_CONTEXT_D3D11_DEVICE_KHR, (cl_context_properties)device, CL_CONTEXT_PLATFORM, (cl_context_properties)cpPlatform, 0};
 #elif defined(OPENSUBDIV_HAS_CL_D3D11_EXT_H)
-    cl_context_properties props[] = {
-        CL_CONTEXT_D3D11_DEVICE_NV, (cl_context_properties)device,
-        CL_CONTEXT_PLATFORM, (cl_context_properties)cpPlatform,
-        0
-    };
+    cl_context_properties props[] = {CL_CONTEXT_D3D11_DEVICE_NV, (cl_context_properties)device, CL_CONTEXT_PLATFORM, (cl_context_properties)cpPlatform, 0};
 #endif
 
     // get the number of GPU devices available to the platform
     cl_uint numDevices = 0;
     clGetDeviceIDs(cpPlatform, CL_DEVICE_TYPE_GPU, 0, NULL, &numDevices);
-    if (numDevices == 0) {
+    if (numDevices == 0)
+    {
         error("No CL GPU device found.\n");
         return false;
     }
@@ -318,34 +296,34 @@ CLD3D11DeviceContext::Initialize(ID3D11DeviceContext *d3dDeviceContext) {
 
     // we're cheating a little bit.
     // try to find both cl_khr_d3d11_sharing and cl_nv_d3d11_sharing.
-    const char *extension = "_d3d11_sharing";
-    int clDeviceUsed = findExtensionSupportedDevice(clDevices, numDevices,
-                                                    extension);
+    const char *extension    = "_d3d11_sharing";
+    int         clDeviceUsed = findExtensionSupportedDevice(clDevices, numDevices, extension);
 
-    if (clDeviceUsed < 0) {
+    if (clDeviceUsed < 0)
+    {
         error("No device found that supports CL/D3D11 context sharing\n");
         delete[] clDevices;
         return false;
     }
 
-    _clContext = clCreateContext(props, 1, &clDevices[clDeviceUsed],
-                                 NULL, NULL, &ciErrNum);
-    if (ciErrNum != CL_SUCCESS) {
+    _clContext = clCreateContext(props, 1, &clDevices[clDeviceUsed], NULL, NULL, &ciErrNum);
+    if (ciErrNum != CL_SUCCESS)
+    {
         error("Error %d in clCreateContext\n", ciErrNum);
         delete[] clDevices;
         return false;
     }
 
-    _clCommandQueue = clCreateCommandQueue(_clContext, clDevices[clDeviceUsed],
-                                    0, &ciErrNum);
+    _clCommandQueue = clCreateCommandQueue(_clContext, clDevices[clDeviceUsed], 0, &ciErrNum);
     delete[] clDevices;
-    if (ciErrNum != CL_SUCCESS) {
+    if (ciErrNum != CL_SUCCESS)
+    {
         error("Error %d in clCreateCommandQueue\n", ciErrNum);
         return false;
     }
     return true;
 #else
-    (void)d3dDeviceContext;  // unused
+    (void)d3dDeviceContext; // unused
     return false;
 #endif
 }

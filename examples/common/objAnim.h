@@ -29,39 +29,32 @@
 
 #include <vector>
 
-class ObjAnim {
+class ObjAnim
+{
 
-public:
-
+  public:
     // Factory function
-    static ObjAnim const * Create(std::vector<char const *> objFiles,
-                                  Scheme scheme, bool isLeftHanded=false);
+    static ObjAnim const *Create(std::vector<char const *> objFiles, Scheme scheme, bool isLeftHanded = false);
 
     // Destructor
     ~ObjAnim();
 
     // Populates 'positions' with the interpolated vertex data for a given
     // time.
-    void InterpolatePositions(float time, float * positions, int stride) const;
+    void InterpolatePositions(float time, float *positions, int stride) const;
 
     // Number of key-frames in the animation
-    int GetNumKeyframes() const {
-        return (int)_positions.size();
-    }
+    int GetNumKeyframes() const { return (int)_positions.size(); }
 
     // Returns the full 'Shape'
-    Shape const * GetShape() const {
-        return _shape;
-    }
+    Shape const *GetShape() const { return _shape; }
 
-
-private:
-
+  private:
     ObjAnim();
 
-    Shape const * _shape;
+    Shape const *_shape;
 
-    std::vector<std::vector<float> > _positions;
+    std::vector<std::vector<float>> _positions;
 };
 
 #endif // OBJ_ANIM_H

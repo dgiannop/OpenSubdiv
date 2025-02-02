@@ -25,21 +25,24 @@
 #ifndef OPENSUBDIV3_BFR_LIMITS_H
 #define OPENSUBDIV3_BFR_LIMITS_H
 
+#include "../far/types.h"
 #include "../version.h"
 
-#include "../far/types.h"
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Bfr {
+namespace Bfr
+{
 
 ///
 /// @brief Simple struct with limits related to topology
 ///
-struct Limits {
+struct Limits
+{
     /// @brief Returns the maximum allowable valence for a vertex
-    static int MaxValence()  { return Far::VALENCE_LIMIT; }
+    static int MaxValence() { return Far::VALENCE_LIMIT; }
 
     /// @brief Returns the maximum allowable size for a face (number of
     ///        vertices)

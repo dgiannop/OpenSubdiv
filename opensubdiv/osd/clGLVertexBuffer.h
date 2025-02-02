@@ -25,15 +25,17 @@
 #ifndef OPENSUBDIV3_OSD_CL_GL_VERTEX_BUFFER_H
 #define OPENSUBDIV3_OSD_CL_GL_VERTEX_BUFFER_H
 
+#include "../osd/opencl.h"
+#include "../osd/opengl.h"
 #include "../version.h"
 
-#include "../osd/opengl.h"
-#include "../osd/opencl.h"
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Osd {
+namespace Osd
+{
 
 ///
 /// \brief Concrete vertex buffer class for OpenCL subdivision and OpenGL drawing.
@@ -44,32 +46,22 @@ namespace Osd {
 /// The buffer interop between OpenCL and GL is handled automatically when a
 /// client calls BindCLBuffer and BindVBO methods.
 ///
-class CLGLVertexBuffer {
-public:
+class CLGLVertexBuffer
+{
+  public:
     /// Creator. Returns NULL if error.
-    static CLGLVertexBuffer * Create(int numElements,
-                                     int numVertices,
-                                     cl_context clContext);
+    static CLGLVertexBuffer *Create(int numElements, int numVertices, cl_context clContext);
 
-    template <typename DEVICE_CONTEXT>
-    static CLGLVertexBuffer * Create(int numElements, int numVertices,
-                                     DEVICE_CONTEXT context) {
-        return Create(numElements, numVertices, context->GetContext());
-    }
+    template <typename DEVICE_CONTEXT> static CLGLVertexBuffer *Create(int numElements, int numVertices, DEVICE_CONTEXT context) { return Create(numElements, numVertices, context->GetContext()); }
 
     /// Destructor.
     ~CLGLVertexBuffer();
 
     /// This method is meant to be used in client code in order to provide
     /// coarse vertices data to Osd.
-    void UpdateData(const float *src, int startVertex, int numVertices,
-                    cl_command_queue clQueue);
+    void UpdateData(const float *src, int startVertex, int numVertices, cl_command_queue clQueue);
 
-    template<typename DEVICE_CONTEXT>
-    void UpdateData(const float *src, int startVertex, int numVertices,
-                    DEVICE_CONTEXT context) {
-        UpdateData(src, startVertex, numVertices, context->GetCommandQueue());
-    }
+    template <typename DEVICE_CONTEXT> void UpdateData(const float *src, int startVertex, int numVertices, DEVICE_CONTEXT context) { UpdateData(src, startVertex, numVertices, context->GetCommandQueue()); }
 
     /// Returns how many elements defined in this vertex buffer.
     int GetNumElements() const;
@@ -85,7 +77,7 @@ public:
     /// space, it will be unmapped back to GL.
     GLuint BindVBO(void *deviceContext = NULL);
 
-protected:
+  protected:
     /// Constructor.
     CLGLVertexBuffer(int numElements, int numVertices, cl_context clContext);
 
@@ -99,21 +91,21 @@ protected:
     /// Releases a resource to GL.
     void unmap();
 
-private:
-    int _numElements;
-    int _numVertices;
-    GLuint _vbo;
+  private:
+    int              _numElements;
+    int              _numVertices;
+    GLuint           _vbo;
     cl_command_queue _clQueue;
-    cl_mem _clMemory;
+    cl_mem           _clMemory;
 
     bool _clMapped;
 };
 
-}  // end namespace Osd
+} // end namespace Osd
 
-}  // end namespace OPENSUBDIV_VERSION
+} // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;
 
-}  // end namespace OpenSubdiv
+} // end namespace OpenSubdiv
 
-#endif  // OPENSUBDIV3_OSD_CL_GL_VERTEX_BUFFER_H
+#endif // OPENSUBDIV3_OSD_CL_GL_VERTEX_BUFFER_H

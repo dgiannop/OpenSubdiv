@@ -27,26 +27,21 @@
 #include "glShaderCache.h"
 #include "glUtils.h"
 
-#include <vector>
 #include <opensubdiv/far/error.h>
+#include <vector>
 
-GLDrawConfig::GLDrawConfig(const std::string &version)
-    : _version(version), _numShaders(0) {
-    _program = glCreateProgram();
-}
+GLDrawConfig::GLDrawConfig(const std::string &version) : _version(version), _numShaders(0) { _program = glCreateProgram(); }
 
-
-GLDrawConfig::~GLDrawConfig() {
+GLDrawConfig::~GLDrawConfig()
+{
     if (_program)
         glDeleteProgram(_program);
 }
 
-bool
-GLDrawConfig::CompileAndAttachShader(GLenum shaderType,
-const std::string &source) {
+bool GLDrawConfig::CompileAndAttachShader(GLenum shaderType, const std::string &source)
+{
 
-
-	GLuint shader = glCreateShader(shaderType);
+    GLuint shader = glCreateShader(shaderType);
 
 #if 0
 	const char *sources[2];
@@ -54,23 +49,22 @@ const std::string &source) {
 	sources[1] = source.c_str();
 #endif
 
-	std::string sources = _version + source;
+    std::string sources = _version + source;
 
-	const char *src = sources.c_str();
+    const char *src = sources.c_str();
 
     glShaderSource(shader, 1, &src, NULL);
     glCompileShader(shader);
 
     GLint status;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-    if (status == GL_FALSE) {
+    if (status == GL_FALSE)
+    {
         GLint infoLogLength;
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
-        char * infoLog = new char[infoLogLength];
+        char *infoLog = new char[infoLogLength];
         glGetShaderInfoLog(shader, infoLogLength, NULL, infoLog);
-        OpenSubdiv::Far::Error(OpenSubdiv::Far::FAR_RUNTIME_ERROR,
-                               "Error compiling GLSL shader: %s\n",
-                               infoLog);
+        OpenSubdiv::Far::Error(OpenSubdiv::Far::FAR_RUNTIME_ERROR, "Error compiling GLSL shader: %s\n", infoLog);
         delete[] infoLog;
         return false;
     }
@@ -80,26 +74,27 @@ const std::string &source) {
     return true;
 }
 
-bool
-GLDrawConfig::Link() {
+bool GLDrawConfig::Link()
+{
     glLinkProgram(_program);
 
     std::vector<GLuint> shaders(_numShaders);
-    GLsizei count = 0;
+    GLsizei             count = 0;
     glGetAttachedShaders(_program, _numShaders, &count, &shaders[0]);
-    for (int i = 0; i < (int)count; ++i) {
+    for (int i = 0; i < (int)count; ++i)
+    {
         glDeleteShader(shaders[i]);
     }
 
     GLint status;
-    glGetProgramiv(_program, GL_LINK_STATUS, &status );
-    if (status == GL_FALSE) {
+    glGetProgramiv(_program, GL_LINK_STATUS, &status);
+    if (status == GL_FALSE)
+    {
         GLint infoLogLength;
         glGetProgramiv(_program, GL_INFO_LOG_LENGTH, &infoLogLength);
-        char * infoLog = new char[infoLogLength];
+        char *infoLog = new char[infoLogLength];
         glGetProgramInfoLog(_program, infoLogLength, NULL, infoLog);
-        OpenSubdiv::Far::Error(OpenSubdiv::Far::FAR_RUNTIME_ERROR,
-                   "Error linking GLSL program: %s\n", infoLog);
+        OpenSubdiv::Far::Error(OpenSubdiv::Far::FAR_RUNTIME_ERROR, "Error linking GLSL program: %s\n", infoLog);
         delete[] infoLog;
         return false;
     }

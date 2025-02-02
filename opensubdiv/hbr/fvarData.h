@@ -25,13 +25,15 @@
 #ifndef OPENSUBDIV3_HBRFVARDATA_H
 #define OPENSUBDIV3_HBRFVARDATA_H
 
-#include <cstring>
 #include <cmath>
+#include <cstring>
 
 #include "../version.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
 template <class T> class HbrFVarEdit;
 template <class T> class HbrFace;
@@ -40,125 +42,126 @@ template <class T> class HbrVertex;
 // This class implements a "face varying vector item". Really it's
 // just a smart wrapper around face varying data (itself just a bunch
 // of floats) stored on each vertex.
-template <class T> class HbrFVarData {
+template <class T> class HbrFVarData
+{
+  private:
+    HbrFVarData() : faceid(0), initialized(0) {}
 
-private:
-    HbrFVarData()
-        : faceid(0), initialized(0) {
-    }
+    ~HbrFVarData() { Uninitialize(); }
 
-    ~HbrFVarData() {
-        Uninitialize();
-    }
+    HbrFVarData(const HbrFVarData & /* data */) {}
 
-    HbrFVarData(const HbrFVarData &/* data */) {}
-
-public:
-    
+  public:
     // Sets the face id
-    void SetFaceID(int id) {
-        faceid = id;
-    }
+    void SetFaceID(int id) { faceid = id; }
 
     // Returns the id of the face to which this data is bound
-    int GetFaceID() const {
-        return faceid;
-    }
+    int GetFaceID() const { return faceid; }
 
     // Clears the initialized flag
-    void Uninitialize() {
+    void Uninitialize()
+    {
         initialized = 0;
-        faceid = 0;
+        faceid      = 0;
     }
 
     // Returns initialized flag
-    bool IsInitialized() const {
-        return initialized;
-    }
+    bool IsInitialized() const { return initialized; }
 
     // Sets initialized flag
-    void SetInitialized() {
-        initialized = 1;
-    }
+    void SetInitialized() { initialized = 1; }
 
     // Return the data from the NgpFVVector
-    float* GetData(int item) { return data + item; }    
+    float *GetData(int item) { return data + item; }
 
     // Clears the indicates value of this item
-    void Clear(int startindex, int width) {
-        memset(data + startindex, 0, width * sizeof(float));
-    }
+    void Clear(int startindex, int width) { memset(data + startindex, 0, width * sizeof(float)); }
 
     // Clears all values of this item
-    void ClearAll(int width) {
+    void ClearAll(int width)
+    {
         initialized = 1;
         memset(data, 0, width * sizeof(float));
     }
 
     // Set values of the indicated item (with the indicated weighing)
     // on this item
-    void SetWithWeight(const HbrFVarData& fvvi, int startindex, int width, float weight) {
-        float *dst = data + startindex;
+    void SetWithWeight(const HbrFVarData &fvvi, int startindex, int width, float weight)
+    {
+        float *      dst = data + startindex;
         const float *src = fvvi.data + startindex;
-        for (int i = 0; i < width; ++i) {
+        for (int i = 0; i < width; ++i)
+        {
             *dst++ = weight * *src++;
         }
     }
 
     // Add values of the indicated item (with the indicated weighing)
     // to this item
-    void AddWithWeight(const HbrFVarData& fvvi, int startindex, int width, float weight) {
-        float *dst = data + startindex;
+    void AddWithWeight(const HbrFVarData &fvvi, int startindex, int width, float weight)
+    {
+        float *      dst = data + startindex;
         const float *src = fvvi.data + startindex;
-        for (int i = 0; i < width; ++i) {
+        for (int i = 0; i < width; ++i)
+        {
             *dst++ += weight * *src++;
         }
     }
 
     // Add all values of the indicated item (with the indicated
     // weighing) to this item
-    void AddWithWeightAll(const HbrFVarData& fvvi, int width, float weight) {
-        float *dst = data;
+    void AddWithWeightAll(const HbrFVarData &fvvi, int width, float weight)
+    {
+        float *      dst = data;
         const float *src = fvvi.data;
-        for (int i = 0; i < width; ++i) {
+        for (int i = 0; i < width; ++i)
+        {
             *dst++ += weight * *src++;
         }
     }
 
     // Compare all values item against a float buffer. Returns true
     // if all values match
-    bool CompareAll(int width, const float *values, float tolerance=0.0f) const {
-        if (!initialized) return false;
-        for (int i = 0; i < width; ++i) {
-            if (fabsf(values[i] - data[i]) > tolerance) return false;
+    bool CompareAll(int width, const float *values, float tolerance = 0.0f) const
+    {
+        if (!initialized)
+            return false;
+        for (int i = 0; i < width; ++i)
+        {
+            if (fabsf(values[i] - data[i]) > tolerance)
+                return false;
         }
         return true;
     }
 
     // Initializes data
-    void SetAllData(int width, const float *values) {
+    void SetAllData(int width, const float *values)
+    {
         initialized = 1;
         memcpy(data, values, width * sizeof(float));
     }
 
     // Compare this item against another item with tolerance.  Returns
     // true if it compares identical
-    bool Compare(const HbrFVarData& fvvi, int startindex, int width, float tolerance=0.0f) const {
-        for (int i = 0; i < width; ++i) {
-            if (fabsf(data[startindex + i] - fvvi.data[startindex + i]) > tolerance) return false;
+    bool Compare(const HbrFVarData &fvvi, int startindex, int width, float tolerance = 0.0f) const
+    {
+        for (int i = 0; i < width; ++i)
+        {
+            if (fabsf(data[startindex + i] - fvvi.data[startindex + i]) > tolerance)
+                return false;
         }
         return true;
     }
 
     // Modify the data of the item with an edit
-    void ApplyFVarEdit(const HbrFVarEdit<T>& edit);
+    void ApplyFVarEdit(const HbrFVarEdit<T> &edit);
 
     friend class HbrVertex<T>;
-    
-private:
-    unsigned int faceid:31;
-    unsigned int initialized:1;
-    float data[1];
+
+  private:
+    unsigned int faceid : 31;
+    unsigned int initialized : 1;
+    float        data[1];
 };
 
 } // end namespace OPENSUBDIV_VERSION
@@ -168,29 +171,31 @@ using namespace OPENSUBDIV_VERSION;
 
 #include "../hbr/fvarEdit.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-template <class T>
-void
-HbrFVarData<T>::ApplyFVarEdit(const HbrFVarEdit<T>& edit) {
-        float *dst = data + edit.GetIndex() + edit.GetOffset();
-        const float *src = edit.GetEdit();
-        for (int i = 0; i < edit.GetWidth(); ++i) {
-            switch(edit.GetOperation()) {
-                case HbrVertexEdit<T>::Set:
-                    *dst++ = *src++;
-                    break;
-                case HbrVertexEdit<T>::Add:
-                    *dst++ += *src++;
-                    break;
-                case HbrVertexEdit<T>::Subtract:
-                    *dst++ -= *src++;
-            }
+template <class T> void HbrFVarData<T>::ApplyFVarEdit(const HbrFVarEdit<T> &edit)
+{
+    float *      dst = data + edit.GetIndex() + edit.GetOffset();
+    const float *src = edit.GetEdit();
+    for (int i = 0; i < edit.GetWidth(); ++i)
+    {
+        switch (edit.GetOperation())
+        {
+        case HbrVertexEdit<T>::Set:
+            *dst++ = *src++;
+            break;
+        case HbrVertexEdit<T>::Add:
+            *dst++ += *src++;
+            break;
+        case HbrVertexEdit<T>::Subtract:
+            *dst++ -= *src++;
         }
-        initialized = 1;
     }
-
+    initialized = 1;
+}
 
 } // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;

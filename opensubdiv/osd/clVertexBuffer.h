@@ -25,13 +25,16 @@
 #ifndef OPENSUBDIV3_OSD_CL_VERTEX_BUFFER_H
 #define OPENSUBDIV3_OSD_CL_VERTEX_BUFFER_H
 
-#include "../version.h"
 #include "../osd/opencl.h"
+#include "../version.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Osd {
+namespace Osd
+{
 
 ///
 /// \brief Concrete vertex buffer class for OpenCL subdivision.
@@ -39,30 +42,23 @@ namespace Osd {
 /// CLVertexBuffer implements CLVertexBufferInterface. An instance of this
 /// buffer class can be passed to CLEvaluator
 ///
-class CLVertexBuffer {
-
-public:
+class CLVertexBuffer
+{
+  public:
     /// Creator. Returns NULL if error.
-    static CLVertexBuffer * Create(int numElements, int numVertices, cl_context clContext);
+    static CLVertexBuffer *Create(int numElements, int numVertices, cl_context clContext);
 
-    template <typename DEVICE_CONTEXT>
-    static CLVertexBuffer * Create(int numElements, int numVertices,
-                                   DEVICE_CONTEXT context) {
-        return Create(numElements, numVertices, context->GetContext());
-    }
+    template <typename DEVICE_CONTEXT> static CLVertexBuffer *Create(int numElements, int numVertices, DEVICE_CONTEXT context) { return Create(numElements, numVertices, context->GetContext()); }
 
     /// Destructor.
     ~CLVertexBuffer();
 
     /// This method is meant to be used in client code in order to provide coarse
     /// vertices data to Osd.
-    void UpdateData(const float *src, int startVertex, int numVertices, cl_command_queue clQueue, 
-        cl_event* startEvents = NULL, unsigned int numStartEvents = 0, cl_event* endEvent = NULL);
+    void UpdateData(const float *src, int startVertex, int numVertices, cl_command_queue clQueue, cl_event *startEvents = NULL, unsigned int numStartEvents = 0, cl_event *endEvent = NULL);
 
-    template<typename DEVICE_CONTEXT>
-    void UpdateData(const float *src, int startVertex, int numVertices,
-                    DEVICE_CONTEXT context, 
-                    cl_event* startEvents = NULL, unsigned int numStartEvents = 0, cl_event* endEvent = NULL) {
+    template <typename DEVICE_CONTEXT> void UpdateData(const float *src, int startVertex, int numVertices, DEVICE_CONTEXT context, cl_event *startEvents = NULL, unsigned int numStartEvents = 0, cl_event *endEvent = NULL)
+    {
         UpdateData(src, startVertex, numVertices, context->GetCommandQueue(), startEvents, numStartEvents, endEvent);
     }
 
@@ -75,7 +71,7 @@ public:
     /// Returns the CL memory object.
     cl_mem BindCLBuffer(cl_command_queue queue);
 
-protected:
+  protected:
     /// Constructor.
     CLVertexBuffer(int numElements, int numVertices, cl_context clContext);
 
@@ -83,17 +79,17 @@ protected:
     /// Returns true if success.
     bool allocate(cl_context clContext);
 
-private:
-    int _numElements;
-    int _numVertices;
+  private:
+    int    _numElements;
+    int    _numVertices;
     cl_mem _clMemory;
 };
 
-}  // end namespace Osd
+} // end namespace Osd
 
-}  // end namespace OPENSUBDIV_VERSION
+} // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;
 
-}  // end namespace OpenSubdiv
+} // end namespace OpenSubdiv
 
-#endif  // OPENSUBDIV3_OSD_CL_VERTEX_BUFFER_H
+#endif // OPENSUBDIV3_OSD_CL_VERTEX_BUFFER_H

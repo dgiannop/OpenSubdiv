@@ -25,21 +25,24 @@
 #ifndef OPENSUBDIV3_OSD_CUDA_PATCH_TABLE_H
 #define OPENSUBDIV3_OSD_CUDA_PATCH_TABLE_H
 
-#include "../version.h"
+#include <vector>
 
 #include "../osd/nonCopyable.h"
 #include "../osd/types.h"
+#include "../version.h"
 
-#include <vector>
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Far{
-    class PatchTable;
+namespace Far
+{
+class PatchTable;
 };
 
-namespace Osd {
+namespace Osd
+{
 
 /// \brief CUDA patch table
 ///
@@ -48,11 +51,11 @@ namespace Osd {
 /// CudaEvaluator consumes this table to evaluate on the patches.
 ///
 ///
-class CudaPatchTable : private NonCopyable<CudaPatchTable> {
-public:
+class CudaPatchTable : private NonCopyable<CudaPatchTable>
+{
+  public:
     /// Creator. Returns NULL if error
-    static CudaPatchTable *Create(Far::PatchTable const *patchTable,
-                                  void *deviceContext = NULL);
+    static CudaPatchTable *Create(Far::PatchTable const *patchTable, void *deviceContext = NULL);
     /// Destructor
     ~CudaPatchTable();
 
@@ -66,33 +69,23 @@ public:
     void *GetPatchParamBuffer() const { return _patchParamBuffer; }
 
     /// Returns the cuda memory of the array of Osd::PatchArray buffer
-    void *GetVaryingPatchArrayBuffer() const {
-        return _varyingPatchArrays;
-    }
+    void *GetVaryingPatchArrayBuffer() const { return _varyingPatchArrays; }
     /// Returns the cuda memory of the array of varying control vertices
-    void *GetVaryingPatchIndexBuffer() const {
-        return _varyingIndexBuffer;
-    }
+    void *GetVaryingPatchIndexBuffer() const { return _varyingIndexBuffer; }
 
     /// Returns the number of face-varying channels buffers
     int GetNumFVarChannels() const { return (int)_fvarPatchArrays.size(); }
 
     /// Returns the cuda memory of the array of Osd::PatchArray buffer
-    void *GetFVarPatchArrayBuffer(int fvarChannel) const {
-        return _fvarPatchArrays[fvarChannel];
-    }
+    void *GetFVarPatchArrayBuffer(int fvarChannel) const { return _fvarPatchArrays[fvarChannel]; }
 
     /// Returns the cuda memory of the array of face-varying control vertices
-    void *GetFVarPatchIndexBuffer(int fvarChannel = 0) const {
-        return _fvarIndexBuffers[fvarChannel];
-    }
+    void *GetFVarPatchIndexBuffer(int fvarChannel = 0) const { return _fvarIndexBuffers[fvarChannel]; }
 
     /// Returns the cuda memory of the array of face-varying param
-    void *GetFVarPatchParamBuffer(int fvarChannel = 0) const {
-        return _fvarParamBuffers[fvarChannel];
-    }
+    void *GetFVarPatchParamBuffer(int fvarChannel = 0) const { return _fvarParamBuffers[fvarChannel]; }
 
-protected:
+  protected:
     CudaPatchTable();
 
     bool allocate(Far::PatchTable const *patchTable);
@@ -109,11 +102,11 @@ protected:
     std::vector<void *> _fvarParamBuffers;
 };
 
-}  // end namespace Osd
+} // end namespace Osd
 
-}  // end namespace OPENSUBDIV_VERSION
+} // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;
 
-}  // end namespace OpenSubdiv
+} // end namespace OpenSubdiv
 
-#endif  // OPENSUBDIV3_OSD_CUDA_PATCH_TABLE_H
+#endif // OPENSUBDIV3_OSD_CUDA_PATCH_TABLE_H

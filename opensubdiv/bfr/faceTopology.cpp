@@ -23,38 +23,33 @@
 //
 
 #include "../bfr/faceTopology.h"
+
+#include <cstdio>
+#include <cstring>
+
 #include "../sdc/crease.h"
 
-#include <cstring>
-#include <cstdio>
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Bfr {
-
+namespace Bfr
+{
 
 //
 //  Constructor needs the same Sdc scheme/options as the SurfaceFactory
 //  to support internal work -- may need to figure another way to assign
 //  these if we later need a default constructor for some purpose...
 //
-FaceTopology::FaceTopology(Sdc::SchemeType schemeType,
-                           Sdc::Options schemeOptions) :
-    _schemeType(schemeType),
-    _schemeOptions(schemeOptions),
-    _regFaceSize(Sdc::SchemeTypeTraits::GetRegularFaceSize(schemeType)),
-    _isInitialized(false) {
-
-}
+FaceTopology::FaceTopology(Sdc::SchemeType schemeType, Sdc::Options schemeOptions) : _schemeType(schemeType), _schemeOptions(schemeOptions), _regFaceSize(Sdc::SchemeTypeTraits::GetRegularFaceSize(schemeType)), _isInitialized(false) {}
 
 //
 //  Main initialize/finalize used by base factory to delimit assignment:
 //
-void
-FaceTopology::Initialize(int faceSize) {
-
-    _faceSize = faceSize;
+void FaceTopology::Initialize(int faceSize)
+{
+    _faceSize          = faceSize;
     _numFaceVertsTotal = 0;
 
     _combinedTag.Clear();
@@ -65,9 +60,8 @@ FaceTopology::Initialize(int faceSize) {
     _corner.SetSize(faceSize);
 }
 
-void
-FaceTopology::Finalize() {
-
+void FaceTopology::Finalize()
+{
     //
     //  Inspect all corner vertex topologies -- accumulating the presence
     //  of irregular features for the face and assigning other internal
@@ -84,8 +78,9 @@ FaceTopology::Finalize() {
     //
     assert(_isInitialized);
 
-    for (int i = 0; i < _faceSize; ++i) {
-        FaceVertex & cTop  = GetTopology(i);
+    for (int i = 0; i < _faceSize; ++i)
+    {
+        FaceVertex &cTop = GetTopology(i);
 
         _combinedTag.Combine(cTop.GetTag());
 
@@ -95,9 +90,8 @@ FaceTopology::Finalize() {
     _isFinalized = true;
 }
 
-void
-FaceTopology::ResolveUnOrderedCorners(Index const fvIndices[]) {
-
+void FaceTopology::ResolveUnOrderedCorners(Index const fvIndices[])
+{
     //
     //  Inspect and deal with any corner that did not have its incident
     //  faces specified in counter-clockwise order (and so which may be
@@ -109,11 +103,13 @@ FaceTopology::ResolveUnOrderedCorners(Index const fvIndices[]) {
     //  sharpening or the presence of boundaries edges.
     //
     _combinedTag.Clear();
- 
-    for (int i = 0; i < _faceSize; ++i) {
-        FaceVertex & cTop = GetTopology(i);
 
-        if (cTop.GetTag().IsUnOrdered()) {
+    for (int i = 0; i < _faceSize; ++i)
+    {
+        FaceVertex &cTop = GetTopology(i);
+
+        if (cTop.GetTag().IsUnOrdered())
+        {
             cTop.ConnectUnOrderedFaces(fvIndices);
         }
 
@@ -123,10 +119,9 @@ FaceTopology::ResolveUnOrderedCorners(Index const fvIndices[]) {
     }
 }
 
-void
-FaceTopology::print(Index const faceVertIndices[]) const {
-
-    MultiVertexTag const & tag = _combinedTag;
+void FaceTopology::print(Index const faceVertIndices[]) const
+{
+    MultiVertexTag const &tag = _combinedTag;
 
     printf("FaceTopology:\n");
     printf("    face size      = %d\n", _faceSize);
@@ -141,22 +136,25 @@ FaceTopology::print(Index const faceVertIndices[]) const {
     printf("    irregular faces  = %d\n", tag.HasIrregularFaceSizes());
     printf("    unordered verts  = %d\n", tag.HasUnOrderedVertices());
 
-    if (faceVertIndices) {
-        Index const * cornerFaceVertIndices = faceVertIndices;
+    if (faceVertIndices)
+    {
+        Index const *cornerFaceVertIndices = faceVertIndices;
 
-        for (int i = 0; i < _faceSize; ++i) {
+        for (int i = 0; i < _faceSize; ++i)
+        {
             printf("    corner %d:\n", i);
 
-            FaceVertex const & cTop = GetTopology(i);
-            printf("        topology:  num faces  = %d, boundary = %d\n",
-                    cTop.GetNumFaces(), cTop.GetTag().IsBoundary());
+            FaceVertex const &cTop = GetTopology(i);
+            printf("        topology:  num faces  = %d, boundary = %d\n", cTop.GetNumFaces(), cTop.GetTag().IsBoundary());
 
             printf("        face-vert indices:\n");
 
-            for (int j = 0, n = 0; j < cTop.GetNumFaces(); ++j) {
+            for (int j = 0, n = 0; j < cTop.GetNumFaces(); ++j)
+            {
                 printf("        face %d:  ", j);
                 int S = cTop.GetFaceSize(j);
-                for (int k = 0; k < S; ++k, ++n) {
+                for (int k = 0; k < S; ++k, ++n)
+                {
                     printf("%3d", cornerFaceVertIndices[n]);
                 }
                 printf("\n");

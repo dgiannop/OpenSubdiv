@@ -27,19 +27,22 @@
 
 #include "../version.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Far {
+namespace Far
+{
 
-typedef enum {
-    FAR_NO_ERROR,               ///< No error. Move along.
-    FAR_FATAL_ERROR,            ///< Issue a fatal error and end the program.
-    FAR_INTERNAL_CODING_ERROR,  ///< Issue an internal programming error, but continue execution.
-    FAR_CODING_ERROR,           ///< Issue a generic programming error, but continue execution.
-    FAR_RUNTIME_ERROR           ///< Issue a generic runtime error, but continue execution.
+typedef enum
+{
+    FAR_NO_ERROR,              ///< No error. Move along.
+    FAR_FATAL_ERROR,           ///< Issue a fatal error and end the program.
+    FAR_INTERNAL_CODING_ERROR, ///< Issue an internal programming error, but continue execution.
+    FAR_CODING_ERROR,          ///< Issue a generic programming error, but continue execution.
+    FAR_RUNTIME_ERROR          ///< Issue a generic runtime error, but continue execution.
 } ErrorType;
-
 
 /// \brief The error callback function type (default is "printf")
 typedef void (*ErrorCallbackFunc)(ErrorType err, const char *message);
@@ -52,7 +55,6 @@ typedef void (*ErrorCallbackFunc)(ErrorType err, const char *message);
 ///
 void SetErrorCallback(ErrorCallbackFunc func);
 
-
 /// \brief The warning callback function type (default is "printf")
 typedef void (*WarningCallbackFunc)(const char *message);
 
@@ -63,7 +65,6 @@ typedef void (*WarningCallbackFunc)(const char *message);
 /// @param func function pointer to the callback function
 ///
 void SetWarningCallback(WarningCallbackFunc func);
-
 
 //
 //  The following are intended for internal use only (and will eventually
@@ -84,8 +85,7 @@ void Error(ErrorType err, const char *format, ...);
 ///
 void Warning(const char *format, ...);
 
-
-} // end namespace
+} // namespace Far
 
 } // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;

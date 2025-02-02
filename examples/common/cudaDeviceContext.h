@@ -27,8 +27,9 @@
 
 struct ID3D11Device;
 
-class CudaDeviceContext {
-public:
+class CudaDeviceContext
+{
+  public:
     CudaDeviceContext();
     ~CudaDeviceContext();
 
@@ -39,12 +40,10 @@ public:
     bool Initialize(ID3D11Device *device);
 
     /// Returns true if the cuda device has already been initialized
-    bool IsInitialized() const {
-        return _initialized;
-    }
+    bool IsInitialized() const { return _initialized; }
 
-private:
+  private:
     bool _initialized;
 };
 
-#endif  // OSD_EXAMPLES_COMMON_CUDA_DEVICE_CONTEXT_H
+#endif // OSD_EXAMPLES_COMMON_CUDA_DEVICE_CONTEXT_H

@@ -25,8 +25,8 @@
 #include <regression/common/shape_utils.h>
 #include <regression/shapes/all.h>
 
-static void
-initShapesAll(std::vector<ShapeDesc> & shapes) {
+static void initShapesAll(std::vector<ShapeDesc> &shapes)
+{
 
     shapes.push_back(ShapeDesc("catmark_cube", catmark_cube, kCatmark));
     shapes.push_back(ShapeDesc("catmark_cube_corner0", catmark_cube_corner0, kCatmark));
@@ -144,6 +144,6 @@ initShapesAll(std::vector<ShapeDesc> & shapes) {
     shapes.push_back(ShapeDesc("catmark_car", catmark_car, kCatmark));
     shapes.push_back(ShapeDesc("catmark_rook", catmark_rook, kCatmark));
     shapes.push_back(ShapeDesc("catmark_bishop", catmark_bishop, kCatmark));
-//  shapes.push_back(ShapeDesc("catmark_pole360", catmark_pole360, kCatmark));
-//  shapes.push_back(ShapeDesc("loop_pole360", loop_pole360, kLoop));
+    //  shapes.push_back(ShapeDesc("catmark_pole360", catmark_pole360, kCatmark));
+    //  shapes.push_back(ShapeDesc("loop_pole360", loop_pole360, kLoop));
 }

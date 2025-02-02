@@ -25,22 +25,25 @@
 #ifndef OPENSUBDIV3_OSD_CL_PATCH_TABLE_H
 #define OPENSUBDIV3_OSD_CL_PATCH_TABLE_H
 
-#include "../version.h"
-
-#include "../osd/opencl.h"
-#include "../osd/nonCopyable.h"
-#include "../osd/types.h"
-
 #include <vector>
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+#include "../osd/nonCopyable.h"
+#include "../osd/opencl.h"
+#include "../osd/types.h"
+#include "../version.h"
 
-namespace Far{
-    class PatchTable;
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
+
+namespace Far
+{
+class PatchTable;
 };
 
-namespace Osd {
+namespace Osd
+{
 
 /// \brief CL patch table
 ///
@@ -49,17 +52,13 @@ namespace Osd {
 /// CLEvaluator consumes this table to evaluate on the patches.
 ///
 ///
-class CLPatchTable : private NonCopyable<CLPatchTable> {
-public:
+class CLPatchTable : private NonCopyable<CLPatchTable>
+{
+  public:
     /// Creator. Returns NULL if error
-    static CLPatchTable *Create(Far::PatchTable const *patchTable,
-                                cl_context clContext);
+    static CLPatchTable *Create(Far::PatchTable const *patchTable, cl_context clContext);
 
-    template <typename DEVICE_CONTEXT>
-    static CLPatchTable * Create(Far::PatchTable const *patchTable,
-                                 DEVICE_CONTEXT context) {
-        return Create(patchTable, context->GetContext());
-    }
+    template <typename DEVICE_CONTEXT> static CLPatchTable *Create(Far::PatchTable const *patchTable, DEVICE_CONTEXT context) { return Create(patchTable, context->GetContext()); }
 
     /// Destructor
     ~CLPatchTable();
@@ -91,7 +90,7 @@ public:
     /// Returns the CL memory of the array of Osd::PatchParam buffer
     cl_mem GetFVarPatchParamBuffer(int fvarChannel = 0) const { return _fvarParamBuffers[fvarChannel]; }
 
-protected:
+  protected:
     CLPatchTable();
 
     bool allocate(Far::PatchTable const *patchTable, cl_context clContext);
@@ -106,14 +105,13 @@ protected:
     std::vector<cl_mem> _fvarPatchArrays;
     std::vector<cl_mem> _fvarIndexBuffers;
     std::vector<cl_mem> _fvarParamBuffers;
-
 };
 
-}  // end namespace Osd
+} // end namespace Osd
 
-}  // end namespace OPENSUBDIV_VERSION
+} // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;
 
-}  // end namespace OpenSubdiv
+} // end namespace OpenSubdiv
 
-#endif  // OPENSUBDIV3_OSD_CL_PATCH_TABLE_H
+#endif // OPENSUBDIV3_OSD_CL_PATCH_TABLE_H

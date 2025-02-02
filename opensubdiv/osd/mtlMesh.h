@@ -25,15 +25,17 @@
 #ifndef OPENSUBDIV3_OSD_MTL_MESH_H
 #define OPENSUBDIV3_OSD_MTL_MESH_H
 
-#include "../version.h"
 #include "../osd/mesh.h"
 #include "../osd/mtlPatchTable.h"
+#include "../version.h"
 
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Osd {
+namespace Osd
+{
 
 typedef MeshInterface<MTLPatchTable> MTLMeshInterface;
 

@@ -24,14 +24,16 @@
 #ifndef OPENSUBDIV3_SDC_CREASE_H
 #define OPENSUBDIV3_SDC_CREASE_H
 
+#include "../sdc/options.h"
 #include "../version.h"
 
-#include "../sdc/options.h"
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Sdc {
+namespace Sdc
+{
 
 ///
 ///  \brief Types, constants and utilities related to semi-sharp creasing -- whose implementation
@@ -59,17 +61,18 @@ namespace Sdc {
 ///  the sharpness values first, so keeping them available for re-use is a worthwhile consideration.
 ///
 
-class Crease {
-public:
+class Crease
+{
+  public:
     //@{
     ///  Constants and related queries of sharpness values:
     ///
-    static float const SHARPNESS_SMOOTH;    // =  0.0f, do we really need this?
-    static float const SHARPNESS_INFINITE;  // = 10.0f;
+    static float const SHARPNESS_SMOOTH;   // =  0.0f, do we really need this?
+    static float const SHARPNESS_INFINITE; // = 10.0f;
 
-    static bool IsSmooth(float sharpness)    { return sharpness <= SHARPNESS_SMOOTH; }
-    static bool IsSharp(float sharpness)     { return sharpness > SHARPNESS_SMOOTH; }
-    static bool IsInfinite(float sharpness)  { return sharpness >= SHARPNESS_INFINITE; }
+    static bool IsSmooth(float sharpness) { return sharpness <= SHARPNESS_SMOOTH; }
+    static bool IsSharp(float sharpness) { return sharpness > SHARPNESS_SMOOTH; }
+    static bool IsInfinite(float sharpness) { return sharpness >= SHARPNESS_INFINITE; }
     static bool IsSemiSharp(float sharpness) { return (SHARPNESS_SMOOTH < sharpness) && (sharpness < SHARPNESS_INFINITE); }
     //@}
 
@@ -79,7 +82,8 @@ public:
     ///  useful to use bitwise operations to inspect collections of vertices (i.e. all of the
     ///  vertices incident a particular face).
     ///
-    enum Rule {
+    enum Rule
+    {
         RULE_UNKNOWN = 0,
         RULE_SMOOTH  = (1 << 0),
         RULE_DART    = (1 << 1),
@@ -87,10 +91,10 @@ public:
         RULE_CORNER  = (1 << 3)
     };
 
-public:
-    Crease() : _options() { }
-    Crease(Options const& options) : _options(options) { }
-    ~Crease() { }
+  public:
+    Crease() : _options() {}
+    Crease(Options const &options) : _options(options) {}
+    ~Crease() {}
 
     bool IsUniform() const { return _options.GetCreasingMethod() == Options::CREASE_UNIFORM; }
 
@@ -105,8 +109,8 @@ public:
     float SharpenBoundaryVertex(float edgeSharpness) const;
 
     //  For future consideration
-    //float SharpenNonManifoldEdge(float edgeSharpness) const;
-    //float SharpenNonManifoldVertex(float edgeSharpness) const;
+    // float SharpenNonManifoldEdge(float edgeSharpness) const;
+    // float SharpenNonManifoldVertex(float edgeSharpness) const;
     //@}
 
     //@{
@@ -125,13 +129,9 @@ public:
 
     float SubdivideVertexSharpness(float vertexSharpness) const;
 
-    float SubdivideEdgeSharpnessAtVertex(float        edgeSharpness,
-                                         int          incidentEdgeCountAtEndVertex,
-                                         float const* edgeSharpnessAroundEndVertex) const;
+    float SubdivideEdgeSharpnessAtVertex(float edgeSharpness, int incidentEdgeCountAtEndVertex, float const *edgeSharpnessAroundEndVertex) const;
 
-    void SubdivideEdgeSharpnessesAroundVertex(int          incidentEdgeCountAtVertex,
-                                              float const* incidentEdgeSharpnessAroundVertex,
-                                              float*       childEdgesSharpnessAroundVertex) const;
+    void SubdivideEdgeSharpnessesAroundVertex(int incidentEdgeCountAtVertex, float const *incidentEdgeSharpnessAroundVertex, float *childEdgesSharpnessAroundVertex) const;
     //@}
 
     //@{
@@ -141,11 +141,8 @@ public:
     ///  and provided.  In particular, the Smooth case dominates and is known to be applicable
     ///  based on the origin of the vertex without inspection of sharpness.
     ///
-    Rule DetermineVertexVertexRule(float        vertexSharpness,
-                                   int          incidentEdgeCount,
-                                   float const* incidentEdgeSharpness) const;
-    Rule DetermineVertexVertexRule(float        vertexSharpness,
-                                   int          sharpEdgeCount) const;
+    Rule DetermineVertexVertexRule(float vertexSharpness, int incidentEdgeCount, float const *incidentEdgeSharpness) const;
+    Rule DetermineVertexVertexRule(float vertexSharpness, int sharpEdgeCount) const;
     //@}
 
     ///  \brief Transitional weighting:
@@ -159,35 +156,27 @@ public:
     ///      So to properly determine a transitional weight, sharpness values for both the
     ///  parent and child must be inspected, combined and clamped accordingly.
     ///
-    float ComputeFractionalWeightAtVertex(float        vertexSharpness,
-                                          float        childVertexSharpness,
-                                          int          incidentEdgeCount,
-                                          float const* incidentEdgeSharpness,
-                                          float const* childEdgesSharpness) const;
+    float ComputeFractionalWeightAtVertex(float vertexSharpness, float childVertexSharpness, int incidentEdgeCount, float const *incidentEdgeSharpness, float const *childEdgesSharpness) const;
 
-    void GetSharpEdgePairOfCrease(float const * incidentEdgeSharpness,
-                                  int           incidentEdgeCount,
-                                  int           sharpEdgePair[2]) const;
+    void GetSharpEdgePairOfCrease(float const *incidentEdgeSharpness, int incidentEdgeCount, int sharpEdgePair[2]) const;
 
     //  Would these really help?  Maybe only need Rules for the vertex-vertex case...
     //
     //  Rule DetermineEdgeVertexRule(float parentEdgeSharpness) const;
     //  Rule DetermineEdgeVertexRule(float childEdge1Sharpness, float childEdge2Sharpness) const;
 
-protected:
+  protected:
     float decrementSharpness(float sharpness) const;
 
-private:
+  private:
     Options _options;
 };
-
 
 //
 //  Inline declarations:
 //
-inline float
-Crease::SharpenBoundaryEdge(float /* edgeSharpness */) const {
-
+inline float Crease::SharpenBoundaryEdge(float /* edgeSharpness */) const
+{
     //
     //  Despite the presence of the BOUNDARY_NONE option, boundary edges are always sharpened.
     //  Much of the code relies on sharpness to indicate boundaries to avoid the more complex
@@ -196,49 +185,38 @@ Crease::SharpenBoundaryEdge(float /* edgeSharpness */) const {
     return SHARPNESS_INFINITE;
 }
 
-inline float
-Crease::SharpenBoundaryVertex(float vertexSharpness) const {
+inline float Crease::SharpenBoundaryVertex(float vertexSharpness) const { return (_options.GetVtxBoundaryInterpolation() == Options::VTX_BOUNDARY_EDGE_AND_CORNER) ? SHARPNESS_INFINITE : vertexSharpness; }
 
-    return (_options.GetVtxBoundaryInterpolation() == Options::VTX_BOUNDARY_EDGE_AND_CORNER) ?
-            SHARPNESS_INFINITE : vertexSharpness;
-}
-
-inline float
-Crease::decrementSharpness(float sharpness) const {
-
-    if (IsSmooth(sharpness)) return Crease::SHARPNESS_SMOOTH;  // redundant but most common
-    if (IsInfinite(sharpness)) return Crease::SHARPNESS_INFINITE;
-    if (sharpness > 1.0f) return (sharpness - 1.0f);
+inline float Crease::decrementSharpness(float sharpness) const
+{
+    if (IsSmooth(sharpness))
+        return Crease::SHARPNESS_SMOOTH; // redundant but most common
+    if (IsInfinite(sharpness))
+        return Crease::SHARPNESS_INFINITE;
+    if (sharpness > 1.0f)
+        return (sharpness - 1.0f);
     return Crease::SHARPNESS_SMOOTH;
 }
 
-inline float
-Crease::SubdivideUniformSharpness(float vertexOrEdgeSharpness) const {
+inline float Crease::SubdivideUniformSharpness(float vertexOrEdgeSharpness) const { return decrementSharpness(vertexOrEdgeSharpness); }
 
-    return decrementSharpness(vertexOrEdgeSharpness);
-}
+inline float Crease::SubdivideVertexSharpness(float vertexSharpness) const { return decrementSharpness(vertexSharpness); }
 
-inline float
-Crease::SubdivideVertexSharpness(float vertexSharpness) const {
-
-    return decrementSharpness(vertexSharpness);
-}
-
-inline void
-Crease::GetSharpEdgePairOfCrease(float const * incidentEdgeSharpness, int incidentEdgeCount,
-                                 int sharpEdgePair[2]) const {
-
+inline void Crease::GetSharpEdgePairOfCrease(float const *incidentEdgeSharpness, int incidentEdgeCount, int sharpEdgePair[2]) const
+{
     //  Only to be called when a crease is present at a vertex -- exactly two sharp
     //  edges are expected here:
     //
     sharpEdgePair[0] = 0;
-    while (IsSmooth(incidentEdgeSharpness[sharpEdgePair[0]])) ++ sharpEdgePair[0];
+    while (IsSmooth(incidentEdgeSharpness[sharpEdgePair[0]]))
+        ++sharpEdgePair[0];
 
     sharpEdgePair[1] = incidentEdgeCount - 1;
-    while (IsSmooth(incidentEdgeSharpness[sharpEdgePair[1]])) -- sharpEdgePair[1];
+    while (IsSmooth(incidentEdgeSharpness[sharpEdgePair[1]]))
+        --sharpEdgePair[1];
 }
 
-} // end namespace sdc
+} // namespace Sdc
 
 } // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;

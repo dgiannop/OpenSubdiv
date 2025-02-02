@@ -1,0 +1,11 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+BreakBeforeBraces: Allman
+SpaceBeforeParens: true
+SpaceAfterControlStatementKeyword: true
+IndentWidth: 4
+ColumnLimit: 256
+SortIncludes: true
+AllowShortIfStatementsOnASingleLine: false
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true

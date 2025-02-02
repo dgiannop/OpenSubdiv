@@ -22,7 +22,6 @@
 //   language governing permissions and limitations under the Apache License.
 //
 
-
 //------------------------------------------------------------------------------
 // Tutorial description:
 //
@@ -30,8 +29,8 @@
 // refine it uniformly and then interpolate additional sets of primvar data.
 //
 
-#include <opensubdiv/far/topologyDescriptor.h>
 #include <opensubdiv/far/primvarRefiner.h>
+#include <opensubdiv/far/topologyDescriptor.h>
 
 #include <cstdio>
 
@@ -47,33 +46,32 @@
 // primvar, e.g. it is constrained to being linearly interpolated between
 // vertices, rather than smoothly like position and other vertex data.
 //
-struct Point3 {
+struct Point3
+{
 
     // Minimal required interface ----------------------
-    Point3() { }
+    Point3() {}
 
-    void Clear( void * =0 ) {
-        _point[0]=_point[1]=_point[2]=0.0f;
-    }
+    void Clear(void * = 0) { _point[0] = _point[1] = _point[2] = 0.0f; }
 
-    void AddWithWeight(Point3 const & src, float weight) {
-        _point[0]+=weight*src._point[0];
-        _point[1]+=weight*src._point[1];
-        _point[2]+=weight*src._point[2];
+    void AddWithWeight(Point3 const &src, float weight)
+    {
+        _point[0] += weight * src._point[0];
+        _point[1] += weight * src._point[1];
+        _point[2] += weight * src._point[2];
     }
 
     // Public interface ------------------------------------
-    void SetPoint(float x, float y, float z) {
-        _point[0]=x;
-        _point[1]=y;
-        _point[2]=z;
+    void SetPoint(float x, float y, float z)
+    {
+        _point[0] = x;
+        _point[1] = y;
+        _point[2] = z;
     }
 
-    const float * GetPoint() const {
-        return _point;
-    }
+    const float *GetPoint() const { return _point; }
 
-private:
+  private:
     float _point[3];
 };
 
@@ -82,47 +80,28 @@ typedef Point3 VertexColor;
 
 //------------------------------------------------------------------------------
 // Cube geometry from catmark_cube.h
-static float g_verts[8][3] = {{ -0.5f, -0.5f,  0.5f },
-                              {  0.5f, -0.5f,  0.5f },
-                              { -0.5f,  0.5f,  0.5f },
-                              {  0.5f,  0.5f,  0.5f },
-                              { -0.5f,  0.5f, -0.5f },
-                              {  0.5f,  0.5f, -0.5f },
-                              { -0.5f, -0.5f, -0.5f },
-                              {  0.5f, -0.5f, -0.5f }};
+static float g_verts[8][3] = {{-0.5f, -0.5f, 0.5f}, {0.5f, -0.5f, 0.5f}, {-0.5f, 0.5f, 0.5f}, {0.5f, 0.5f, 0.5f}, {-0.5f, 0.5f, -0.5f}, {0.5f, 0.5f, -0.5f}, {-0.5f, -0.5f, -0.5f}, {0.5f, -0.5f, -0.5f}};
 
 // Per-vertex RGB color data
-static float g_colors[8][3] = {{ 1.0f, 0.0f, 0.5f },
-                               { 0.0f, 1.0f, 0.0f },
-                               { 0.0f, 0.0f, 1.0f },
-                               { 1.0f, 1.0f, 1.0f },
-                               { 1.0f, 1.0f, 0.0f },
-                               { 0.0f, 1.0f, 1.0f },
-                               { 1.0f, 0.0f, 1.0f },
-                               { 0.0f, 0.0f, 0.0f }};
+static float g_colors[8][3] = {{1.0f, 0.0f, 0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}};
 
-static int g_nverts = 8,
-           g_nfaces = 6;
+static int g_nverts = 8, g_nfaces = 6;
 
-static int g_vertsperface[6] = { 4, 4, 4, 4, 4, 4 };
+static int g_vertsperface[6] = {4, 4, 4, 4, 4, 4};
 
-static int g_vertIndices[24] = { 0, 1, 3, 2,
-                                 2, 3, 5, 4,
-                                 4, 5, 7, 6,
-                                 6, 7, 1, 0,
-                                 1, 7, 5, 3,
-                                 6, 0, 2, 4  };
+static int g_vertIndices[24] = {0, 1, 3, 2, 2, 3, 5, 4, 4, 5, 7, 6, 6, 7, 1, 0, 1, 7, 5, 3, 6, 0, 2, 4};
 
 using namespace OpenSubdiv;
 
-static Far::TopologyRefiner * createFarTopologyRefiner();
+static Far::TopologyRefiner *createFarTopologyRefiner();
 
 //------------------------------------------------------------------------------
-int main(int, char **) {
+int main(int, char **)
+{
 
     int maxlevel = 5;
 
-    Far::TopologyRefiner * refiner = createFarTopologyRefiner();
+    Far::TopologyRefiner *refiner = createFarTopologyRefiner();
 
     // Uniformly refine the topology up to 'maxlevel'
     refiner->RefineUniform(Far::TopologyRefiner::UniformOptions(maxlevel));
@@ -144,7 +123,8 @@ int main(int, char **) {
     std::vector<VertexPosition> coarsePosBuffer(nCoarseVerts);
     std::vector<VertexColor>    coarseClrBuffer(nCoarseVerts);
 
-    for (int i = 0; i < nCoarseVerts; ++i) {
+    for (int i = 0; i < nCoarseVerts; ++i)
+    {
         coarsePosBuffer[i].SetPoint(g_verts[i][0], g_verts[i][1], g_verts[i][2]);
         coarseClrBuffer[i].SetPoint(g_colors[i][0], g_colors[i][1], g_colors[i][2]);
     }
@@ -158,16 +138,17 @@ int main(int, char **) {
 
     // Interpolate all primvar data -- separate buffers can be populated on
     // separate threads if desired:
-    VertexPosition * srcPos = &coarsePosBuffer[0];
-    VertexPosition * dstPos = &tempPosBuffer[0];
+    VertexPosition *srcPos = &coarsePosBuffer[0];
+    VertexPosition *dstPos = &tempPosBuffer[0];
 
-    VertexColor * srcClr = &coarseClrBuffer[0];
-    VertexColor * dstClr = &tempClrBuffer[0];
+    VertexColor *srcClr = &coarseClrBuffer[0];
+    VertexColor *dstClr = &tempClrBuffer[0];
 
     Far::PrimvarRefiner primvarRefiner(*refiner);
 
-    for (int level = 1; level < maxlevel; ++level) {
-        primvarRefiner.Interpolate(       level, srcPos, dstPos);
+    for (int level = 1; level < maxlevel; ++level)
+    {
+        primvarRefiner.Interpolate(level, srcPos, dstPos);
         primvarRefiner.InterpolateVarying(level, srcClr, dstClr);
 
         srcPos = dstPos, dstPos += refiner->GetLevel(level).GetNumVertices();
@@ -175,9 +156,8 @@ int main(int, char **) {
     }
 
     // Interpolate the last level into the separate buffers for our final data:
-    primvarRefiner.Interpolate(       maxlevel, srcPos, finePosBuffer);
+    primvarRefiner.Interpolate(maxlevel, srcPos, finePosBuffer);
     primvarRefiner.InterpolateVarying(maxlevel, srcClr, fineClrBuffer);
-
 
     { // Visualization with Maya : print a MEL script that generates colored
       // particles at the location of the refined vertices (don't forget to
@@ -187,8 +167,9 @@ int main(int, char **) {
 
         // Output particle positions
         printf("particle ");
-        for (int vert = 0; vert < nverts; ++vert) {
-            float const * pos = finePosBuffer[vert].GetPoint();
+        for (int vert = 0; vert < nverts; ++vert)
+        {
+            float const *pos = finePosBuffer[vert].GetPoint();
             printf("-p %f %f %f\n", pos[0], pos[1], pos[2]);
         }
         printf(";\n");
@@ -201,8 +182,9 @@ int main(int, char **) {
 
         // Set per-particle color values from our primvar data
         printf("setAttr \"particleShape1.rgbPP\" -type \"vectorArray\" %d ", nverts);
-        for (int vert = 0; vert < nverts; ++vert) {
-            float const * color = fineClrBuffer[vert].GetPoint();
+        for (int vert = 0; vert < nverts; ++vert)
+        {
+            float const *color = fineClrBuffer[vert].GetPoint();
             printf("%f %f %f\n", color[0], color[1], color[2]);
         }
         printf(";\n");
@@ -217,8 +199,8 @@ int main(int, char **) {
 //
 // see tutorial_1_1 for more details
 //
-static Far::TopologyRefiner *
-createFarTopologyRefiner() {
+static Far::TopologyRefiner *createFarTopologyRefiner()
+{
 
     // Populate a topology descriptor with our raw data
 
@@ -230,15 +212,13 @@ createFarTopologyRefiner() {
     options.SetVtxBoundaryInterpolation(Sdc::Options::VTX_BOUNDARY_EDGE_ONLY);
 
     Descriptor desc;
-    desc.numVertices  = g_nverts;
-    desc.numFaces     = g_nfaces;
-    desc.numVertsPerFace = g_vertsperface;
-    desc.vertIndicesPerFace  = g_vertIndices;
+    desc.numVertices        = g_nverts;
+    desc.numFaces           = g_nfaces;
+    desc.numVertsPerFace    = g_vertsperface;
+    desc.vertIndicesPerFace = g_vertIndices;
 
     // Instantiate a Far::TopologyRefiner from the descriptor
-    Far::TopologyRefiner * refiner =
-        Far::TopologyRefinerFactory<Descriptor>::Create(desc,
-            Far::TopologyRefinerFactory<Descriptor>::Options(type, options));
+    Far::TopologyRefiner *refiner = Far::TopologyRefinerFactory<Descriptor>::Create(desc, Far::TopologyRefinerFactory<Descriptor>::Options(type, options));
 
     return refiner;
 }

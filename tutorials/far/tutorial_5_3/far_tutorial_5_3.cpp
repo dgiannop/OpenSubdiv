@@ -22,7 +22,6 @@
 //   language governing permissions and limitations under the Apache License.
 //
 
-
 //------------------------------------------------------------------------------
 //  Tutorial description:
 //
@@ -48,10 +47,10 @@
 #include "../../../regression/common/arg_utils.h"
 #include "../../../regression/common/far_utils.h"
 
-#include <opensubdiv/far/topologyDescriptor.h>
 #include <opensubdiv/far/patchTableFactory.h>
-#include <opensubdiv/far/stencilTableFactory.h>
 #include <opensubdiv/far/ptexIndices.h>
+#include <opensubdiv/far/stencilTableFactory.h>
+#include <opensubdiv/far/topologyDescriptor.h>
 
 #include <cassert>
 #include <cstdio>
@@ -63,218 +62,201 @@ using namespace OpenSubdiv;
 
 using Far::Index;
 
-
 //
 //  Global utilities in this namespace are not relevant to the tutorial.
 //  They simply serve to construct some default geometry to be processed
 //  in the form of a TopologyRefiner and vector of vertex positions.
 //
-namespace {
-    //
-    //  Simple structs for (x,y,z) position and a 3-tuple for the set
-    //  of vertices of a triangle:
-    //
-    struct Pos {
-        Pos() { }
-        Pos(float x, float y, float z) { p[0] = x, p[1] = y, p[2] = z; }
+namespace
+{
+//
+//  Simple structs for (x,y,z) position and a 3-tuple for the set
+//  of vertices of a triangle:
+//
+struct Pos
+{
+    Pos() {}
+    Pos(float x, float y, float z) { p[0] = x, p[1] = y, p[2] = z; }
 
-        Pos operator+(Pos const & op) const {
-            return Pos(p[0] + op.p[0], p[1] + op.p[1], p[2] + op.p[2]);
-        }
+    Pos operator+(Pos const &op) const { return Pos(p[0] + op.p[0], p[1] + op.p[1], p[2] + op.p[2]); }
 
-        //  Clear() and AddWithWeight() required for interpolation:
-        void Clear( void * =0 ) { p[0] = p[1] = p[2] = 0.0f; }
+    //  Clear() and AddWithWeight() required for interpolation:
+    void Clear(void * = 0) { p[0] = p[1] = p[2] = 0.0f; }
 
-        void AddWithWeight(Pos const & src, float weight) {
-            p[0] += weight * src.p[0];
-            p[1] += weight * src.p[1];
-            p[2] += weight * src.p[2];
-        }
+    void AddWithWeight(Pos const &src, float weight)
+    {
+        p[0] += weight * src.p[0];
+        p[1] += weight * src.p[1];
+        p[2] += weight * src.p[2];
+    }
 
-        float p[3];
-    };
-    typedef std::vector<Pos> PosVector;
+    float p[3];
+};
+typedef std::vector<Pos> PosVector;
 
-    struct Tri {
-        Tri() { }
-        Tri(int a, int b, int c) { v[0] = a, v[1] = b, v[2] = c; }
+struct Tri
+{
+    Tri() {}
+    Tri(int a, int b, int c) { v[0] = a, v[1] = b, v[2] = c; }
 
-        int v[3];
-    };
-    typedef std::vector<Tri> TriVector;
+    int v[3];
+};
+typedef std::vector<Tri> TriVector;
 
+//
+//  Functions to populate the topology and geometry arrays a simple
+//  shape whose positions may be transformed:
+//
+void createCube(std::vector<int> &vertsPerFace, std::vector<Index> &faceVertsPerFace, std::vector<Pos> &positionsPerVert)
+{
 
-    //
-    //  Functions to populate the topology and geometry arrays a simple
-    //  shape whose positions may be transformed:
-    //
-    void
-    createCube(std::vector<int> &   vertsPerFace,
-               std::vector<Index> & faceVertsPerFace,
-               std::vector<Pos> &   positionsPerVert) {
+    //  Local topology and position of a cube centered at origin:
+    static float const cubePositions[8][3] = {{-0.5f, -0.5f, -0.5f}, {-0.5f, 0.5f, -0.5f}, {-0.5f, 0.5f, 0.5f}, {-0.5f, -0.5f, 0.5f}, {0.5f, -0.5f, -0.5f}, {0.5f, 0.5f, -0.5f}, {0.5f, 0.5f, 0.5f}, {0.5f, -0.5f, 0.5f}};
 
-        //  Local topology and position of a cube centered at origin:
-        static float const cubePositions[8][3] = { { -0.5f, -0.5f, -0.5f },
-                                                   { -0.5f,  0.5f, -0.5f },
-                                                   { -0.5f,  0.5f,  0.5f },
-                                                   { -0.5f, -0.5f,  0.5f },
-                                                   {  0.5f, -0.5f, -0.5f },
-                                                   {  0.5f,  0.5f, -0.5f },
-                                                   {  0.5f,  0.5f,  0.5f },
-                                                   {  0.5f, -0.5f,  0.5f } };
+    static int const cubeFaceVerts[6][4] = {{0, 3, 2, 1}, {4, 5, 6, 7}, {0, 4, 7, 3}, {1, 2, 6, 5}, {0, 1, 5, 4}, {3, 7, 6, 2}};
 
-        static int const cubeFaceVerts[6][4] = { { 0, 3, 2, 1 },
-                                                 { 4, 5, 6, 7 },
-                                                 { 0, 4, 7, 3 },
-                                                 { 1, 2, 6, 5 },
-                                                 { 0, 1, 5, 4 },
-                                                 { 3, 7, 6, 2 } };
-
-        //  Initialize verts-per-face and face-vertices for each face:
-        vertsPerFace.resize(6);
-        faceVertsPerFace.resize(24);
-        for (int i = 0; i < 6; ++i) {
-            vertsPerFace[i] = 4;
-            for (int j = 0; j < 4; ++j) {
-                faceVertsPerFace[i*4+j] = cubeFaceVerts[i][j];
-            }
-        }
-
-        //  Initialize vertex positions:
-        positionsPerVert.resize(8);
-        for (int i = 0; i < 8; ++i) {
-            float const * p = cubePositions[i];
-            positionsPerVert[i] = Pos(p[0], p[1], p[2]);
+    //  Initialize verts-per-face and face-vertices for each face:
+    vertsPerFace.resize(6);
+    faceVertsPerFace.resize(24);
+    for (int i = 0; i < 6; ++i)
+    {
+        vertsPerFace[i] = 4;
+        for (int j = 0; j < 4; ++j)
+        {
+            faceVertsPerFace[i * 4 + j] = cubeFaceVerts[i][j];
         }
     }
 
-    //
-    //  Create a TopologyRefiner from default geometry created above:
-    //
-    Far::TopologyRefiner *
-    createTopologyRefinerDefault(PosVector & posVector) {
-
-        std::vector<int>   topVertsPerFace;
-        std::vector<Index> topFaceVerts;
-
-        createCube(topVertsPerFace, topFaceVerts, posVector);
-
-        typedef Far::TopologyDescriptor Descriptor;
-
-        Sdc::SchemeType type = OpenSubdiv::Sdc::SCHEME_CATMARK;
-
-        Sdc::Options options;
-        options.SetVtxBoundaryInterpolation(
-            Sdc::Options::VTX_BOUNDARY_EDGE_AND_CORNER);
-
-        Descriptor desc;
-        desc.numVertices = (int) posVector.size();
-        desc.numFaces = (int) topVertsPerFace.size();
-        desc.numVertsPerFace = &topVertsPerFace[0];
-        desc.vertIndicesPerFace = &topFaceVerts[0];
-
-        //  Instantiate a Far::TopologyRefiner from the descriptor.
-        Far::TopologyRefiner * refiner =
-            Far::TopologyRefinerFactory<Descriptor>::Create(desc,
-                Far::TopologyRefinerFactory<Descriptor>::Options(type,options));
-        assert(refiner);
-        return refiner;
+    //  Initialize vertex positions:
+    positionsPerVert.resize(8);
+    for (int i = 0; i < 8; ++i)
+    {
+        float const *p      = cubePositions[i];
+        positionsPerVert[i] = Pos(p[0], p[1], p[2]);
     }
+}
 
-    //
-    //  Create a TopologyRefiner from a specified Obj file:
-    //  geometry created internally:
-    //
-    Far::TopologyRefiner *
-    createTopologyRefinerFromObj(std::string const & objFileName,
-                                 Sdc::SchemeType schemeType,
-                                 PosVector & posVector) {
+//
+//  Create a TopologyRefiner from default geometry created above:
+//
+Far::TopologyRefiner *createTopologyRefinerDefault(PosVector &posVector)
+{
 
-        const char *  filename = objFileName.c_str();
-        const Shape * shape = 0;
+    std::vector<int>   topVertsPerFace;
+    std::vector<Index> topFaceVerts;
 
-        std::ifstream ifs(filename);
-        if (ifs) {
-            std::stringstream ss;
-            ss << ifs.rdbuf();
-            ifs.close();
-            std::string shapeString = ss.str();
+    createCube(topVertsPerFace, topFaceVerts, posVector);
 
-            shape = Shape::parseObj(shapeString.c_str(),
-                ConvertSdcTypeToShapeScheme(schemeType), false);
-            if (shape == 0) {
-                fprintf(stderr,
-                    "Error:  Cannot create Shape from .obj file '%s'\n",
-                    filename);
-                return 0;
-            }
-        } else {
-            fprintf(stderr, "Error:  Cannot open .obj file '%s'\n", filename);
+    typedef Far::TopologyDescriptor Descriptor;
+
+    Sdc::SchemeType type = OpenSubdiv::Sdc::SCHEME_CATMARK;
+
+    Sdc::Options options;
+    options.SetVtxBoundaryInterpolation(Sdc::Options::VTX_BOUNDARY_EDGE_AND_CORNER);
+
+    Descriptor desc;
+    desc.numVertices        = (int)posVector.size();
+    desc.numFaces           = (int)topVertsPerFace.size();
+    desc.numVertsPerFace    = &topVertsPerFace[0];
+    desc.vertIndicesPerFace = &topFaceVerts[0];
+
+    //  Instantiate a Far::TopologyRefiner from the descriptor.
+    Far::TopologyRefiner *refiner = Far::TopologyRefinerFactory<Descriptor>::Create(desc, Far::TopologyRefinerFactory<Descriptor>::Options(type, options));
+    assert(refiner);
+    return refiner;
+}
+
+//
+//  Create a TopologyRefiner from a specified Obj file:
+//  geometry created internally:
+//
+Far::TopologyRefiner *createTopologyRefinerFromObj(std::string const &objFileName, Sdc::SchemeType schemeType, PosVector &posVector)
+{
+
+    const char * filename = objFileName.c_str();
+    const Shape *shape    = 0;
+
+    std::ifstream ifs(filename);
+    if (ifs)
+    {
+        std::stringstream ss;
+        ss << ifs.rdbuf();
+        ifs.close();
+        std::string shapeString = ss.str();
+
+        shape = Shape::parseObj(shapeString.c_str(), ConvertSdcTypeToShapeScheme(schemeType), false);
+        if (shape == 0)
+        {
+            fprintf(stderr, "Error:  Cannot create Shape from .obj file '%s'\n", filename);
             return 0;
         }
-
-        Sdc::SchemeType sdcType    = GetSdcType(*shape);
-        Sdc::Options    sdcOptions = GetSdcOptions(*shape);
-
-        Far::TopologyRefiner * refiner = 
-            Far::TopologyRefinerFactory<Shape>::Create(*shape,
-                Far::TopologyRefinerFactory<Shape>::Options(
-                    sdcType, sdcOptions));
-        if (refiner == 0) {
-            fprintf(stderr, "Error:  Unable to construct TopologyRefiner "
-                "from .obj file '%s'\n", filename);
-            return 0;
-        }
-
-        int numVertices = refiner->GetNumVerticesTotal();
-        posVector.resize(numVertices);
-        std::memcpy(&posVector[0].p[0], &shape->verts[0],
-                    numVertices * 3 * sizeof(float));
-
-        delete shape;
-        return refiner;
+    }
+    else
+    {
+        fprintf(stderr, "Error:  Cannot open .obj file '%s'\n", filename);
+        return 0;
     }
 
+    Sdc::SchemeType sdcType    = GetSdcType(*shape);
+    Sdc::Options    sdcOptions = GetSdcOptions(*shape);
 
-    //
-    //  Simple function to export an Obj file for the limit points -- which
-    //  provides a simple tessllation similar to tutorial_5_2.
-    //
-    int writeToObj(
-        Far::TopologyLevel const & baseLevel,
-        std::vector<Pos> const & vertexPositions,
-        int nextObjVertexIndex) {
-
-        for (size_t i = 0; i < vertexPositions.size(); ++i) {
-            float const * p = vertexPositions[i].p;
-            printf("v %f %f %f\n", p[0], p[1], p[2]);
-        }
-
-        //
-        //  Connect the sequences of limit points (center followed by corners)
-        //  into triangle fans for each base face:
-        //
-        for (int i = 0; i < baseLevel.GetNumFaces(); ++i) {
-            int faceSize = baseLevel.GetFaceVertices(i).size();
-
-            int vCenter = nextObjVertexIndex + 1;
-            int vCorner = vCenter + 1;
-            for (int k = 0; k < faceSize; ++k) {
-                printf("f %d %d %d\n",
-                    vCenter, vCorner + k, vCorner + ((k + 1) % faceSize));
-            }
-            nextObjVertexIndex += faceSize + 1;
-        }
-        return nextObjVertexIndex;
+    Far::TopologyRefiner *refiner = Far::TopologyRefinerFactory<Shape>::Create(*shape, Far::TopologyRefinerFactory<Shape>::Options(sdcType, sdcOptions));
+    if (refiner == 0)
+    {
+        fprintf(stderr,
+                "Error:  Unable to construct TopologyRefiner "
+                "from .obj file '%s'\n",
+                filename);
+        return 0;
     }
+
+    int numVertices = refiner->GetNumVerticesTotal();
+    posVector.resize(numVertices);
+    std::memcpy(&posVector[0].p[0], &shape->verts[0], numVertices * 3 * sizeof(float));
+
+    delete shape;
+    return refiner;
+}
+
+//
+//  Simple function to export an Obj file for the limit points -- which
+//  provides a simple tessllation similar to tutorial_5_2.
+//
+int writeToObj(Far::TopologyLevel const &baseLevel, std::vector<Pos> const &vertexPositions, int nextObjVertexIndex)
+{
+
+    for (size_t i = 0; i < vertexPositions.size(); ++i)
+    {
+        float const *p = vertexPositions[i].p;
+        printf("v %f %f %f\n", p[0], p[1], p[2]);
+    }
+
+    //
+    //  Connect the sequences of limit points (center followed by corners)
+    //  into triangle fans for each base face:
+    //
+    for (int i = 0; i < baseLevel.GetNumFaces(); ++i)
+    {
+        int faceSize = baseLevel.GetFaceVertices(i).size();
+
+        int vCenter = nextObjVertexIndex + 1;
+        int vCorner = vCenter + 1;
+        for (int k = 0; k < faceSize; ++k)
+        {
+            printf("f %d %d %d\n", vCenter, vCorner + k, vCorner + ((k + 1) % faceSize));
+        }
+        nextObjVertexIndex += faceSize + 1;
+    }
+    return nextObjVertexIndex;
+}
 } // end namespace
-
 
 //
 //  Command line arguments parsed to provide run-time options:
 //
-class Args {
-public:
+class Args
+{
+  public:
     std::string     inputObjFile;
     Sdc::SchemeType schemeType;
     int             maxPatchDepth;
@@ -284,58 +266,67 @@ public:
     bool            noPatchesFlag;
     bool            noOutputFlag;
 
-public:
-    Args(int argc, char ** argv) :
-        inputObjFile(),
-        schemeType(Sdc::SCHEME_CATMARK),
-        maxPatchDepth(3),
-        numPoses(0),
-        poseOffset(1.0f, 0.0f, 0.0f),
-        deriv1Flag(false),
-        noPatchesFlag(false),
-        noOutputFlag(false) {
+  public:
+    Args(int argc, char **argv) : inputObjFile(), schemeType(Sdc::SCHEME_CATMARK), maxPatchDepth(3), numPoses(0), poseOffset(1.0f, 0.0f, 0.0f), deriv1Flag(false), noPatchesFlag(false), noOutputFlag(false)
+    {
 
         //  Parse and assign standard arguments and Obj files:
         ArgOptions args;
         args.Parse(argc, argv);
 
         maxPatchDepth = args.GetLevel();
-        schemeType = ConvertShapeSchemeToSdcType(args.GetDefaultScheme());
+        schemeType    = ConvertShapeSchemeToSdcType(args.GetDefaultScheme());
 
         const std::vector<const char *> objFiles = args.GetObjFiles();
-        if (!objFiles.empty()) {
-            for (size_t i = 1; i < objFiles.size(); ++i) {
-                fprintf(stderr,
-                    "Warning: .obj file '%s' ignored\n", objFiles[i]);
+        if (!objFiles.empty())
+        {
+            for (size_t i = 1; i < objFiles.size(); ++i)
+            {
+                fprintf(stderr, "Warning: .obj file '%s' ignored\n", objFiles[i]);
             }
             inputObjFile = std::string(objFiles[0]);
         }
 
         //  Parse remaining arguments specific to this example:
         const std::vector<const char *> &rargs = args.GetRemainingArgs();
-        for (size_t i = 0; i < rargs.size(); ++i) {
-            if (!strcmp(rargs[i], "-d1")) {
+        for (size_t i = 0; i < rargs.size(); ++i)
+        {
+            if (!strcmp(rargs[i], "-d1"))
+            {
                 deriv1Flag = true;
-            } else if (!strcmp(rargs[i], "-nopatches")) {
+            }
+            else if (!strcmp(rargs[i], "-nopatches"))
+            {
                 noPatchesFlag = true;
-            } else if (!strcmp(rargs[i], "-poses")) {
-                if (++i < rargs.size()) numPoses = atoi(rargs[i]);
-            } else if (!strcmp(rargs[i], "-offset")) {
-                if (++i < rargs.size()) poseOffset.p[0] = (float)atof(rargs[i]);
-                if (++i < rargs.size()) poseOffset.p[1] = (float)atof(rargs[i]);
-                if (++i < rargs.size()) poseOffset.p[2] = (float)atof(rargs[i]);
-            } else if (!strcmp(rargs[i], "-nooutput")) {
+            }
+            else if (!strcmp(rargs[i], "-poses"))
+            {
+                if (++i < rargs.size())
+                    numPoses = atoi(rargs[i]);
+            }
+            else if (!strcmp(rargs[i], "-offset"))
+            {
+                if (++i < rargs.size())
+                    poseOffset.p[0] = (float)atof(rargs[i]);
+                if (++i < rargs.size())
+                    poseOffset.p[1] = (float)atof(rargs[i]);
+                if (++i < rargs.size())
+                    poseOffset.p[2] = (float)atof(rargs[i]);
+            }
+            else if (!strcmp(rargs[i], "-nooutput"))
+            {
                 noOutputFlag = true;
-            } else {
+            }
+            else
+            {
                 fprintf(stderr, "Warning: Argument '%s' ignored\n", rargs[i]);
             }
         }
     }
 
-private:
-    Args() { }
+  private:
+    Args() {}
 };
-
 
 //
 //  Assemble the set of locations for the limit points.  The resulting
@@ -347,10 +338,10 @@ private:
 //  corners are specified -- from which we will construct a triangle fan
 //  providing a crude tessellation (similar to tutorial_5_2).
 //
-typedef Far::LimitStencilTableFactory::LocationArray   LocationArray;
+typedef Far::LimitStencilTableFactory::LocationArray LocationArray;
 
-int assembleLimitPointLocations(Far::TopologyRefiner const & refiner,
-                                std::vector<LocationArray> & locations) {
+int assembleLimitPointLocations(Far::TopologyRefiner const &refiner, std::vector<LocationArray> &locations)
+{
     //
     //  Coordinates for the center of the face and its corners (slightly
     //  inset).  Unlike most of the public interface for patches, the
@@ -362,14 +353,14 @@ int assembleLimitPointLocations(Far::TopologyRefiner const & refiner,
     //  while the LimitStencilTable is constructed -- the arrays here are
     //  declared as static for that purpose.
     //
-    static float const quadSCoords[5] = { 0.5f, 0.05f, 0.95f, 0.95f, 0.05f };
-    static float const quadTCoords[5] = { 0.5f, 0.05f, 0.05f, 0.95f, 0.95f };
+    static float const quadSCoords[5] = {0.5f, 0.05f, 0.95f, 0.95f, 0.05f};
+    static float const quadTCoords[5] = {0.5f, 0.05f, 0.05f, 0.95f, 0.95f};
 
-    static float const triSCoords[4] = { 0.33f, 0.05f, 0.95f, 0.05f };
-    static float const triTCoords[4] = { 0.33f, 0.05f, 0.00f, 0.95f };
+    static float const triSCoords[4] = {0.33f, 0.05f, 0.95f, 0.05f};
+    static float const triTCoords[4] = {0.33f, 0.05f, 0.00f, 0.95f};
 
-    static float const irregSCoords[2] = { 1.0f, 0.05f };
-    static float const irregTCoords[2] = { 1.0f, 0.05f };
+    static float const irregSCoords[2] = {1.0f, 0.05f};
+    static float const irregTCoords[2] = {1.0f, 0.05f};
 
     //
     //  Since these are references to patches to be evaluated, we require
@@ -377,13 +368,11 @@ int assembleLimitPointLocations(Far::TopologyRefiner const & refiner,
     //  patch, which is essential to dealing with non-quad faces (in the
     //  case of Catmark).
     //
-    Far::TopologyLevel const & baseLevel = refiner.GetLevel(0);
+    Far::TopologyLevel const &baseLevel = refiner.GetLevel(0);
 
     Far::PtexIndices basePtexIndices(refiner);
 
-    int regFaceSize = Sdc::SchemeTypeTraits::GetRegularFaceSize(
-        refiner.GetSchemeType());
-
+    int regFaceSize = Sdc::SchemeTypeTraits::GetRegularFaceSize(refiner.GetSchemeType());
 
     //
     //  For each base face, simply refer to the (s,t) arrays for regular quad
@@ -394,34 +383,42 @@ int assembleLimitPointLocations(Far::TopologyRefiner const & refiner,
     locations.clear();
 
     int numLimitPoints = 0;
-    for (int i = 0; i < baseLevel.GetNumFaces(); ++i) {
+    for (int i = 0; i < baseLevel.GetNumFaces(); ++i)
+    {
         int baseFaceSize = baseLevel.GetFaceVertices(i).size();
-        int basePtexId   = basePtexIndices.GetFaceId(i); 
+        int basePtexId   = basePtexIndices.GetFaceId(i);
 
         bool faceIsRegular = (baseFaceSize == regFaceSize);
-        if (faceIsRegular) {
+        if (faceIsRegular)
+        {
             //  All coordinates are on the same top-level patch:
             LocationArray loc;
-            loc.ptexIdx = basePtexId;
+            loc.ptexIdx      = basePtexId;
             loc.numLocations = baseFaceSize + 1;
-            if (baseFaceSize == 4) {
+            if (baseFaceSize == 4)
+            {
                 loc.s = quadSCoords;
                 loc.t = quadTCoords;
-            } else {
+            }
+            else
+            {
                 loc.s = triSCoords;
                 loc.t = triTCoords;
             }
             locations.push_back(loc);
-        } else {
+        }
+        else
+        {
             //  Center coordinate is on the first sub-patch while those on
             //  near the corners are on each successive sub-patch:
             LocationArray loc;
             loc.numLocations = 1;
-            for (int j = 0; j <= baseFaceSize; ++j) {
+            for (int j = 0; j <= baseFaceSize; ++j)
+            {
                 bool isPerimeter = (j > 0);
-                loc.ptexIdx = basePtexId + (isPerimeter ? (j-1) : 0);
-                loc.s = &irregSCoords[isPerimeter];
-                loc.t = &irregTCoords[isPerimeter];
+                loc.ptexIdx      = basePtexId + (isPerimeter ? (j - 1) : 0);
+                loc.s            = &irregSCoords[isPerimeter];
+                loc.t            = &irregTCoords[isPerimeter];
 
                 locations.push_back(loc);
             }
@@ -431,14 +428,13 @@ int assembleLimitPointLocations(Far::TopologyRefiner const & refiner,
     return numLimitPoints;
 }
 
-
 //
 //  Load command line arguments and geometry, build the LimitStencilTable
 //  for a set of points on the limit surface and compute those points for
 //  several orientations of the mesh:
 //
-int
-main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 
     Args args(argc, argv);
 
@@ -449,14 +445,11 @@ main(int argc, char **argv) {
     //
     std::vector<Pos> basePositions;
 
-    Far::TopologyRefiner * refinerPtr = args.inputObjFile.empty() ?
-            createTopologyRefinerDefault(basePositions) :
-            createTopologyRefinerFromObj(args.inputObjFile, args.schemeType,
-                                         basePositions);
+    Far::TopologyRefiner *refinerPtr = args.inputObjFile.empty() ? createTopologyRefinerDefault(basePositions) : createTopologyRefinerFromObj(args.inputObjFile, args.schemeType, basePositions);
     assert(refinerPtr);
-    Far::TopologyRefiner & refiner = *refinerPtr;
+    Far::TopologyRefiner &refiner = *refinerPtr;
 
-    Far::TopologyLevel const & baseLevel = refiner.GetLevel(0);
+    Far::TopologyLevel const &baseLevel = refiner.GetLevel(0);
 
     //
     //  Use of LimitStencilTable requires either explicit or implicit use
@@ -473,19 +466,20 @@ main(int argc, char **argv) {
     //  refinement and PatchTable construction can avoid unnecessary
     //  overhead.
     //
-    Far::PatchTable * patchTablePtr = 0;
+    Far::PatchTable *patchTablePtr = 0;
 
-    if (args.noPatchesFlag) {
-        refiner.RefineAdaptive(
-            Far::TopologyRefiner::AdaptiveOptions(args.maxPatchDepth));
-    } else {
+    if (args.noPatchesFlag)
+    {
+        refiner.RefineAdaptive(Far::TopologyRefiner::AdaptiveOptions(args.maxPatchDepth));
+    }
+    else
+    {
         Far::PatchTableFactory::Options patchOptions(args.maxPatchDepth);
-        patchOptions.useInfSharpPatch = true;
+        patchOptions.useInfSharpPatch                 = true;
         patchOptions.generateLegacySharpCornerPatches = false;
-        patchOptions.generateVaryingTables = false;
-        patchOptions.generateFVarTables = false;
-        patchOptions.endCapType =
-            Far::PatchTableFactory::Options::ENDCAP_GREGORY_BASIS;
+        patchOptions.generateVaryingTables            = false;
+        patchOptions.generateFVarTables               = false;
+        patchOptions.endCapType                       = Far::PatchTableFactory::Options::ENDCAP_GREGORY_BASIS;
 
         refiner.RefineAdaptive(patchOptions.GetRefineAdaptiveOptions());
 
@@ -512,13 +506,12 @@ main(int argc, char **argv) {
     Far::LimitStencilTableFactory::Options limitOptions;
     limitOptions.generate1stDerivatives = args.deriv1Flag;
 
-    Far::LimitStencilTable const * limitStencilTablePtr =
-        Far::LimitStencilTableFactory::Create(refiner, locations,
-            0,             // optional StencilTable for the refined points
-            patchTablePtr, // optional PatchTable
-            limitOptions);
+    Far::LimitStencilTable const *limitStencilTablePtr = Far::LimitStencilTableFactory::Create(refiner, locations,
+                                                                                               0,             // optional StencilTable for the refined points
+                                                                                               patchTablePtr, // optional PatchTable
+                                                                                               limitOptions);
     assert(limitStencilTablePtr);
-    Far::LimitStencilTable const & limitStencilTable = *limitStencilTablePtr;
+    Far::LimitStencilTable const &limitStencilTable = *limitStencilTablePtr;
 
     //
     //  Apply the constructed LimitStencilTable to compute limit positions
@@ -532,15 +525,14 @@ main(int argc, char **argv) {
     limitStencilTable.UpdateValues(basePositions, limitPositions);
 
     //  Call with the optional subrange:
-    limitStencilTable.UpdateValues(basePositions, limitPositions,
-                                   0, numLimitPoints / 2);
-    limitStencilTable.UpdateValues(basePositions, limitPositions,
-                                   (numLimitPoints / 2) + 1, numLimitPoints);
+    limitStencilTable.UpdateValues(basePositions, limitPositions, 0, numLimitPoints / 2);
+    limitStencilTable.UpdateValues(basePositions, limitPositions, (numLimitPoints / 2) + 1, numLimitPoints);
 
     // Write vertices and faces in Obj format for the original limit points:
     int objVertCount = 0;
 
-    if (!args.noOutputFlag) {
+    if (!args.noOutputFlag)
+    {
         printf("g base_mesh\n");
         objVertCount = writeToObj(baseLevel, limitPositions, objVertCount);
     }
@@ -555,18 +547,22 @@ main(int argc, char **argv) {
     std::vector<Pos> limitDu(args.deriv1Flag ? numLimitPoints : 0);
     std::vector<Pos> limitDv(args.deriv1Flag ? numLimitPoints : 0);
 
-    for (int i = 0; i < args.numPoses; ++i) {
+    for (int i = 0; i < args.numPoses; ++i)
+    {
         // Trivially transform the base vertex positions and re-compute:
-        for (size_t j = 0; j < basePositions.size(); ++j) {
+        for (size_t j = 0; j < basePositions.size(); ++j)
+        {
             posePositions[j] = posePositions[j] + args.poseOffset;
         }
 
         limitStencilTable.UpdateValues(posePositions, limitPositions);
-        if (args.deriv1Flag) {
+        if (args.deriv1Flag)
+        {
             limitStencilTable.UpdateDerivs(posePositions, limitDu, limitDv);
         }
 
-        if (!args.noOutputFlag) {
+        if (!args.noOutputFlag)
+        {
             printf("\ng pose_%d\n", i);
             objVertCount = writeToObj(baseLevel, limitPositions, objVertCount);
         }

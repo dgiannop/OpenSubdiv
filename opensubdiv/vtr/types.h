@@ -24,16 +24,18 @@
 #ifndef OPENSUBDIV3_VTR_TYPES_H
 #define OPENSUBDIV3_VTR_TYPES_H
 
-#include "../version.h"
-
-#include "../vtr/array.h"
-
 #include <vector>
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+#include "../version.h"
+#include "../vtr/array.h"
 
-namespace Vtr {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
+
+namespace Vtr
+{
 
 //
 //  A few types (and constants) for use within Vtr and potentially by its
@@ -63,10 +65,10 @@ inline bool IndexIsValid(Index index) { return (index != INDEX_INVALID); }
 //  could potentially be combined with an Index -- but we need something larger for
 //  the N-sided face.
 //
-typedef unsigned short  LocalIndex;
+typedef unsigned short LocalIndex;
 
 //  Declared as "int" since it's intended for more general use
-static const int VALENCE_LIMIT = ((1 << 16) - 1);  // std::numeric_limits<LocalIndex>::max()
+static const int VALENCE_LIMIT = ((1 << 16) - 1); // std::numeric_limits<LocalIndex>::max()
 
 //
 //  Collections of integer types in variable or fixed sized arrays.  Note that the use
@@ -74,14 +76,13 @@ static const int VALENCE_LIMIT = ((1 << 16) - 1);  // std::numeric_limits<LocalI
 //  member variable) which is fully resizable and owns its own storage, whereas "array"
 //  wraps a vtr::Array which uses a fixed block of pre-allocated memory.
 //
-typedef std::vector<Index>  IndexVector;
+typedef std::vector<Index> IndexVector;
 
-typedef Array<Index>             IndexArray;
-typedef ConstArray<Index>        ConstIndexArray;
+typedef Array<Index>      IndexArray;
+typedef ConstArray<Index> ConstIndexArray;
 
-typedef Array<LocalIndex>        LocalIndexArray;
-typedef ConstArray<LocalIndex>   ConstLocalIndexArray;
-
+typedef Array<LocalIndex>      LocalIndexArray;
+typedef ConstArray<LocalIndex> ConstLocalIndexArray;
 
 } // end namespace Vtr
 

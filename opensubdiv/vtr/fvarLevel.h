@@ -24,24 +24,26 @@
 #ifndef OPENSUBDIV3_VTR_FVAR_LEVEL_H
 #define OPENSUBDIV3_VTR_FVAR_LEVEL_H
 
-#include "../version.h"
-
-#include "../sdc/types.h"
-#include "../sdc/crease.h"
-#include "../sdc/options.h"
-#include "../vtr/types.h"
-#include "../vtr/level.h"
-
-#include <vector>
 #include <cassert>
 #include <cstring>
+#include <vector>
 
+#include "../sdc/crease.h"
+#include "../sdc/options.h"
+#include "../sdc/types.h"
+#include "../version.h"
+#include "../vtr/level.h"
+#include "../vtr/types.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Vtr {
-namespace internal {
+namespace Vtr
+{
+namespace internal
+{
 
 //
 //  FVarLevel:
@@ -75,8 +77,9 @@ namespace internal {
 //      Everything is being declared public for now to facilitate access until it's
 //  clearer how this functionality will be provided.
 //
-class FVarLevel {
-public:
+class FVarLevel
+{
+  public:
     //
     //  Component tags -- trying to minimize the types needed here:
     //
@@ -84,17 +87,18 @@ public:
     //      - facilitates topological analysis around each vertex
     //      - required during refinement to spawn one or more edge-values
     //
-    struct ETag {
-        ETag() { }
+    struct ETag
+    {
+        ETag() {}
 
         void clear() { std::memset(this, 0, sizeof(ETag)); }
 
         typedef unsigned char ETagSize;
 
-        ETagSize _mismatch : 1;  // local FVar topology does not match
-        ETagSize _disctsV0 : 1;  // discontinuous at vertex 0
-        ETagSize _disctsV1 : 1;  // discontinuous at vertex 1
-        ETagSize _linear   : 1;  // linear boundary constraints
+        ETagSize _mismatch : 1; // local FVar topology does not match
+        ETagSize _disctsV0 : 1; // discontinuous at vertex 0
+        ETagSize _disctsV1 : 1; // discontinuous at vertex 1
+        ETagSize _linear : 1;   // linear boundary constraints
 
         Level::ETag combineWithLevelETag(Level::ETag) const;
     };
@@ -105,42 +109,42 @@ public:
     //          - every value spawns a child value in refinement
     //      - includes a subset of Level::VTag to be later combined with a VTag
     //
-    struct ValueTag {
-        ValueTag() { }
+    struct ValueTag
+    {
+        ValueTag() {}
 
         void clear() { std::memset(this, 0, sizeof(ValueTag)); }
 
-        bool isMismatch() const    { return _mismatch; }
-        bool isCrease() const      { return _crease; }
-        bool isCorner() const      { return !_crease; }
-        bool isSemiSharp() const   { return _semiSharp; }
-        bool isInfSharp() const    { return !_semiSharp && !_crease; }
-        bool isDepSharp() const    { return _depSharp; }
+        bool isMismatch() const { return _mismatch; }
+        bool isCrease() const { return _crease; }
+        bool isCorner() const { return !_crease; }
+        bool isSemiSharp() const { return _semiSharp; }
+        bool isInfSharp() const { return !_semiSharp && !_crease; }
+        bool isDepSharp() const { return _depSharp; }
         bool hasCreaseEnds() const { return _crease || _semiSharp; }
 
-        bool hasInfSharpEdges() const   { return _infSharpEdges; }
+        bool hasInfSharpEdges() const { return _infSharpEdges; }
         bool hasInfIrregularity() const { return _infIrregular; }
 
         typedef unsigned char ValueTagSize;
 
         //  If there is no mismatch, no other members should be inspected
-        ValueTagSize _mismatch    : 1;  // local FVar topology does not match
-        ValueTagSize _xordinary   : 1;  // local FVar topology is extra-ordinary
-        ValueTagSize _nonManifold : 1;  // local FVar topology is non-manifold
-        ValueTagSize _crease      : 1;  // value is a crease, otherwise a corner
-        ValueTagSize _semiSharp   : 1;  // value is a corner decaying to crease
-        ValueTagSize _depSharp    : 1;  // value is a corner by dependency on another
+        ValueTagSize _mismatch : 1;    // local FVar topology does not match
+        ValueTagSize _xordinary : 1;   // local FVar topology is extra-ordinary
+        ValueTagSize _nonManifold : 1; // local FVar topology is non-manifold
+        ValueTagSize _crease : 1;      // value is a crease, otherwise a corner
+        ValueTagSize _semiSharp : 1;   // value is a corner decaying to crease
+        ValueTagSize _depSharp : 1;    // value is a corner by dependency on another
 
-        ValueTagSize _infSharpEdges : 1;  // value is a corner by inf-sharp features
-        ValueTagSize _infIrregular  : 1;  // value span includes inf-sharp irregularity
+        ValueTagSize _infSharpEdges : 1; // value is a corner by inf-sharp features
+        ValueTagSize _infIrregular : 1;  // value span includes inf-sharp irregularity
 
         Level::VTag combineWithLevelVTag(Level::VTag) const;
 
         //  Alternate constructor and accessor for dealing with integer bits directly:
-        explicit ValueTag(ValueTagSize bits) {
-            std::memcpy(this, &bits, sizeof(bits));
-        }
-        ValueTagSize getBits() const {
+        explicit ValueTag(ValueTagSize bits) { std::memcpy(this, &bits, sizeof(bits)); }
+        ValueTagSize getBits() const
+        {
             ValueTagSize bits;
             std::memcpy(&bits, this, sizeof(bits));
             return bits;
@@ -148,74 +152,75 @@ public:
     };
 
     typedef Vtr::ConstArray<ValueTag> ConstValueTagArray;
-    typedef Vtr::Array<ValueTag> ValueTagArray;
+    typedef Vtr::Array<ValueTag>      ValueTagArray;
 
     //
     //  Simple struct containing the "end faces" of a crease, i.e. the faces which
     //  contain the FVar values to be used when interpolating the crease.  (Prefer
     //  the struct over std::pair for its member names)
     //
-    struct CreaseEndPair {
+    struct CreaseEndPair
+    {
         LocalIndex _startFace;
         LocalIndex _endFace;
     };
 
     typedef Vtr::ConstArray<CreaseEndPair> ConstCreaseEndPairArray;
-    typedef Vtr::Array<CreaseEndPair> CreaseEndPairArray;
+    typedef Vtr::Array<CreaseEndPair>      CreaseEndPairArray;
 
-    typedef LocalIndex      Sibling;
+    typedef LocalIndex Sibling;
 
     typedef ConstLocalIndexArray ConstSiblingArray;
-    typedef LocalIndexArray SiblingArray;
+    typedef LocalIndexArray      SiblingArray;
 
-public:
-    FVarLevel(Level const& level);
+  public:
+    FVarLevel(Level const &level);
     ~FVarLevel();
 
     //  Queries for the entire channel:
-    Level const& getLevel() const { return _level; }
+    Level const &getLevel() const { return _level; }
 
-    int getNumValues() const          { return _valueCount; }
-    int getNumFaceValuesTotal() const { return (int) _faceVertValues.size(); }
+    int getNumValues() const { return _valueCount; }
+    int getNumFaceValuesTotal() const { return (int)_faceVertValues.size(); }
 
-    bool isLinear() const            { return _isLinear; }
+    bool isLinear() const { return _isLinear; }
     bool hasLinearBoundaries() const { return _hasLinearBoundaries; }
-    bool hasSmoothBoundaries() const { return ! _hasLinearBoundaries; }
-    bool hasCreaseEnds() const       { return hasSmoothBoundaries(); }
+    bool hasSmoothBoundaries() const { return !_hasLinearBoundaries; }
+    bool hasCreaseEnds() const { return hasSmoothBoundaries(); }
 
     Sdc::Options getOptions() const { return _options; }
 
     //  Queries per face:
-    ConstIndexArray  getFaceValues(Index fIndex) const;
-    IndexArray       getFaceValues(Index fIndex);
+    ConstIndexArray getFaceValues(Index fIndex) const;
+    IndexArray      getFaceValues(Index fIndex);
 
     //  Queries per edge:
-    ETag getEdgeTag(Index eIndex) const          { return _edgeTags[eIndex]; }
+    ETag getEdgeTag(Index eIndex) const { return _edgeTags[eIndex]; }
     bool edgeTopologyMatches(Index eIndex) const { return !getEdgeTag(eIndex)._mismatch; }
 
     //  Queries per vertex (and its potential sibling values):
-    int   getNumVertexValues(Index v) const                  { return _vertSiblingCounts[v]; }
+    int   getNumVertexValues(Index v) const { return _vertSiblingCounts[v]; }
     Index getVertexValueOffset(Index v, Sibling i = 0) const { return _vertSiblingOffsets[v] + i; }
 
-    Index getVertexValue(Index v, Sibling i = 0) const { return _vertValueIndices[getVertexValueOffset(v,i)]; }
+    Index getVertexValue(Index v, Sibling i = 0) const { return _vertValueIndices[getVertexValueOffset(v, i)]; }
 
     Index findVertexValueIndex(Index vertexIndex, Index valueIndex) const;
 
     //  Methods to access/modify array properties per vertex:
-    ConstIndexArray  getVertexValues(Index vIndex) const;
-    IndexArray       getVertexValues(Index vIndex);
+    ConstIndexArray getVertexValues(Index vIndex) const;
+    IndexArray      getVertexValues(Index vIndex);
 
-    ConstValueTagArray  getVertexValueTags(Index vIndex) const;
-    ValueTagArray       getVertexValueTags(Index vIndex);
+    ConstValueTagArray getVertexValueTags(Index vIndex) const;
+    ValueTagArray      getVertexValueTags(Index vIndex);
 
-    ConstCreaseEndPairArray  getVertexValueCreaseEnds(Index vIndex) const;
-    CreaseEndPairArray       getVertexValueCreaseEnds(Index vIndex);
+    ConstCreaseEndPairArray getVertexValueCreaseEnds(Index vIndex) const;
+    CreaseEndPairArray      getVertexValueCreaseEnds(Index vIndex);
 
-    ConstSiblingArray  getVertexFaceSiblings(Index vIndex) const;
-    SiblingArray       getVertexFaceSiblings(Index vIndex);
+    ConstSiblingArray getVertexFaceSiblings(Index vIndex) const;
+    SiblingArray      getVertexFaceSiblings(Index vIndex);
 
     //  Queries per value:
-    ValueTag getValueTag(Index valueIndex) const          { return _vertValueTags[valueIndex]; }
+    ValueTag getValueTag(Index valueIndex) const { return _vertValueTags[valueIndex]; }
     bool     valueTopologyMatches(Index valueIndex) const { return !getValueTag(valueIndex)._mismatch; }
 
     CreaseEndPair getValueCreaseEndPair(Index valueIndex) const { return _vertValueCreaseEnds[valueIndex]; }
@@ -231,7 +236,7 @@ public:
     void getVertexCreaseEndValues(Index vIndex, Sibling sibling, Index endValues[2]) const;
 
     //  Initialization and allocation helpers:
-    void setOptions(Sdc::Options const& options);
+    void setOptions(Sdc::Options const &options);
     void resizeVertexValues(int numVertexValues);
     void resizeValues(int numValues);
     void resizeComponents();
@@ -242,18 +247,18 @@ public:
     void initializeFaceValuesFromVertexFaceSiblings();
 
     struct ValueSpan;
-    void gatherValueSpans(Index vIndex, ValueSpan * vValueSpans) const;
+    void gatherValueSpans(Index vIndex, ValueSpan *vValueSpans) const;
 
     //  Debugging methods:
     bool validate() const;
     void print() const;
-    void buildFaceVertexSiblingsFromVertexFaceSiblings(std::vector<Sibling>& fvSiblings) const;
+    void buildFaceVertexSiblingsFromVertexFaceSiblings(std::vector<Sibling> &fvSiblings) const;
 
-private:
+  private:
     //  Just as Refinements build Levels, FVarRefinements build FVarLevels...
     friend class FVarRefinement;
 
-    Level const & _level;
+    Level const &_level;
 
     //  Linear interpolation options vary between channels:
     Sdc::Options _options;
@@ -281,9 +286,9 @@ private:
     std::vector<ETag> _edgeTags;
 
     //  Per-vertex:
-    std::vector<Sibling>  _vertSiblingCounts;
-    std::vector<int>      _vertSiblingOffsets;
-    std::vector<Sibling>  _vertFaceSiblings;
+    std::vector<Sibling> _vertSiblingCounts;
+    std::vector<int>     _vertSiblingOffsets;
+    std::vector<Sibling> _vertFaceSiblings;
 
     //  Per-value:
     std::vector<Index>         _vertValueIndices;
@@ -294,89 +299,80 @@ private:
 //
 //  Access/modify the values associated with each face:
 //
-inline ConstIndexArray
-FVarLevel::getFaceValues(Index fIndex) const {
-
+inline ConstIndexArray FVarLevel::getFaceValues(Index fIndex) const
+{
     int vCount  = _level.getNumFaceVertices(fIndex);
     int vOffset = _level.getOffsetOfFaceVertices(fIndex);
     return ConstIndexArray(&_faceVertValues[vOffset], vCount);
 }
-inline IndexArray
-FVarLevel::getFaceValues(Index fIndex) {
-
+inline IndexArray FVarLevel::getFaceValues(Index fIndex)
+{
     int vCount  = _level.getNumFaceVertices(fIndex);
     int vOffset = _level.getOffsetOfFaceVertices(fIndex);
     return IndexArray(&_faceVertValues[vOffset], vCount);
 }
 
-inline FVarLevel::ConstSiblingArray
-FVarLevel::getVertexFaceSiblings(Index vIndex) const {
-
+inline FVarLevel::ConstSiblingArray FVarLevel::getVertexFaceSiblings(Index vIndex) const
+{
     int vCount  = _level.getNumVertexFaces(vIndex);
     int vOffset = _level.getOffsetOfVertexFaces(vIndex);
     return ConstSiblingArray(&_vertFaceSiblings[vOffset], vCount);
 }
-inline FVarLevel::SiblingArray
-FVarLevel::getVertexFaceSiblings(Index vIndex) {
-
+inline FVarLevel::SiblingArray FVarLevel::getVertexFaceSiblings(Index vIndex)
+{
     int vCount  = _level.getNumVertexFaces(vIndex);
     int vOffset = _level.getOffsetOfVertexFaces(vIndex);
     return SiblingArray(&_vertFaceSiblings[vOffset], vCount);
 }
 
-inline ConstIndexArray
-FVarLevel::getVertexValues(Index vIndex) const
+inline ConstIndexArray FVarLevel::getVertexValues(Index vIndex) const
 {
     int vCount  = getNumVertexValues(vIndex);
     int vOffset = getVertexValueOffset(vIndex);
     return ConstIndexArray(&_vertValueIndices[vOffset], vCount);
 }
-inline IndexArray
-FVarLevel::getVertexValues(Index vIndex)
+inline IndexArray FVarLevel::getVertexValues(Index vIndex)
 {
     int vCount  = getNumVertexValues(vIndex);
     int vOffset = getVertexValueOffset(vIndex);
     return IndexArray(&_vertValueIndices[vOffset], vCount);
 }
 
-inline FVarLevel::ConstValueTagArray
-FVarLevel::getVertexValueTags(Index vIndex) const
+inline FVarLevel::ConstValueTagArray FVarLevel::getVertexValueTags(Index vIndex) const
 {
     int vCount  = getNumVertexValues(vIndex);
     int vOffset = getVertexValueOffset(vIndex);
     return ConstValueTagArray(&_vertValueTags[vOffset], vCount);
 }
-inline FVarLevel::ValueTagArray
-FVarLevel::getVertexValueTags(Index vIndex)
+inline FVarLevel::ValueTagArray FVarLevel::getVertexValueTags(Index vIndex)
 {
     int vCount  = getNumVertexValues(vIndex);
     int vOffset = getVertexValueOffset(vIndex);
     return ValueTagArray(&_vertValueTags[vOffset], vCount);
 }
 
-inline FVarLevel::ConstCreaseEndPairArray
-FVarLevel::getVertexValueCreaseEnds(Index vIndex) const
+inline FVarLevel::ConstCreaseEndPairArray FVarLevel::getVertexValueCreaseEnds(Index vIndex) const
 {
     int vCount  = getNumVertexValues(vIndex);
     int vOffset = getVertexValueOffset(vIndex);
     return ConstCreaseEndPairArray(&_vertValueCreaseEnds[vOffset], vCount);
 }
-inline FVarLevel::CreaseEndPairArray
-FVarLevel::getVertexValueCreaseEnds(Index vIndex)
+inline FVarLevel::CreaseEndPairArray FVarLevel::getVertexValueCreaseEnds(Index vIndex)
 {
     int vCount  = getNumVertexValues(vIndex);
     int vOffset = getVertexValueOffset(vIndex);
     return CreaseEndPairArray(&_vertValueCreaseEnds[vOffset], vCount);
 }
 
-inline Index
-FVarLevel::findVertexValueIndex(Index vertexIndex, Index valueIndex) const {
-
-    if (_level.getDepth() > 0) return valueIndex;
+inline Index FVarLevel::findVertexValueIndex(Index vertexIndex, Index valueIndex) const
+{
+    if (_level.getDepth() > 0)
+        return valueIndex;
 
     Index vvIndex = getVertexValueOffset(vertexIndex);
-    while (_vertValueIndices[vvIndex] != valueIndex) {
-        ++ vvIndex;
+    while (_vertValueIndices[vvIndex] != valueIndex)
+    {
+        ++vvIndex;
     }
     return vvIndex;
 }
@@ -384,19 +380,19 @@ FVarLevel::findVertexValueIndex(Index vertexIndex, Index valueIndex) const {
 //
 //  Methods related to tagging:
 //
-inline Level::ETag
-FVarLevel::ETag::combineWithLevelETag(Level::ETag levelTag) const
+inline Level::ETag FVarLevel::ETag::combineWithLevelETag(Level::ETag levelTag) const
 {
-    if (this->_mismatch) {
+    if (this->_mismatch)
+    {
         levelTag._boundary = true;
         levelTag._infSharp = true;
     }
     return levelTag;
 }
-inline Level::VTag
-FVarLevel::ValueTag::combineWithLevelVTag(Level::VTag levelTag) const
+inline Level::VTag FVarLevel::ValueTag::combineWithLevelVTag(Level::VTag levelTag) const
 {
-    if (this->_mismatch) {
+    if (this->_mismatch)
+    {
         //
         //  Semi-sharp FVar values are always tagged and treated as corners
         //  (at least three sharp edges (two boundary edges and one interior
@@ -404,24 +400,30 @@ FVarLevel::ValueTag::combineWithLevelVTag(Level::VTag levelTag) const
         //  decayed, but they ultimately lie on the inf-sharp crease of the
         //  FVar boundary.  Consider this when tagging inf-sharp features.
         //
-        if (this->isCorner()) {
-            levelTag._rule = (Level::VTag::VTagSize) Sdc::Crease::RULE_CORNER;
-        } else {
-            levelTag._rule = (Level::VTag::VTagSize) Sdc::Crease::RULE_CREASE;
+        if (this->isCorner())
+        {
+            levelTag._rule = (Level::VTag::VTagSize)Sdc::Crease::RULE_CORNER;
         }
-        if (this->isCrease() || this->isSemiSharp()) {
-            levelTag._infSharp = false;
+        else
+        {
+            levelTag._rule = (Level::VTag::VTagSize)Sdc::Crease::RULE_CREASE;
+        }
+        if (this->isCrease() || this->isSemiSharp())
+        {
+            levelTag._infSharp       = false;
             levelTag._infSharpCrease = true;
-            levelTag._corner = false;
-        } else {
-            levelTag._infSharp = true;
+            levelTag._corner         = false;
+        }
+        else
+        {
+            levelTag._infSharp       = true;
             levelTag._infSharpCrease = false;
-            levelTag._corner = !this->_infIrregular && !this->_infSharpEdges;
+            levelTag._corner         = !this->_infIrregular && !this->_infSharpEdges;
         }
         levelTag._infSharpEdges = true;
-        levelTag._infIrregular = this->_infIrregular;
+        levelTag._infIrregular  = this->_infIrregular;
 
-        levelTag._boundary = true;
+        levelTag._boundary  = true;
         levelTag._xordinary = this->_xordinary;
 
         levelTag._nonManifold |= this->_nonManifold;

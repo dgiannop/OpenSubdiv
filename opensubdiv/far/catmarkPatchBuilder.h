@@ -25,15 +25,16 @@
 #ifndef OPENSUBDIV3_FAR_CATMARK_PATCH_BUILDER_H
 #define OPENSUBDIV3_FAR_CATMARK_PATCH_BUILDER_H
 
+#include "../far/patchBuilder.h"
 #include "../version.h"
 
-#include "../far/patchBuilder.h"
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Far {
+namespace Far
+{
 
 //
 //  CatmarkPatchBuilder
@@ -42,28 +43,22 @@ namespace Far {
 //  Required virtual methods are included, along with any customizations
 //  local to their implementation.
 //
-class CatmarkPatchBuilder : public PatchBuilder {
-public:
-    CatmarkPatchBuilder(TopologyRefiner const& refiner, Options const& options);
+class CatmarkPatchBuilder : public PatchBuilder
+{
+  public:
+    CatmarkPatchBuilder(TopologyRefiner const &refiner, Options const &options);
     virtual ~CatmarkPatchBuilder();
 
-protected:
+  protected:
     virtual PatchDescriptor::Type patchTypeFromBasis(BasisType basis) const;
 
-    virtual int convertToPatchType(SourcePatch const &   sourcePatch,
-                                   PatchDescriptor::Type patchType,
-                                   SparseMatrix<float> & matrix) const;
-    virtual int convertToPatchType(SourcePatch const &    sourcePatch,
-                                   PatchDescriptor::Type  patchType,
-                                   SparseMatrix<double> & matrix) const;
+    virtual int convertToPatchType(SourcePatch const &sourcePatch, PatchDescriptor::Type patchType, SparseMatrix<float> &matrix) const;
+    virtual int convertToPatchType(SourcePatch const &sourcePatch, PatchDescriptor::Type patchType, SparseMatrix<double> &matrix) const;
 
-private:
-    typedef SparseMatrix<float>   ConversionMatrix;
+  private:
+    typedef SparseMatrix<float> ConversionMatrix;
 
-    template <typename REAL>
-    int convertSourcePatch(SourcePatch const &   sourcePatch,
-                           PatchDescriptor::Type patchType,
-                           SparseMatrix<REAL> &  matrix) const;
+    template <typename REAL> int convertSourcePatch(SourcePatch const &sourcePatch, PatchDescriptor::Type patchType, SparseMatrix<REAL> &matrix) const;
 };
 
 } // end namespace Far

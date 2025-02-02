@@ -27,8 +27,10 @@
 
 #include "../version.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
 typedef void (*HbrMemStatFunction)(size_t bytes);
 
@@ -36,10 +38,9 @@ typedef void (*HbrMemStatFunction)(size_t bytes);
  * HbrAllocator - derived from UtBlockAllocator.h, but embedded in
  * libhbrep.
  */
-template <typename T> class HbrAllocator {
-
-public:
-
+template <typename T> class HbrAllocator
+{
+  public:
     /// Constructor
     HbrAllocator(size_t *memorystat, int blocksize, void (*increment)(size_t bytes), void (*decrement)(size_t bytes), size_t elemsize = sizeof(T));
 
@@ -47,7 +48,7 @@ public:
     ~HbrAllocator();
 
     /// Create an allocated object
-    T * Allocate();
+    T *Allocate();
 
     /// Return an allocated object to the block allocator
     void Deallocate(T *);
@@ -59,11 +60,11 @@ public:
 
     void SetMemStatsDecrement(void (*decrement)(size_t bytes)) { m_decrement = decrement; }
 
-private:
-    size_t *m_memorystat;
+  private:
+    size_t *  m_memorystat;
     const int m_blocksize;
-    int m_elemsize;
-    T** m_blocks;
+    int       m_elemsize;
+    T **      m_blocks;
 
     // Number of actually allocated blocks
     int m_nblocks;
@@ -82,85 +83,89 @@ private:
 
 template <typename T>
 HbrAllocator<T>::HbrAllocator(size_t *memorystat, int blocksize, void (*increment)(size_t bytes), void (*decrement)(size_t bytes), size_t elemsize)
-    : m_memorystat(memorystat), m_blocksize(blocksize), m_elemsize((int)elemsize), m_blocks(0), m_nblocks(0), m_blockCapacity(0), m_freecount(0), m_increment(increment), m_decrement(decrement) {
+    : m_memorystat(memorystat), m_blocksize(blocksize), m_elemsize((int)elemsize), m_blocks(0), m_nblocks(0), m_blockCapacity(0), m_freecount(0), m_increment(increment), m_decrement(decrement)
+{
 }
 
-template <typename T>
-HbrAllocator<T>::~HbrAllocator() {
-    Clear();
-}
+template <typename T> HbrAllocator<T>::~HbrAllocator() { Clear(); }
 
-template <typename T>
-void HbrAllocator<T>::Clear() {
-    for (int i = 0; i < m_nblocks; ++i) {
+template <typename T> void HbrAllocator<T>::Clear()
+{
+    for (int i = 0; i < m_nblocks; ++i)
+    {
         // Run the destructors (placement)
-        T* blockptr = m_blocks[i];
-        T* startblock = blockptr;
-        for (int j = 0; j < m_blocksize; ++j) {
+        T *blockptr   = m_blocks[i];
+        T *startblock = blockptr;
+        for (int j = 0; j < m_blocksize; ++j)
+        {
             blockptr->~T();
-            blockptr = (T*) ((char*) blockptr + m_elemsize);
+            blockptr = (T *)((char *)blockptr + m_elemsize);
         }
         free(startblock);
-        if (m_decrement) m_decrement(m_blocksize * m_elemsize);
+        if (m_decrement)
+            m_decrement(m_blocksize * m_elemsize);
         *m_memorystat -= m_blocksize * m_elemsize;
     }
     free(m_blocks);
-    m_blocks = 0;
-    m_nblocks = 0;
+    m_blocks        = 0;
+    m_nblocks       = 0;
     m_blockCapacity = 0;
-    m_freecount = 0;
-    m_freelist = NULL;
+    m_freecount     = 0;
+    m_freelist      = NULL;
 }
 
-template <typename T>
-T*
-HbrAllocator<T>::Allocate() {
-    if (!m_freecount) {
-
+template <typename T> T *HbrAllocator<T>::Allocate()
+{
+    if (!m_freecount)
+    {
         // Allocate a new block
-        T* block = (T*) malloc(m_blocksize * m_elemsize);
-        T* blockptr = block;
+        T *block    = (T *)malloc(m_blocksize * m_elemsize);
+        T *blockptr = block;
         // Run the constructors on each element using placement new
-        for (int i = 0; i < m_blocksize; ++i) {
+        for (int i = 0; i < m_blocksize; ++i)
+        {
             new (blockptr) T();
-            blockptr = (T*) ((char*) blockptr + m_elemsize);
+            blockptr = (T *)((char *)blockptr + m_elemsize);
         }
-        if (m_increment) m_increment(m_blocksize * m_elemsize);
+        if (m_increment)
+            m_increment(m_blocksize * m_elemsize);
         *m_memorystat += m_blocksize * m_elemsize;
 
         // Put the block's entries on the free list
         blockptr = block;
-        for (int i = 0; i < m_blocksize - 1; ++i) {
-            T* next = (T*) ((char*) blockptr + m_elemsize);
+        for (int i = 0; i < m_blocksize - 1; ++i)
+        {
+            T *next             = (T *)((char *)blockptr + m_elemsize);
             blockptr->GetNext() = next;
-            blockptr = next;
+            blockptr            = next;
         }
         blockptr->GetNext() = 0;
-        m_freelist = block;
+        m_freelist          = block;
 
         // Keep track of the newly allocated block
-        if (m_nblocks + 1 >= m_blockCapacity) {
+        if (m_nblocks + 1 >= m_blockCapacity)
+        {
             m_blockCapacity = m_blockCapacity * 2;
-            if (m_blockCapacity < 1) m_blockCapacity = 1;
-            m_blocks = (T**) realloc(m_blocks, m_blockCapacity * sizeof(T*));
+            if (m_blockCapacity < 1)
+                m_blockCapacity = 1;
+            m_blocks = (T **)realloc(m_blocks, m_blockCapacity * sizeof(T *));
         }
         m_blocks[m_nblocks] = block;
         m_nblocks++;
         m_freecount += m_blocksize;
     }
-    T* obj = m_freelist;
-    m_freelist = obj->GetNext();
+    T *obj         = m_freelist;
+    m_freelist     = obj->GetNext();
     obj->GetNext() = 0;
     m_freecount--;
     return obj;
 }
 
-template <typename T>
-void
-HbrAllocator<T>::Deallocate(T * obj) {
+template <typename T> void HbrAllocator<T>::Deallocate(T *obj)
+{
     assert(!obj->GetNext());
     obj->GetNext() = m_freelist;
-    m_freelist = obj;
+    m_freelist     = obj;
     m_freecount++;
 }
 

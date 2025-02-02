@@ -45,22 +45,22 @@
 //  varying channels, which the SurfaceFactory can use directly, so a more
 //  explicit association of primvars with integers is not necessary here.
 //
-class CustomSurfaceFactory : public OpenSubdiv::Bfr::SurfaceFactory {
-public:
+class CustomSurfaceFactory : public OpenSubdiv::Bfr::SurfaceFactory
+{
+  public:
     typedef OpenSubdiv::Far::TopologyRefiner TopologyRefiner;
 
-public:
+  public:
     //
     //  Subclass-specific constructor:
     //
-    CustomSurfaceFactory(TopologyRefiner const & mesh,
-                         Options const & options = Options());
+    CustomSurfaceFactory(TopologyRefiner const &mesh, Options const &options = Options());
     ~CustomSurfaceFactory() override = default;
 
     //
     //  Additional subclass-specific public methods:
     //
-    TopologyRefiner const & GetMesh() const { return _mesh; }
+    TopologyRefiner const &GetMesh() const { return _mesh; }
 
     //
     //  Convenience queries to verify bounds of integer arguments used by
@@ -69,44 +69,36 @@ public:
     int GetNumFaces() const;
     int GetNumFVarChannels() const;
 
-protected:
+  protected:
     //
     //  Required virtual overrides to satisfy topological requirements:
     //
-    bool isFaceHole( Index faceIndex) const override;
+    bool isFaceHole(Index faceIndex) const override;
     int  getFaceSize(Index faceIndex) const override;
 
-    int getFaceVertexIndices(   Index faceIndex,
-                                Index vertexIndices[]) const override;
-    int getFaceFVarValueIndices(Index faceIndex, FVarID fvarID,
-                                Index fvarValueIndices[]) const override;
+    int getFaceVertexIndices(Index faceIndex, Index vertexIndices[]) const override;
+    int getFaceFVarValueIndices(Index faceIndex, FVarID fvarID, Index fvarValueIndices[]) const override;
 
-    int populateFaceVertexDescriptor(Index faceIndex, int faceVertex,
-                            OpenSubdiv::Bfr::VertexDescriptor *) const override;
+    int populateFaceVertexDescriptor(Index faceIndex, int faceVertex, OpenSubdiv::Bfr::VertexDescriptor *) const override;
 
-    int getFaceVertexIncidentFaceVertexIndices(
-                            Index faceIndex, int faceVertex,
-                            Index vertexIndices[]) const override;
-    int getFaceVertexIncidentFaceFVarValueIndices(
-                            Index faceIndex, int faceVertex, FVarID fvarID,
-                            Index fvarValueIndices[]) const override;
+    int getFaceVertexIncidentFaceVertexIndices(Index faceIndex, int faceVertex, Index vertexIndices[]) const override;
+    int getFaceVertexIncidentFaceFVarValueIndices(Index faceIndex, int faceVertex, FVarID fvarID, Index fvarValueIndices[]) const override;
 
-private:
+  private:
     //
     //  Internal supporting method to gather indices -- either vertex or
     //  face-varying -- since both are accessed similarly:
     //
     int getFaceVaryingChannel(FVarID fvarID) const;
 
-    int getFaceVertexPointIndices(Index faceIndex, int faceVertex,
-                                  Index indices[], int vtxOrFVarChannel) const;
+    int getFaceVertexPointIndices(Index faceIndex, int faceVertex, Index indices[], int vtxOrFVarChannel) const;
 
-private:
+  private:
     //
     //  Typically a subclass adds member variables for an instance of a
     //  mesh and an instance of a local cache:
     //
-    TopologyRefiner const & _mesh;
+    TopologyRefiner const &_mesh;
 
     //  The ownership of the local cache is deferred to the subclass in
     //  part so the subclass can choose one of its preferred type --
@@ -129,16 +121,9 @@ private:
     LocalFactoryCacheType _localCache;
 };
 
-
 //
 //  Simple inline extensions to the public interface:
 //
-inline int
-CustomSurfaceFactory::GetNumFaces() const {
-    return _mesh.GetLevel(0).GetNumFaces();
-}
+inline int CustomSurfaceFactory::GetNumFaces() const { return _mesh.GetLevel(0).GetNumFaces(); }
 
-inline int
-CustomSurfaceFactory::GetNumFVarChannels() const {
-    return _mesh.GetNumFVarChannels();
-}
+inline int CustomSurfaceFactory::GetNumFVarChannels() const { return _mesh.GetNumFVarChannels(); }

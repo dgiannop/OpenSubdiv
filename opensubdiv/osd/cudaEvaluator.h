@@ -25,22 +25,26 @@
 #ifndef OPENSUBDIV3_OSD_CUDA_EVALUATOR_H
 #define OPENSUBDIV3_OSD_CUDA_EVALUATOR_H
 
-#include "../version.h"
-
 #include <vector>
+
 #include "../osd/bufferDescriptor.h"
 #include "../osd/types.h"
+#include "../version.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Far {
-    class PatchTable;
-    class StencilTable;
-    class LimitStencilTable;
-}
+namespace Far
+{
+class PatchTable;
+class StencilTable;
+class LimitStencilTable;
+} // namespace Far
 
-namespace Osd {
+namespace Osd
+{
 
 /// \brief CUDA stencil table
 ///
@@ -49,16 +53,17 @@ namespace Osd {
 /// CudaEvaluator consumes this table to apply stencils
 ///
 ///
-class CudaStencilTable {
-public:
-    static CudaStencilTable *Create(Far::StencilTable const *stencilTable,
-                                    void *deviceContext = NULL) {
-        (void)deviceContext;  // unused
+class CudaStencilTable
+{
+  public:
+    static CudaStencilTable *Create(Far::StencilTable const *stencilTable, void *deviceContext = NULL)
+    {
+        (void)deviceContext; // unused
         return new CudaStencilTable(stencilTable);
     }
-    static CudaStencilTable *Create(Far::LimitStencilTable const *limitStencilTable,
-                                    void *deviceContext = NULL) {
-        (void)deviceContext;  // unused
+    static CudaStencilTable *Create(Far::LimitStencilTable const *limitStencilTable, void *deviceContext = NULL)
+    {
+        (void)deviceContext; // unused
         return new CudaStencilTable(limitStencilTable);
     }
 
@@ -76,23 +81,16 @@ public:
     void *GetDuuWeightsBuffer() const { return _duuWeights; }
     void *GetDuvWeightsBuffer() const { return _duvWeights; }
     void *GetDvvWeightsBuffer() const { return _dvvWeights; }
-    int GetNumStencils() const { return _numStencils; }
+    int   GetNumStencils() const { return _numStencils; }
 
-private:
-    void * _sizes,
-         * _offsets,
-         * _indices,
-         * _weights,
-         * _duWeights,
-         * _dvWeights,
-         * _duuWeights,
-         * _duvWeights,
-         * _dvvWeights;
-    int _numStencils;
+  private:
+    void *_sizes, *_offsets, *_indices, *_weights, *_duWeights, *_dvWeights, *_duuWeights, *_duvWeights, *_dvvWeights;
+    int   _numStencils;
 };
 
-class CudaEvaluator {
-public:
+class CudaEvaluator
+{
+  public:
     /// ----------------------------------------------------------------------
     ///
     ///   Stencil evaluations with StencilTable
@@ -123,20 +121,11 @@ public:
     /// @param deviceContext  not used in the CudaEvaluator
     ///
     template <typename SRC_BUFFER, typename DST_BUFFER, typename STENCIL_TABLE>
-    static bool EvalStencils(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        STENCIL_TABLE const *stencilTable,
-        const void *instance = NULL,
-        void * deviceContext = NULL) {
-
-        (void)instance;  // unused
-        (void)deviceContext;  // unused
-        return EvalStencils(srcBuffer->BindCudaBuffer(), srcDesc,
-                            dstBuffer->BindCudaBuffer(), dstDesc,
-                            (int const *)stencilTable->GetSizesBuffer(),
-                            (int const *)stencilTable->GetOffsetsBuffer(),
-                            (int const *)stencilTable->GetIndicesBuffer(),
+    static bool EvalStencils(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, STENCIL_TABLE const *stencilTable, const void *instance = NULL, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
+        return EvalStencils(srcBuffer->BindCudaBuffer(), srcDesc, dstBuffer->BindCudaBuffer(), dstDesc, (int const *)stencilTable->GetSizesBuffer(), (int const *)stencilTable->GetOffsetsBuffer(), (int const *)stencilTable->GetIndicesBuffer(),
                             (float const *)stencilTable->GetWeightsBuffer(),
                             /*start = */ 0,
                             /*end   = */ stencilTable->GetNumStencils());
@@ -168,14 +157,7 @@ public:
     ///
     /// @param end            end index of stencil table
     ///
-    static bool EvalStencils(
-        const float *src, BufferDescriptor const &srcDesc,
-        float *dst,       BufferDescriptor const &dstDesc,
-        const int * sizes,
-        const int * offsets,
-        const int * indices,
-        const float * weights,
-        int start, int end);
+    static bool EvalStencils(const float *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, const int *sizes, const int *offsets, const int *indices, const float *weights, int start, int end);
 
     /// \brief Generic static eval stencils function with derivatives.
     ///        This function has a same signature as other device kernels
@@ -215,27 +197,14 @@ public:
     /// @param deviceContext  not used in the cuda kernel
     ///
     template <typename SRC_BUFFER, typename DST_BUFFER, typename STENCIL_TABLE>
-    static bool EvalStencils(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        STENCIL_TABLE const *stencilTable,
-        const CudaEvaluator *instance = NULL,
-        void * deviceContext = NULL) {
+    static bool EvalStencils(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                             STENCIL_TABLE const *stencilTable, const CudaEvaluator *instance = NULL, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
-
-        return EvalStencils(srcBuffer->BindCudaBuffer(), srcDesc,
-                            dstBuffer->BindCudaBuffer(), dstDesc,
-                            duBuffer->BindCudaBuffer(),  duDesc,
-                            dvBuffer->BindCudaBuffer(),  dvDesc,
-                            (int const *)stencilTable->GetSizesBuffer(),
-                            (int const *)stencilTable->GetOffsetsBuffer(),
-                            (int const *)stencilTable->GetIndicesBuffer(),
-                            (float const *)stencilTable->GetWeightsBuffer(),
-                            (float const *)stencilTable->GetDuWeightsBuffer(),
+        return EvalStencils(srcBuffer->BindCudaBuffer(), srcDesc, dstBuffer->BindCudaBuffer(), dstDesc, duBuffer->BindCudaBuffer(), duDesc, dvBuffer->BindCudaBuffer(), dvDesc, (int const *)stencilTable->GetSizesBuffer(),
+                            (int const *)stencilTable->GetOffsetsBuffer(), (int const *)stencilTable->GetIndicesBuffer(), (float const *)stencilTable->GetWeightsBuffer(), (float const *)stencilTable->GetDuWeightsBuffer(),
                             (float const *)stencilTable->GetDvWeightsBuffer(),
                             /*start = */ 0,
                             /*end   = */ stencilTable->GetNumStencils());
@@ -281,18 +250,8 @@ public:
     ///
     /// @param end            end index of stencil table
     ///
-    static bool EvalStencils(
-        const float *src, BufferDescriptor const &srcDesc,
-        float *dst,       BufferDescriptor const &dstDesc,
-        float *du,        BufferDescriptor const &duDesc,
-        float *dv,        BufferDescriptor const &dvDesc,
-        const int * sizes,
-        const int * offsets,
-        const int * indices,
-        const float * weights,
-        const float * duWeights,
-        const float * dvWeights,
-        int start, int end);
+    static bool EvalStencils(const float *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, float *du, BufferDescriptor const &duDesc, float *dv, BufferDescriptor const &dvDesc, const int *sizes, const int *offsets,
+                             const int *indices, const float *weights, const float *duWeights, const float *dvWeights, int start, int end);
 
     /// \brief Generic static eval stencils function with derivatives.
     ///        This function has a same signature as other device kernels
@@ -350,36 +309,16 @@ public:
     /// @param deviceContext  not used in the cuda kernel
     ///
     template <typename SRC_BUFFER, typename DST_BUFFER, typename STENCIL_TABLE>
-    static bool EvalStencils(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        STENCIL_TABLE const *stencilTable,
-        const CudaEvaluator *instance = NULL,
-        void * deviceContext = NULL) {
+    static bool EvalStencils(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                             DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, STENCIL_TABLE const *stencilTable,
+                             const CudaEvaluator *instance = NULL, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
-
-        return EvalStencils(srcBuffer->BindCudaBuffer(), srcDesc,
-                            dstBuffer->BindCudaBuffer(), dstDesc,
-                            duBuffer->BindCudaBuffer(),  duDesc,
-                            dvBuffer->BindCudaBuffer(),  dvDesc,
-                            duuBuffer->BindCudaBuffer(), duuDesc,
-                            duvBuffer->BindCudaBuffer(), duvDesc,
-                            dvvBuffer->BindCudaBuffer(), dvvDesc,
-                            (int const *)stencilTable->GetSizesBuffer(),
-                            (int const *)stencilTable->GetOffsetsBuffer(),
-                            (int const *)stencilTable->GetIndicesBuffer(),
-                            (float const *)stencilTable->GetWeightsBuffer(),
-                            (float const *)stencilTable->GetDuWeightsBuffer(),
-                            (float const *)stencilTable->GetDvWeightsBuffer(),
-                            (float const *)stencilTable->GetDuuWeightsBuffer(),
-                            (float const *)stencilTable->GetDuvWeightsBuffer(),
+        return EvalStencils(srcBuffer->BindCudaBuffer(), srcDesc, dstBuffer->BindCudaBuffer(), dstDesc, duBuffer->BindCudaBuffer(), duDesc, dvBuffer->BindCudaBuffer(), dvDesc, duuBuffer->BindCudaBuffer(), duuDesc, duvBuffer->BindCudaBuffer(), duvDesc,
+                            dvvBuffer->BindCudaBuffer(), dvvDesc, (int const *)stencilTable->GetSizesBuffer(), (int const *)stencilTable->GetOffsetsBuffer(), (int const *)stencilTable->GetIndicesBuffer(), (float const *)stencilTable->GetWeightsBuffer(),
+                            (float const *)stencilTable->GetDuWeightsBuffer(), (float const *)stencilTable->GetDvWeightsBuffer(), (float const *)stencilTable->GetDuuWeightsBuffer(), (float const *)stencilTable->GetDuvWeightsBuffer(),
                             (float const *)stencilTable->GetDvvWeightsBuffer(),
                             /*start = */ 0,
                             /*end   = */ stencilTable->GetNumStencils());
@@ -446,24 +385,9 @@ public:
     ///
     /// @param end            end index of stencil table
     ///
-    static bool EvalStencils(
-        const float *src, BufferDescriptor const &srcDesc,
-        float *dst,       BufferDescriptor const &dstDesc,
-        float *du,        BufferDescriptor const &duDesc,
-        float *dv,        BufferDescriptor const &dvDesc,
-        float *duu,       BufferDescriptor const &duuDesc,
-        float *duv,       BufferDescriptor const &duvDesc,
-        float *dvv,       BufferDescriptor const &dvvDesc,
-        const int * sizes,
-        const int * offsets,
-        const int * indices,
-        const float * weights,
-        const float * duWeights,
-        const float * dvWeights,
-        const float * duuWeights,
-        const float * duvWeights,
-        const float * dvvWeights,
-        int start, int end);
+    static bool EvalStencils(const float *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, float *du, BufferDescriptor const &duDesc, float *dv, BufferDescriptor const &dvDesc, float *duu, BufferDescriptor const &duuDesc,
+                             float *duv, BufferDescriptor const &duvDesc, float *dvv, BufferDescriptor const &dvvDesc, const int *sizes, const int *offsets, const int *indices, const float *weights, const float *duWeights, const float *dvWeights,
+                             const float *duuWeights, const float *duvWeights, const float *dvvWeights, int start, int end);
 
     /// ----------------------------------------------------------------------
     ///
@@ -499,27 +423,15 @@ public:
     ///
     /// @param deviceContext    not used in the cuda evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatches(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        CudaEvaluator const *instance,
-        void * deviceContext = NULL) {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatches(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, CudaEvaluator const *instance,
+                            void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
-
-        return EvalPatches(srcBuffer->BindCudaBuffer(), srcDesc,
-                           dstBuffer->BindCudaBuffer(), dstDesc,
-                           numPatchCoords,
-                           (const PatchCoord *)patchCoords->BindCudaBuffer(),
-                           (const PatchArray *)patchTable->GetPatchArrayBuffer(),
-                           (const int *)patchTable->GetPatchIndexBuffer(),
-                           (const PatchParam *)patchTable->GetPatchParamBuffer());
+        return EvalPatches(srcBuffer->BindCudaBuffer(), srcDesc, dstBuffer->BindCudaBuffer(), dstDesc, numPatchCoords, (const PatchCoord *)patchCoords->BindCudaBuffer(), (const PatchArray *)patchTable->GetPatchArrayBuffer(),
+                           (const int *)patchTable->GetPatchIndexBuffer(), (const PatchParam *)patchTable->GetPatchParamBuffer());
     }
 
     /// \brief Generic limit eval function with derivatives. This function has
@@ -560,31 +472,15 @@ public:
     ///
     /// @param deviceContext    not used in the cuda evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatches(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        CudaEvaluator const *instance,
-        void * deviceContext = NULL) {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatches(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                            int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, CudaEvaluator const *instance, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
-
-        return EvalPatches(srcBuffer->BindCudaBuffer(), srcDesc,
-                           dstBuffer->BindCudaBuffer(), dstDesc,
-                           duBuffer->BindCudaBuffer(),  duDesc,
-                           dvBuffer->BindCudaBuffer(),  dvDesc,
-                           numPatchCoords,
-                           (const PatchCoord *)patchCoords->BindCudaBuffer(),
-                           (const PatchArray *)patchTable->GetPatchArrayBuffer(),
-                           (const int *)patchTable->GetPatchIndexBuffer(),
-                           (const PatchParam *)patchTable->GetPatchParamBuffer());
+        return EvalPatches(srcBuffer->BindCudaBuffer(), srcDesc, dstBuffer->BindCudaBuffer(), dstDesc, duBuffer->BindCudaBuffer(), duDesc, dvBuffer->BindCudaBuffer(), dvDesc, numPatchCoords, (const PatchCoord *)patchCoords->BindCudaBuffer(),
+                           (const PatchArray *)patchTable->GetPatchArrayBuffer(), (const int *)patchTable->GetPatchIndexBuffer(), (const PatchParam *)patchTable->GetPatchParamBuffer());
     }
 
     /// \brief Generic limit eval function with derivatives. This function has
@@ -643,36 +539,16 @@ public:
     ///
     /// @param deviceContext    not used in the cuda evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatches(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        CudaEvaluator const *instance,
-        void * deviceContext = NULL) {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatches(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                            DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords,
+                            PATCH_TABLE *patchTable, CudaEvaluator const *instance, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
-
-        return EvalPatches(srcBuffer->BindCudaBuffer(), srcDesc,
-                           dstBuffer->BindCudaBuffer(), dstDesc,
-                           duBuffer->BindCudaBuffer(),  duDesc,
-                           dvBuffer->BindCudaBuffer(),  dvDesc,
-                           duuBuffer->BindCudaBuffer(), duuDesc,
-                           duvBuffer->BindCudaBuffer(), duvDesc,
-                           dvvBuffer->BindCudaBuffer(), dvvDesc,
-                           numPatchCoords,
-                           (const PatchCoord *)patchCoords->BindCudaBuffer(),
-                           (const PatchArray *)patchTable->GetPatchArrayBuffer(),
-                           (const int *)patchTable->GetPatchIndexBuffer(),
+        return EvalPatches(srcBuffer->BindCudaBuffer(), srcDesc, dstBuffer->BindCudaBuffer(), dstDesc, duBuffer->BindCudaBuffer(), duDesc, dvBuffer->BindCudaBuffer(), dvDesc, duuBuffer->BindCudaBuffer(), duuDesc, duvBuffer->BindCudaBuffer(), duvDesc,
+                           dvvBuffer->BindCudaBuffer(), dvvDesc, numPatchCoords, (const PatchCoord *)patchCoords->BindCudaBuffer(), (const PatchArray *)patchTable->GetPatchArrayBuffer(), (const int *)patchTable->GetPatchIndexBuffer(),
                            (const PatchParam *)patchTable->GetPatchParamBuffer());
     }
 
@@ -703,14 +579,8 @@ public:
     /// @param patchParams      an array of Osd::PatchParam struct
     ///                         indexed by PatchCoord::patchIndex
     ///
-    static bool EvalPatches(
-        const float *src, BufferDescriptor const &srcDesc,
-        float *dst,       BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        const PatchCoord *patchCoords,
-        const PatchArray *patchArrays,
-        const int *patchIndices,
-        const PatchParam *patchParams);
+    static bool EvalPatches(const float *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, int numPatchCoords, const PatchCoord *patchCoords, const PatchArray *patchArrays, const int *patchIndices,
+                            const PatchParam *patchParams);
 
     /// \brief Static limit eval function. It takes an array of PatchCoord
     ///        and evaluate limit values on given PatchTable.
@@ -749,16 +619,8 @@ public:
     /// @param patchParams      an array of Osd::PatchParam struct
     ///                         indexed by PatchCoord::patchIndex
     ///
-    static bool EvalPatches(
-        const float *src, BufferDescriptor const &srcDesc,
-        float *dst,       BufferDescriptor const &dstDesc,
-        float *du,        BufferDescriptor const &duDesc,
-        float *dv,        BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PatchCoord const *patchCoords,
-        PatchArray const *patchArrays,
-        const int *patchIndices,
-        PatchParam const *patchParams);
+    static bool EvalPatches(const float *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, float *du, BufferDescriptor const &duDesc, float *dv, BufferDescriptor const &dvDesc, int numPatchCoords,
+                            PatchCoord const *patchCoords, PatchArray const *patchArrays, const int *patchIndices, PatchParam const *patchParams);
 
     /// \brief Static limit eval function. It takes an array of PatchCoord
     ///        and evaluate limit values on given PatchTable.
@@ -812,19 +674,8 @@ public:
     /// @param patchParams      an array of Osd::PatchParam struct
     ///                         indexed by PatchCoord::patchIndex
     ///
-    static bool EvalPatches(
-        const float *src, BufferDescriptor const &srcDesc,
-        float *dst,       BufferDescriptor const &dstDesc,
-        float *du,        BufferDescriptor const &duDesc,
-        float *dv,        BufferDescriptor const &dvDesc,
-        float *duu,       BufferDescriptor const &duuDesc,
-        float *duv,       BufferDescriptor const &duvDesc,
-        float *dvv,       BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PatchCoord const *patchCoords,
-        PatchArray const *patchArrays,
-        const int *patchIndices,
-        PatchParam const *patchParams);
+    static bool EvalPatches(const float *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, float *du, BufferDescriptor const &duDesc, float *dv, BufferDescriptor const &dvDesc, float *duu, BufferDescriptor const &duuDesc,
+                            float *duv, BufferDescriptor const &duvDesc, float *dvv, BufferDescriptor const &dvvDesc, int numPatchCoords, PatchCoord const *patchCoords, PatchArray const *patchArrays, const int *patchIndices, PatchParam const *patchParams);
 
     /// \brief Generic limit eval function. This function has a same
     ///        signature as other device kernels have so that it can be called
@@ -854,27 +705,15 @@ public:
     ///
     /// @param deviceContext    not used in the cuda evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatchesVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        CudaEvaluator const *instance,
-        void * deviceContext = NULL) {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatchesVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, CudaEvaluator const *instance,
+                                   void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
-
-        return EvalPatches(srcBuffer->BindCudaBuffer(), srcDesc,
-                           dstBuffer->BindCudaBuffer(), dstDesc,
-                           numPatchCoords,
-                           (const PatchCoord *)patchCoords->BindCudaBuffer(),
-                           (const PatchArray *)patchTable->GetVaryingPatchArrayBuffer(),
-                           (const int *)patchTable->GetVaryingPatchIndexBuffer(),
-                           (const PatchParam *)patchTable->GetPatchParamBuffer());
+        return EvalPatches(srcBuffer->BindCudaBuffer(), srcDesc, dstBuffer->BindCudaBuffer(), dstDesc, numPatchCoords, (const PatchCoord *)patchCoords->BindCudaBuffer(), (const PatchArray *)patchTable->GetVaryingPatchArrayBuffer(),
+                           (const int *)patchTable->GetVaryingPatchIndexBuffer(), (const PatchParam *)patchTable->GetPatchParamBuffer());
     }
 
     /// \brief Generic limit eval function. This function has a same
@@ -917,31 +756,15 @@ public:
     ///
     /// @param deviceContext    not used in the cuda evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatchesVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        CudaEvaluator const *instance,
-        void * deviceContext = NULL) {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatchesVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                                   int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, CudaEvaluator const *instance, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
-
-        return EvalPatches(srcBuffer->BindCudaBuffer(), srcDesc,
-                           dstBuffer->BindCudaBuffer(), dstDesc,
-                           duBuffer->BindCudaBuffer(), duDesc,
-                           dvBuffer->BindCudaBuffer(), dvDesc,
-                           numPatchCoords,
-                           (const PatchCoord *)patchCoords->BindCudaBuffer(),
-                           (const PatchArray *)patchTable->GetVaryingPatchArrayBuffer(),
-                           (const int *)patchTable->GetVaryingPatchIndexBuffer(),
-                           (const PatchParam *)patchTable->GetPatchParamBuffer());
+        return EvalPatches(srcBuffer->BindCudaBuffer(), srcDesc, dstBuffer->BindCudaBuffer(), dstDesc, duBuffer->BindCudaBuffer(), duDesc, dvBuffer->BindCudaBuffer(), dvDesc, numPatchCoords, (const PatchCoord *)patchCoords->BindCudaBuffer(),
+                           (const PatchArray *)patchTable->GetVaryingPatchArrayBuffer(), (const int *)patchTable->GetVaryingPatchIndexBuffer(), (const PatchParam *)patchTable->GetPatchParamBuffer());
     }
 
     /// \brief Generic limit eval function. This function has a same
@@ -1002,36 +825,16 @@ public:
     ///
     /// @param deviceContext    not used in the cuda evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatchesVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        CudaEvaluator const *instance,
-        void * deviceContext = NULL) {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatchesVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                                   DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords,
+                                   PATCH_TABLE *patchTable, CudaEvaluator const *instance, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
-
-        return EvalPatches(srcBuffer->BindCudaBuffer(), srcDesc,
-                           dstBuffer->BindCudaBuffer(), dstDesc,
-                           duBuffer->BindCudaBuffer(), duDesc,
-                           dvBuffer->BindCudaBuffer(), dvDesc,
-                           duuBuffer->BindCudaBuffer(), duuDesc,
-                           duvBuffer->BindCudaBuffer(), duvDesc,
-                           dvvBuffer->BindCudaBuffer(), dvvDesc,
-                           numPatchCoords,
-                           (const PatchCoord *)patchCoords->BindCudaBuffer(),
-                           (const PatchArray *)patchTable->GetVaryingPatchArrayBuffer(),
-                           (const int *)patchTable->GetVaryingPatchIndexBuffer(),
+        return EvalPatches(srcBuffer->BindCudaBuffer(), srcDesc, dstBuffer->BindCudaBuffer(), dstDesc, duBuffer->BindCudaBuffer(), duDesc, dvBuffer->BindCudaBuffer(), dvDesc, duuBuffer->BindCudaBuffer(), duuDesc, duvBuffer->BindCudaBuffer(), duvDesc,
+                           dvvBuffer->BindCudaBuffer(), dvvDesc, numPatchCoords, (const PatchCoord *)patchCoords->BindCudaBuffer(), (const PatchArray *)patchTable->GetVaryingPatchArrayBuffer(), (const int *)patchTable->GetVaryingPatchIndexBuffer(),
                            (const PatchParam *)patchTable->GetPatchParamBuffer());
     }
 
@@ -1065,28 +868,15 @@ public:
     ///
     /// @param deviceContext    not used in the cuda evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatchesFaceVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        int fvarChannel,
-        CudaEvaluator const *instance,
-        void * deviceContext = NULL) {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatchesFaceVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, int fvarChannel,
+                                       CudaEvaluator const *instance, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;   // unused
-        (void)deviceContext;   // unused
-
-        return EvalPatches(srcBuffer->BindCudaBuffer(), srcDesc,
-                           dstBuffer->BindCudaBuffer(), dstDesc,
-                           numPatchCoords,
-                           (const PatchCoord *)patchCoords->BindCudaBuffer(),
-                           (const PatchArray *)patchTable->GetFVarPatchArrayBuffer(fvarChannel),
-                           (const int *)patchTable->GetFVarPatchIndexBuffer(fvarChannel),
-                           (const PatchParam *)patchTable->GetFVarPatchParamBuffer(fvarChannel));
+        return EvalPatches(srcBuffer->BindCudaBuffer(), srcDesc, dstBuffer->BindCudaBuffer(), dstDesc, numPatchCoords, (const PatchCoord *)patchCoords->BindCudaBuffer(), (const PatchArray *)patchTable->GetFVarPatchArrayBuffer(fvarChannel),
+                           (const int *)patchTable->GetFVarPatchIndexBuffer(fvarChannel), (const PatchParam *)patchTable->GetFVarPatchParamBuffer(fvarChannel));
     }
 
     /// \brief Generic limit eval function. This function has a same
@@ -1131,32 +921,15 @@ public:
     ///
     /// @param deviceContext    not used in the cuda evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatchesFaceVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer, BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        int fvarChannel,
-        CudaEvaluator const *instance,
-        void * deviceContext = NULL) {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatchesFaceVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer,
+                                       BufferDescriptor const &dvDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, int fvarChannel, CudaEvaluator const *instance, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;   // unused
-        (void)deviceContext;   // unused
-
-        return EvalPatches(srcBuffer->BindCudaBuffer(), srcDesc,
-                           dstBuffer->BindCudaBuffer(), dstDesc,
-                           duBuffer->BindCudaBuffer(), duDesc,
-                           dvBuffer->BindCudaBuffer(), dvDesc,
-                           numPatchCoords,
-                           (const PatchCoord *)patchCoords->BindCudaBuffer(),
-                           (const PatchArray *)patchTable->GetFVarPatchArrayBuffer(fvarChannel),
-                           (const int *)patchTable->GetFVarPatchIndexBuffer(fvarChannel),
-                           (const PatchParam *)patchTable->GetFVarPatchParamBuffer(fvarChannel));
+        return EvalPatches(srcBuffer->BindCudaBuffer(), srcDesc, dstBuffer->BindCudaBuffer(), dstDesc, duBuffer->BindCudaBuffer(), duDesc, dvBuffer->BindCudaBuffer(), dvDesc, numPatchCoords, (const PatchCoord *)patchCoords->BindCudaBuffer(),
+                           (const PatchArray *)patchTable->GetFVarPatchArrayBuffer(fvarChannel), (const int *)patchTable->GetFVarPatchIndexBuffer(fvarChannel), (const PatchParam *)patchTable->GetFVarPatchParamBuffer(fvarChannel));
     }
 
     /// \brief Generic limit eval function. This function has a same
@@ -1219,38 +992,17 @@ public:
     ///
     /// @param deviceContext    not used in the cuda evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatchesFaceVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        int fvarChannel,
-        CudaEvaluator const *instance,
-        void * deviceContext = NULL) {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatchesFaceVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer,
+                                       BufferDescriptor const &dvDesc, DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
+                                       int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, int fvarChannel, CudaEvaluator const *instance, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
-
-        return EvalPatches(srcBuffer->BindCudaBuffer(), srcDesc,
-                           dstBuffer->BindCudaBuffer(), dstDesc,
-                           duBuffer->BindCudaBuffer(), duDesc,
-                           dvBuffer->BindCudaBuffer(), dvDesc,
-                           duuBuffer->BindCudaBuffer(), duuDesc,
-                           duvBuffer->BindCudaBuffer(), duvDesc,
-                           dvvBuffer->BindCudaBuffer(), dvvDesc,
-                           numPatchCoords,
-                           (const PatchCoord *)patchCoords->BindCudaBuffer(),
-                           (const PatchArray *)patchTable->GetFVarPatchArrayBuffer(fvarChannel),
-                           (const int *)patchTable->GetFVarPatchIndexBuffer(fvarChannel),
-                           (const PatchParam *)patchTable->GetFVarPatchParamBuffer(fvarChannel));
+        return EvalPatches(srcBuffer->BindCudaBuffer(), srcDesc, dstBuffer->BindCudaBuffer(), dstDesc, duBuffer->BindCudaBuffer(), duDesc, dvBuffer->BindCudaBuffer(), dvDesc, duuBuffer->BindCudaBuffer(), duuDesc, duvBuffer->BindCudaBuffer(), duvDesc,
+                           dvvBuffer->BindCudaBuffer(), dvvDesc, numPatchCoords, (const PatchCoord *)patchCoords->BindCudaBuffer(), (const PatchArray *)patchTable->GetFVarPatchArrayBuffer(fvarChannel),
+                           (const int *)patchTable->GetFVarPatchIndexBuffer(fvarChannel), (const PatchParam *)patchTable->GetFVarPatchParamBuffer(fvarChannel));
     }
 
     /// ----------------------------------------------------------------------
@@ -1261,13 +1013,11 @@ public:
     static void Synchronize(void *deviceContext = NULL);
 };
 
+} // end namespace Osd
 
-}  // end namespace Osd
-
-}  // end namespace OPENSUBDIV_VERSION
+} // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;
 
-}  // end namespace OpenSubdiv
+} // end namespace OpenSubdiv
 
-
-#endif  // OPENSUBDIV3_OSD_CUDA_EVALUATOR_H
+#endif // OPENSUBDIV3_OSD_CUDA_EVALUATOR_H

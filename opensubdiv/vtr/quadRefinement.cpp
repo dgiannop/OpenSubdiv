@@ -21,49 +21,49 @@
 //   KIND, either express or implied. See the Apache License for the specific
 //   language governing permissions and limitations under the Apache License.
 //
-#include "../sdc/crease.h"
-#include "../vtr/types.h"
-#include "../vtr/level.h"
 #include "../vtr/quadRefinement.h"
 
 #include <cassert>
 #include <cstdio>
 #include <utility>
 
+#include "../sdc/crease.h"
+#include "../vtr/level.h"
+#include "../vtr/types.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Vtr {
-namespace internal {
+namespace Vtr
+{
+namespace internal
+{
 
 //
 //  Simple constructor, destructor and basic initializers:
 //
-QuadRefinement::QuadRefinement(Level const & parentArg, Level & childArg, Sdc::Options const & optionsArg) :
-    Refinement(parentArg, childArg, optionsArg) {
-
+QuadRefinement::QuadRefinement(Level const &parentArg, Level &childArg, Sdc::Options const &optionsArg) : Refinement(parentArg, childArg, optionsArg)
+{
     _splitType   = Sdc::SPLIT_TO_QUADS;
     _regFaceSize = 4;
 }
 
-QuadRefinement::~QuadRefinement() {
-}
-
+QuadRefinement::~QuadRefinement() {}
 
 //
 //  Methods to construct the parent-to-child mapping
 //
-void
-QuadRefinement::allocateParentChildIndices() {
-
+void QuadRefinement::allocateParentChildIndices()
+{
     //
     //  Initialize the vectors of indices mapping parent components to those child components
     //  that will originate from each.
     //
-    int faceChildFaceCount = (int) _parent->_faceVertIndices.size();
-    int faceChildEdgeCount = (int) _parent->_faceEdgeIndices.size();
-    int edgeChildEdgeCount = (int) _parent->_edgeVertIndices.size();
+    int faceChildFaceCount = (int)_parent->_faceVertIndices.size();
+    int faceChildEdgeCount = (int)_parent->_faceEdgeIndices.size();
+    int edgeChildEdgeCount = (int)_parent->_edgeVertIndices.size();
 
     int faceChildVertCount = _parent->getNumFaces();
     int edgeChildVertCount = _parent->getNumEdges();
@@ -91,18 +91,17 @@ QuadRefinement::allocateParentChildIndices() {
     _vertChildVertIndex.resize(vertChildVertCount, initValue);
 }
 
-
 //
 //  Methods to populate the face-vertex relation of the child Level:
 //      - child faces only originate from parent faces
 //
-void
-QuadRefinement::populateFaceVertexRelation() {
-
+void QuadRefinement::populateFaceVertexRelation()
+{
     //  Both face-vertex and face-edge share the face-vertex counts/offsets within a
     //  Level, so be sure not to re-initialize it if already done:
     //
-    if (_child->_faceVertCountsAndOffsets.size() == 0) {
+    if (_child->_faceVertCountsAndOffsets.size() == 0)
+    {
         populateFaceVertexCountsAndOffsets();
     }
     _child->_faceVertIndices.resize(_child->getNumFaces() * 4);
@@ -110,20 +109,19 @@ QuadRefinement::populateFaceVertexRelation() {
     populateFaceVerticesFromParentFaces();
 }
 
-void
-QuadRefinement::populateFaceVertexCountsAndOffsets() {
-
+void QuadRefinement::populateFaceVertexCountsAndOffsets()
+{
     _child->_faceVertCountsAndOffsets.resize(_child->getNumFaces() * 2);
 
-    for (int i = 0; i < _child->getNumFaces(); ++i) {
-        _child->_faceVertCountsAndOffsets[i*2 + 0] = 4;
-        _child->_faceVertCountsAndOffsets[i*2 + 1] = i << 2;
+    for (int i = 0; i < _child->getNumFaces(); ++i)
+    {
+        _child->_faceVertCountsAndOffsets[i * 2 + 0] = 4;
+        _child->_faceVertCountsAndOffsets[i * 2 + 1] = i << 2;
     }
 }
 
-void
-QuadRefinement::populateFaceVerticesFromParentFaces() {
-
+void QuadRefinement::populateFaceVerticesFromParentFaces()
+{
     //
     //  This is pretty straightforward, but is a good example for the case of
     //  iterating through the parent faces rather than the child faces, as the
@@ -134,15 +132,16 @@ QuadRefinement::populateFaceVerticesFromParentFaces() {
     //  for its face-verts from the child vertices of the parent face, its edges
     //  and its vertices.
     //
-    for (Index pFace = 0; pFace < _parent->getNumFaces(); ++pFace) {
-        ConstIndexArray pFaceVerts = _parent->getFaceVertices(pFace),
-                        pFaceEdges = _parent->getFaceEdges(pFace),
-                        pFaceChildren = getFaceChildFaces(pFace);
+    for (Index pFace = 0; pFace < _parent->getNumFaces(); ++pFace)
+    {
+        ConstIndexArray pFaceVerts = _parent->getFaceVertices(pFace), pFaceEdges = _parent->getFaceEdges(pFace), pFaceChildren = getFaceChildFaces(pFace);
 
         int pFaceSize = pFaceVerts.size();
-        for (int j = 0; j < pFaceSize; ++j) {
+        for (int j = 0; j < pFaceSize; ++j)
+        {
             Index cFace = pFaceChildren[j];
-            if (IndexIsValid(cFace)) {
+            if (IndexIsValid(cFace))
+            {
                 int jPrev = j ? (j - 1) : (pFaceSize - 1);
 
                 Index cVertOfFace  = _faceChildVertIndex[pFace];
@@ -153,15 +152,18 @@ QuadRefinement::populateFaceVerticesFromParentFaces() {
                 IndexArray cFaceVerts = _child->getFaceVertices(cFace);
 
                 //  Note orientation wrt parent face -- quad vs non-quad...
-                if (pFaceSize == 4) {
+                if (pFaceSize == 4)
+                {
                     int jOpp  = jPrev ? (jPrev - 1) : 3;
-                    int jNext = jOpp  ? (jOpp  - 1) : 3;
+                    int jNext = jOpp ? (jOpp - 1) : 3;
 
                     cFaceVerts[j]     = cVertOfVert;
                     cFaceVerts[jNext] = cVertOfENext;
                     cFaceVerts[jOpp]  = cVertOfFace;
                     cFaceVerts[jPrev] = cVertOfEPrev;
-                } else {
+                }
+                else
+                {
                     cFaceVerts[0] = cVertOfVert;
                     cFaceVerts[1] = cVertOfENext;
                     cFaceVerts[2] = cVertOfFace;
@@ -172,18 +174,17 @@ QuadRefinement::populateFaceVerticesFromParentFaces() {
     }
 }
 
-
 //
 //  Methods to populate the face-vertex relation of the child Level:
 //      - child faces only originate from parent faces
 //
-void
-QuadRefinement::populateFaceEdgeRelation() {
-
+void QuadRefinement::populateFaceEdgeRelation()
+{
     //  Both face-vertex and face-edge share the face-vertex counts/offsets, so be sure
     //  not to re-initialize it if already done:
     //
-    if (_child->_faceVertCountsAndOffsets.size() == 0) {
+    if (_child->_faceVertCountsAndOffsets.size() == 0)
+    {
         populateFaceVertexCountsAndOffsets();
     }
     _child->_faceEdgeIndices.resize(_child->getNumFaces() * 4);
@@ -191,9 +192,8 @@ QuadRefinement::populateFaceEdgeRelation() {
     populateFaceEdgesFromParentFaces();
 }
 
-void
-QuadRefinement::populateFaceEdgesFromParentFaces() {
-
+void QuadRefinement::populateFaceEdgesFromParentFaces()
+{
     //
     //  This is fairly straightforward, but since we are dealing with edges here, we
     //  occasionally have to deal with the limitation of them being undirected.  Since
@@ -205,17 +205,17 @@ QuadRefinement::populateFaceEdgesFromParentFaces() {
     //  The two remaining edges per child faces are perpendicular to these prev/next
     //  edges and share the child vertex of the parent face.
     //
-    for (Index pFace = 0; pFace < _parent->getNumFaces(); ++pFace) {
-        ConstIndexArray pFaceVerts = _parent->getFaceVertices(pFace),
-                        pFaceEdges = _parent->getFaceEdges(pFace),
-                        pFaceChildFaces = getFaceChildFaces(pFace),
-                        pFaceChildEdges = getFaceChildEdges(pFace);
+    for (Index pFace = 0; pFace < _parent->getNumFaces(); ++pFace)
+    {
+        ConstIndexArray pFaceVerts = _parent->getFaceVertices(pFace), pFaceEdges = _parent->getFaceEdges(pFace), pFaceChildFaces = getFaceChildFaces(pFace), pFaceChildEdges = getFaceChildEdges(pFace);
 
         int pFaceSize = pFaceVerts.size();
 
-        for (int j = 0; j < pFaceSize; ++j) {
+        for (int j = 0; j < pFaceSize; ++j)
+        {
             Index cFace = pFaceChildFaces[j];
-            if (IndexIsValid(cFace)) {
+            if (IndexIsValid(cFace))
+            {
                 //
                 //  Identify the vertex pairs for the prev/next parent edges -- from
                 //  which we will determine the prev/next child edges:
@@ -234,11 +234,9 @@ QuadRefinement::populateFaceEdgesFromParentFaces() {
                 //
                 Index pCornerVert = pFaceVerts[j];
 
-                int cornerInPrevEdge = (pPrevEdgeVerts[0] != pPrevEdgeVerts[1])
-                                     ? (pPrevEdgeVerts[0] != pCornerVert) : 1;
+                int cornerInPrevEdge = (pPrevEdgeVerts[0] != pPrevEdgeVerts[1]) ? (pPrevEdgeVerts[0] != pCornerVert) : 1;
 
-                int cornerInNextEdge = (pNextEdgeVerts[0] != pNextEdgeVerts[1])
-                                     ? (pNextEdgeVerts[0] != pCornerVert) : 0;
+                int cornerInNextEdge = (pNextEdgeVerts[0] != pNextEdgeVerts[1]) ? (pNextEdgeVerts[0] != pCornerVert) : 0;
 
                 Index cEdgeOfEdgePrev = getEdgeChildEdges(pPrevEdge)[cornerInPrevEdge];
                 Index cEdgeOfEdgeNext = getEdgeChildEdges(pNextEdge)[cornerInNextEdge];
@@ -252,15 +250,18 @@ QuadRefinement::populateFaceEdgesFromParentFaces() {
                 IndexArray cFaceEdges = _child->getFaceEdges(cFace);
 
                 //  Note orientation wrt parent face -- quad vs non-quad...
-                if (pFaceSize == 4) {
+                if (pFaceSize == 4)
+                {
                     int jOpp  = jPrev ? (jPrev - 1) : 3;
-                    int jNext = jOpp  ? (jOpp  - 1) : 3;
+                    int jNext = jOpp ? (jOpp - 1) : 3;
 
                     cFaceEdges[j]     = cEdgeOfEdgeNext;
                     cFaceEdges[jNext] = cEdgePerpEdgeNext;
                     cFaceEdges[jOpp]  = cEdgePerpEdgePrev;
                     cFaceEdges[jPrev] = cEdgeOfEdgePrev;
-                } else {
+                }
+                else
+                {
                     cFaceEdges[0] = cEdgeOfEdgeNext;
                     cFaceEdges[1] = cEdgePerpEdgeNext;
                     cFaceEdges[2] = cEdgePerpEdgePrev;
@@ -275,31 +276,31 @@ QuadRefinement::populateFaceEdgesFromParentFaces() {
 //  Methods to populate the edge-vertex relation of the child Level:
 //      - child edges originate from parent faces and edges
 //
-void
-QuadRefinement::populateEdgeVertexRelation() {
-
+void QuadRefinement::populateEdgeVertexRelation()
+{
     _child->_edgeVertIndices.resize(_child->getNumEdges() * 2);
 
     populateEdgeVerticesFromParentFaces();
     populateEdgeVerticesFromParentEdges();
 }
 
-void
-QuadRefinement::populateEdgeVerticesFromParentFaces() {
-
+void QuadRefinement::populateEdgeVerticesFromParentFaces()
+{
     //
     //  This is straightforward.  All child edges of parent faces are assigned
     //  their first vertex from the child vertex of the face -- so it is common
     //  to all.  The second vertex is the child vertex of the parent edge to
     //  which the new child edge is perpendicular.
     //
-    for (Index pFace = 0; pFace < _parent->getNumFaces(); ++pFace) {
-        ConstIndexArray pFaceEdges      = _parent->getFaceEdges(pFace),
-                        pFaceChildEdges = getFaceChildEdges(pFace);
+    for (Index pFace = 0; pFace < _parent->getNumFaces(); ++pFace)
+    {
+        ConstIndexArray pFaceEdges = _parent->getFaceEdges(pFace), pFaceChildEdges = getFaceChildEdges(pFace);
 
-        for (int j = 0; j < pFaceEdges.size(); ++j) {
+        for (int j = 0; j < pFaceEdges.size(); ++j)
+        {
             Index cEdge = pFaceChildEdges[j];
-            if (IndexIsValid(cEdge)) {
+            if (IndexIsValid(cEdge))
+            {
                 IndexArray cEdgeVerts = _child->getEdgeVertices(cEdge);
 
                 cEdgeVerts[0] = _faceChildVertIndex[pFace];
@@ -309,23 +310,24 @@ QuadRefinement::populateEdgeVerticesFromParentFaces() {
     }
 }
 
-void
-QuadRefinement::populateEdgeVerticesFromParentEdges() {
-
+void QuadRefinement::populateEdgeVerticesFromParentEdges()
+{
     //
     //  This is straightforward.  All child edges of parent edges are assigned
     //  their first vertex from the child vertex of the edge -- so it is common
     //  to both.  The second vertex is the child vertex of the vertex at the
     //  end of the parent edge.
     //
-    for (Index pEdge = 0; pEdge < _parent->getNumEdges(); ++pEdge) {
-        ConstIndexArray pEdgeVerts = _parent->getEdgeVertices(pEdge),
-                        pEdgeChildren = getEdgeChildEdges(pEdge);
+    for (Index pEdge = 0; pEdge < _parent->getNumEdges(); ++pEdge)
+    {
+        ConstIndexArray pEdgeVerts = _parent->getEdgeVertices(pEdge), pEdgeChildren = getEdgeChildEdges(pEdge);
 
         //  May want to unroll this trivial loop of 2...
-        for (int j = 0; j < 2; ++j) {
+        for (int j = 0; j < 2; ++j)
+        {
             Index cEdge = pEdgeChildren[j];
-            if (IndexIsValid(cEdge)) {
+            if (IndexIsValid(cEdge))
+            {
                 IndexArray cEdgeVerts = _child->getEdgeVertices(cEdge);
 
                 cEdgeVerts[0] = _edgeChildVertIndex[pEdge];
@@ -341,9 +343,8 @@ QuadRefinement::populateEdgeVerticesFromParentEdges() {
 //      - sparse refinement poses challenges with allocation here
 //          - we need to update the counts/offsets as we populate
 //
-void
-QuadRefinement::populateEdgeFaceRelation() {
-
+void QuadRefinement::populateEdgeFaceRelation()
+{
     //
     //  Notes on allocating/initializing the edge-face counts/offsets vector:
     //
@@ -364,14 +365,13 @@ QuadRefinement::populateEdgeFaceRelation() {
     //      - could at least make a quick traversal of components and use the above
     //        two points to get much closer estimate than what is used for uniform
     //
-    int childEdgeFaceIndexSizeEstimate = (int)_parent->_faceVertIndices.size() * 2 +
-                                         (int)_parent->_edgeFaceIndices.size() * 2;
+    int childEdgeFaceIndexSizeEstimate = (int)_parent->_faceVertIndices.size() * 2 + (int)_parent->_edgeFaceIndices.size() * 2;
 
     _child->_edgeFaceCountsAndOffsets.resize(_child->getNumEdges() * 2);
-    _child->_edgeFaceIndices.resize(     childEdgeFaceIndexSizeEstimate);
+    _child->_edgeFaceIndices.resize(childEdgeFaceIndexSizeEstimate);
     _child->_edgeFaceLocalIndices.resize(childEdgeFaceIndexSizeEstimate);
 
-    // Update _maxEdgeFaces from the parent level before calling the 
+    // Update _maxEdgeFaces from the parent level before calling the
     // populateEdgeFacesFromParent methods below, as these may further
     // update _maxEdgeFaces.
     _child->_maxEdgeFaces = _parent->_maxEdgeFaces;
@@ -381,15 +381,13 @@ QuadRefinement::populateEdgeFaceRelation() {
 
     //  Revise the over-allocated estimate based on what is used (as indicated in the
     //  count/offset for the last vertex) and trim the index vector accordingly:
-    childEdgeFaceIndexSizeEstimate = _child->getNumEdgeFaces(_child->getNumEdges()-1) +
-                                     _child->getOffsetOfEdgeFaces(_child->getNumEdges()-1);
-    _child->_edgeFaceIndices.resize(     childEdgeFaceIndexSizeEstimate);
+    childEdgeFaceIndexSizeEstimate = _child->getNumEdgeFaces(_child->getNumEdges() - 1) + _child->getOffsetOfEdgeFaces(_child->getNumEdges() - 1);
+    _child->_edgeFaceIndices.resize(childEdgeFaceIndexSizeEstimate);
     _child->_edgeFaceLocalIndices.resize(childEdgeFaceIndexSizeEstimate);
 }
 
-void
-QuadRefinement::populateEdgeFacesFromParentFaces() {
-
+void QuadRefinement::populateEdgeFacesFromParentFaces()
+{
     //
     //  This is straightforward topologically, but when refinement is sparse the
     //  contents of the counts/offsets vector is not certain and is populated
@@ -402,15 +400,17 @@ QuadRefinement::populateEdgeFacesFromParentFaces() {
     //  orientation of child faces within their parent depends on it being a quad
     //  or not.
     //
-    for (Index pFace = 0; pFace < _parent->getNumFaces(); ++pFace) {
-        ConstIndexArray pFaceChildFaces = getFaceChildFaces(pFace),
-                        pFaceChildEdges = getFaceChildEdges(pFace);
+    for (Index pFace = 0; pFace < _parent->getNumFaces(); ++pFace)
+    {
+        ConstIndexArray pFaceChildFaces = getFaceChildFaces(pFace), pFaceChildEdges = getFaceChildEdges(pFace);
 
         int pFaceSize = pFaceChildFaces.size();
 
-        for (int j = 0; j < pFaceSize; ++j) {
+        for (int j = 0; j < pFaceSize; ++j)
+        {
             Index cEdge = pFaceChildEdges[j];
-            if (IndexIsValid(cEdge)) {
+            if (IndexIsValid(cEdge))
+            {
                 //
                 //  Reserve enough edge-faces, populate and trim as needed:
                 //
@@ -423,13 +423,15 @@ QuadRefinement::populateEdgeFacesFromParentFaces() {
                 int jNext = ((j + 1) < pFaceSize) ? (j + 1) : 0;
 
                 int cEdgeFaceCount = 0;
-                if (IndexIsValid(pFaceChildFaces[j])) {
+                if (IndexIsValid(pFaceChildFaces[j]))
+                {
                     //  Note orientation wrt incident parent faces -- quad vs non-quad...
                     cEdgeFaces[cEdgeFaceCount]  = pFaceChildFaces[j];
                     cEdgeInFace[cEdgeFaceCount] = (LocalIndex)((pFaceSize == 4) ? jNext : 1);
                     cEdgeFaceCount++;
                 }
-                if (IndexIsValid(pFaceChildFaces[jNext])) {
+                if (IndexIsValid(pFaceChildFaces[jNext]))
+                {
                     //  Note orientation wrt incident parent faces -- quad vs non-quad...
                     cEdgeFaces[cEdgeFaceCount]  = pFaceChildFaces[jNext];
                     cEdgeInFace[cEdgeFaceCount] = (LocalIndex)((pFaceSize == 4) ? ((jNext + 2) & 3) : 2);
@@ -441,25 +443,28 @@ QuadRefinement::populateEdgeFacesFromParentFaces() {
     }
 }
 
-void
-QuadRefinement::populateEdgeFacesFromParentEdges() {
-
+void QuadRefinement::populateEdgeFacesFromParentEdges()
+{
     //
     //  Note -- the edge-face counts/offsets vector is not known
     //  ahead of time and is populated incrementally, so we cannot
     //  thread this yet...
     //
-    for (Index pEdge = 0; pEdge < _parent->getNumEdges(); ++pEdge) {
+    for (Index pEdge = 0; pEdge < _parent->getNumEdges(); ++pEdge)
+    {
         ConstIndexArray pEdgeChildEdges = getEdgeChildEdges(pEdge);
-        if (!IndexIsValid(pEdgeChildEdges[0]) && !IndexIsValid(pEdgeChildEdges[1])) continue;
+        if (!IndexIsValid(pEdgeChildEdges[0]) && !IndexIsValid(pEdgeChildEdges[1]))
+            continue;
 
-        ConstIndexArray      pEdgeFaces = _parent->getEdgeFaces(pEdge);
+        ConstIndexArray      pEdgeFaces  = _parent->getEdgeFaces(pEdge);
         ConstLocalIndexArray pEdgeInFace = _parent->getEdgeFaceLocalIndices(pEdge);
-        ConstIndexArray      pEdgeVerts = _parent->getEdgeVertices(pEdge);
+        ConstIndexArray      pEdgeVerts  = _parent->getEdgeVertices(pEdge);
 
-        for (int j = 0; j < 2; ++j) {
+        for (int j = 0; j < 2; ++j)
+        {
             Index cEdge = pEdgeChildEdges[j];
-            if (!IndexIsValid(cEdge)) continue;
+            if (!IndexIsValid(cEdge))
+                continue;
 
             //  Reserve enough edge-faces, populate and trim as needed:
             _child->resizeEdgeFaces(cEdge, pEdgeFaces.size());
@@ -472,12 +477,12 @@ QuadRefinement::populateEdgeFacesFromParentEdges() {
             //
             int cEdgeFaceCount = 0;
 
-            for (int i = 0; i < pEdgeFaces.size(); ++i) {
+            for (int i = 0; i < pEdgeFaces.size(); ++i)
+            {
                 Index pFace      = pEdgeFaces[i];
                 int   edgeInFace = pEdgeInFace[i];
 
-                ConstIndexArray pFaceVerts = _parent->getFaceVertices(pFace),
-                                pFaceChildren = getFaceChildFaces(pFace);
+                ConstIndexArray pFaceVerts = _parent->getFaceVertices(pFace), pFaceChildren = getFaceChildFaces(pFace);
 
                 //
                 //  We need to first identify the potentially incident child-face and see
@@ -487,13 +492,14 @@ QuadRefinement::populateEdgeFacesFromParentEdges() {
                 int childOfEdge = (pEdgeVerts[0] == pEdgeVerts[1]) ? j : (pFaceVerts[edgeInFace] != pEdgeVerts[j]);
 
                 int childInFace = edgeInFace + childOfEdge;
-                if (childInFace == pFaceChildren.size()) childInFace = 0;
+                if (childInFace == pFaceChildren.size())
+                    childInFace = 0;
 
-                if (IndexIsValid(pFaceChildren[childInFace])) {
+                if (IndexIsValid(pFaceChildren[childInFace]))
+                {
                     //  Note orientation wrt incident parent faces -- quad vs non-quad...
-                    cEdgeFaces[cEdgeFaceCount] = pFaceChildren[childInFace];
-                    cEdgeInFace[cEdgeFaceCount] = (LocalIndex)
-                            ((pFaceVerts.size() == 4) ? edgeInFace : (childOfEdge ? 3 : 0));
+                    cEdgeFaces[cEdgeFaceCount]  = pFaceChildren[childInFace];
+                    cEdgeInFace[cEdgeFaceCount] = (LocalIndex)((pFaceVerts.size() == 4) ? edgeInFace : (childOfEdge ? 3 : 0));
                     cEdgeFaceCount++;
                 }
             }
@@ -502,7 +508,6 @@ QuadRefinement::populateEdgeFacesFromParentEdges() {
     }
 }
 
-
 //
 //  Methods to populate the vertex-face relation of the child Level:
 //      - child vertices originate from parent faces, edges and vertices
@@ -510,9 +515,8 @@ QuadRefinement::populateEdgeFacesFromParentEdges() {
 //          - we need to update the counts/offsets as we populate
 //          - note this imposes ordering constraints and inhibits concurrency
 //
-void
-QuadRefinement::populateVertexFaceRelation() {
-
+void QuadRefinement::populateVertexFaceRelation()
+{
     //
     //  Notes on allocating/initializing the vertex-face counts/offsets vector:
     //
@@ -531,19 +535,20 @@ QuadRefinement::populateVertexFaceRelation() {
     //          - where the 1 or 2 is number of child edges of parent edge
     //      - same as parent vert for verts from parent verts (catmark)
     //
-    int childVertFaceIndexSizeEstimate = (int)_parent->_faceVertIndices.size()
-                                       + (int)_parent->_edgeFaceIndices.size() * 2
-                                       + (int)_parent->_vertFaceIndices.size();
+    int childVertFaceIndexSizeEstimate = (int)_parent->_faceVertIndices.size() + (int)_parent->_edgeFaceIndices.size() * 2 + (int)_parent->_vertFaceIndices.size();
 
     _child->_vertFaceCountsAndOffsets.resize(_child->getNumVertices() * 2);
-    _child->_vertFaceIndices.resize(         childVertFaceIndexSizeEstimate);
-    _child->_vertFaceLocalIndices.resize(    childVertFaceIndexSizeEstimate);
+    _child->_vertFaceIndices.resize(childVertFaceIndexSizeEstimate);
+    _child->_vertFaceLocalIndices.resize(childVertFaceIndexSizeEstimate);
 
-    if (getFirstChildVertexFromVertices() == 0) {
+    if (getFirstChildVertexFromVertices() == 0)
+    {
         populateVertexFacesFromParentVertices();
         populateVertexFacesFromParentFaces();
         populateVertexFacesFromParentEdges();
-    } else {
+    }
+    else
+    {
         populateVertexFacesFromParentFaces();
         populateVertexFacesFromParentEdges();
         populateVertexFacesFromParentVertices();
@@ -551,21 +556,21 @@ QuadRefinement::populateVertexFaceRelation() {
 
     //  Revise the over-allocated estimate based on what is used (as indicated in the
     //  count/offset for the last vertex) and trim the index vectors accordingly:
-    childVertFaceIndexSizeEstimate = _child->getNumVertexFaces(_child->getNumVertices()-1) +
-                                     _child->getOffsetOfVertexFaces(_child->getNumVertices()-1);
-    _child->_vertFaceIndices.resize(     childVertFaceIndexSizeEstimate);
+    childVertFaceIndexSizeEstimate = _child->getNumVertexFaces(_child->getNumVertices() - 1) + _child->getOffsetOfVertexFaces(_child->getNumVertices() - 1);
+    _child->_vertFaceIndices.resize(childVertFaceIndexSizeEstimate);
     _child->_vertFaceLocalIndices.resize(childVertFaceIndexSizeEstimate);
 }
 
-void
-QuadRefinement::populateVertexFacesFromParentFaces() {
-
-    for (int pFace = 0; pFace < _parent->getNumFaces(); ++pFace) {
+void QuadRefinement::populateVertexFacesFromParentFaces()
+{
+    for (int pFace = 0; pFace < _parent->getNumFaces(); ++pFace)
+    {
         int cVert = _faceChildVertIndex[pFace];
-        if (!IndexIsValid(cVert)) continue;
+        if (!IndexIsValid(cVert))
+            continue;
 
         ConstIndexArray pFaceChildren = getFaceChildFaces(pFace);
-        int pFaceSize = pFaceChildren.size();
+        int             pFaceSize     = pFaceChildren.size();
 
         //
         //  Reserve enough vert-faces, populate and trim to the actual size:
@@ -580,11 +585,13 @@ QuadRefinement::populateVertexFacesFromParentFaces() {
         //  exist as incident the child vertex of this face:
         //
         int cVertFaceCount = 0;
-        for (int j = 0; j < pFaceSize; ++j) {
-            if (IndexIsValid(pFaceChildren[j])) {
+        for (int j = 0; j < pFaceSize; ++j)
+        {
+            if (IndexIsValid(pFaceChildren[j]))
+            {
                 //  Note orientation wrt parent face -- quad vs non-quad...
                 cVertFaces[cVertFaceCount]  = pFaceChildren[j];
-                cVertInFace[cVertFaceCount] = (LocalIndex)((pFaceSize == 4) ? ((j+2) & 3) : 2);
+                cVertInFace[cVertFaceCount] = (LocalIndex)((pFaceSize == 4) ? ((j + 2) & 3) : 2);
                 cVertFaceCount++;
             }
         }
@@ -592,12 +599,13 @@ QuadRefinement::populateVertexFacesFromParentFaces() {
     }
 }
 
-void
-QuadRefinement::populateVertexFacesFromParentEdges() {
-
-    for (int pEdge = 0; pEdge < _parent->getNumEdges(); ++pEdge) {
+void QuadRefinement::populateVertexFacesFromParentEdges()
+{
+    for (int pEdge = 0; pEdge < _parent->getNumEdges(); ++pEdge)
+    {
         int cVert = _edgeChildVertIndex[pEdge];
-        if (!IndexIsValid(cVert)) continue;
+        if (!IndexIsValid(cVert))
+            continue;
 
         ConstIndexArray      pEdgeFaces  = _parent->getEdgeFaces(pEdge);
         ConstLocalIndexArray pEdgeInFace = _parent->getEdgeFaceLocalIndices(pEdge);
@@ -616,26 +624,30 @@ QuadRefinement::populateVertexFacesFromParentEdges() {
         //  first to preserve CC-wise ordering of faces wrt the vertex.
         //
         int cVertFaceCount = 0;
-        for (int i = 0; i < pEdgeFaces.size(); ++i) {
+        for (int i = 0; i < pEdgeFaces.size(); ++i)
+        {
             Index pFace      = pEdgeFaces[i];
             int   edgeInFace = pEdgeInFace[i];
 
             ConstIndexArray pFaceChildren = getFaceChildFaces(pFace);
-            int pFaceSize = pFaceChildren.size();
+            int             pFaceSize     = pFaceChildren.size();
 
             int faceChild0 = edgeInFace;
             int faceChild1 = edgeInFace + 1;
-            if (faceChild1 == pFaceChildren.size()) faceChild1 = 0;
+            if (faceChild1 == pFaceChildren.size())
+                faceChild1 = 0;
 
-            if (IndexIsValid(pFaceChildren[faceChild1])) {
+            if (IndexIsValid(pFaceChildren[faceChild1]))
+            {
                 //  Note orientation wrt incident parent faces -- quad vs non-quad...
-                cVertFaces[cVertFaceCount] = pFaceChildren[faceChild1];
+                cVertFaces[cVertFaceCount]  = pFaceChildren[faceChild1];
                 cVertInFace[cVertFaceCount] = (LocalIndex)((pFaceSize == 4) ? faceChild0 : 3);
                 cVertFaceCount++;
             }
-            if (IndexIsValid(pFaceChildren[faceChild0])) {
+            if (IndexIsValid(pFaceChildren[faceChild0]))
+            {
                 //  Note orientation wrt incident parent faces -- quad vs non-quad...
-                cVertFaces[cVertFaceCount] = pFaceChildren[faceChild0];
+                cVertFaces[cVertFaceCount]  = pFaceChildren[faceChild0];
                 cVertInFace[cVertFaceCount] = (LocalIndex)((pFaceSize == 4) ? faceChild1 : 1);
                 cVertFaceCount++;
             }
@@ -644,12 +656,13 @@ QuadRefinement::populateVertexFacesFromParentEdges() {
     }
 }
 
-void
-QuadRefinement::populateVertexFacesFromParentVertices() {
-
-    for (int pVert = 0; pVert < _parent->getNumVertices(); ++pVert) {
+void QuadRefinement::populateVertexFacesFromParentVertices()
+{
+    for (int pVert = 0; pVert < _parent->getNumVertices(); ++pVert)
+    {
         int cVert = _vertChildVertIndex[pVert];
-        if (!IndexIsValid(cVert)) continue;
+        if (!IndexIsValid(cVert))
+            continue;
 
         ConstIndexArray      pVertFaces  = _parent->getVertexFaces(pVert);
         ConstLocalIndexArray pVertInFace = _parent->getVertexFaceLocalIndices(pVert);
@@ -667,17 +680,19 @@ QuadRefinement::populateVertexFacesFromParentVertices() {
         //  spawned a child face corresponding to (and so incident) this child vertex:
         //
         int cVertFaceCount = 0;
-        for (int i = 0; i < pVertFaces.size(); ++i) {
+        for (int i = 0; i < pVertFaces.size(); ++i)
+        {
             Index      pFace      = pVertFaces[i];
             LocalIndex vertInFace = pVertInFace[i];
 
             ConstIndexArray pFaceChildren = getFaceChildFaces(pFace);
 
-            if (IndexIsValid(pFaceChildren[vertInFace])) {
+            if (IndexIsValid(pFaceChildren[vertInFace]))
+            {
                 int pFaceSize = pFaceChildren.size();
 
                 //  Note orientation wrt incident parent faces -- quad vs non-quad...
-                cVertFaces[cVertFaceCount] = pFaceChildren[vertInFace];
+                cVertFaces[cVertFaceCount]  = pFaceChildren[vertInFace];
                 cVertInFace[cVertFaceCount] = (LocalIndex)((pFaceSize == 4) ? vertInFace : 0);
                 cVertFaceCount++;
             }
@@ -693,9 +708,8 @@ QuadRefinement::populateVertexFacesFromParentVertices() {
 //          - we need to update the counts/offsets as we populate
 //          - note this imposes ordering constraints and inhibits concurrency
 //
-void
-QuadRefinement::populateVertexEdgeRelation() {
-
+void QuadRefinement::populateVertexEdgeRelation()
+{
     //
     //  Notes on allocating/initializing the vertex-edge counts/offsets vector:
     //
@@ -718,19 +732,20 @@ QuadRefinement::populateVertexEdgeRelation() {
     //          - any end vertex will require all N child faces (catmark)
     //      - same as parent vert for verts from parent verts (catmark)
     //
-    int childVertEdgeIndexSizeEstimate = (int)_parent->_faceVertIndices.size()
-                                       + (int)_parent->_edgeFaceIndices.size() + _parent->getNumEdges() * 2
-                                       + (int)_parent->_vertEdgeIndices.size();
+    int childVertEdgeIndexSizeEstimate = (int)_parent->_faceVertIndices.size() + (int)_parent->_edgeFaceIndices.size() + _parent->getNumEdges() * 2 + (int)_parent->_vertEdgeIndices.size();
 
     _child->_vertEdgeCountsAndOffsets.resize(_child->getNumVertices() * 2);
-    _child->_vertEdgeIndices.resize(         childVertEdgeIndexSizeEstimate);
-    _child->_vertEdgeLocalIndices.resize(    childVertEdgeIndexSizeEstimate);
+    _child->_vertEdgeIndices.resize(childVertEdgeIndexSizeEstimate);
+    _child->_vertEdgeLocalIndices.resize(childVertEdgeIndexSizeEstimate);
 
-    if (getFirstChildVertexFromVertices() == 0) {
+    if (getFirstChildVertexFromVertices() == 0)
+    {
         populateVertexEdgesFromParentVertices();
         populateVertexEdgesFromParentFaces();
         populateVertexEdgesFromParentEdges();
-    } else {
+    }
+    else
+    {
         populateVertexEdgesFromParentFaces();
         populateVertexEdgesFromParentEdges();
         populateVertexEdgesFromParentVertices();
@@ -738,21 +753,20 @@ QuadRefinement::populateVertexEdgeRelation() {
 
     //  Revise the over-allocated estimate based on what is used (as indicated in the
     //  count/offset for the last vertex) and trim the index vectors accordingly:
-    childVertEdgeIndexSizeEstimate = _child->getNumVertexEdges(_child->getNumVertices()-1) +
-                                     _child->getOffsetOfVertexEdges(_child->getNumVertices()-1);
-    _child->_vertEdgeIndices.resize(     childVertEdgeIndexSizeEstimate);
+    childVertEdgeIndexSizeEstimate = _child->getNumVertexEdges(_child->getNumVertices() - 1) + _child->getOffsetOfVertexEdges(_child->getNumVertices() - 1);
+    _child->_vertEdgeIndices.resize(childVertEdgeIndexSizeEstimate);
     _child->_vertEdgeLocalIndices.resize(childVertEdgeIndexSizeEstimate);
 }
 
-void
-QuadRefinement::populateVertexEdgesFromParentFaces() {
-
-    for (int pFace = 0; pFace < _parent->getNumFaces(); ++pFace) {
+void QuadRefinement::populateVertexEdgesFromParentFaces()
+{
+    for (int pFace = 0; pFace < _parent->getNumFaces(); ++pFace)
+    {
         int cVert = _faceChildVertIndex[pFace];
-        if (!IndexIsValid(cVert)) continue;
+        if (!IndexIsValid(cVert))
+            continue;
 
-        ConstIndexArray pFaceVerts = _parent->getFaceVertices(pFace),
-                        pFaceChildEdges = getFaceChildEdges(pFace);
+        ConstIndexArray pFaceVerts = _parent->getFaceVertices(pFace), pFaceChildEdges = getFaceChildEdges(pFace);
 
         //
         //  Reserve enough vert-edges, populate and trim to the actual size:
@@ -768,10 +782,12 @@ QuadRefinement::populateVertexEdgesFromParentFaces() {
         //  face so new "boundaries" will only occur when the vertex is incomplete.
         //
         int cVertEdgeCount = 0;
-        for (int j = 0; j < pFaceVerts.size(); ++j) {
+        for (int j = 0; j < pFaceVerts.size(); ++j)
+        {
             int jLeadingEdge = j ? (j - 1) : (pFaceVerts.size() - 1);
-            if (IndexIsValid(pFaceChildEdges[jLeadingEdge])) {
-                cVertEdges[cVertEdgeCount] = pFaceChildEdges[jLeadingEdge];
+            if (IndexIsValid(pFaceChildEdges[jLeadingEdge]))
+            {
+                cVertEdges[cVertEdgeCount]  = pFaceChildEdges[jLeadingEdge];
                 cVertInEdge[cVertEdgeCount] = 0;
                 cVertEdgeCount++;
             }
@@ -779,9 +795,8 @@ QuadRefinement::populateVertexEdgesFromParentFaces() {
         _child->trimVertexEdges(cVert, cVertEdgeCount);
     }
 }
-void
-QuadRefinement::populateVertexEdgesFromParentEdges() {
-
+void QuadRefinement::populateVertexEdgesFromParentEdges()
+{
     //
     //  This relation turns out to be awkward to populate given the mixed parentage
     //  of the incident edges of the child vertex of an edge -- two child edges
@@ -795,15 +810,16 @@ QuadRefinement::populateVertexEdgesFromParentEdges() {
     //  face.  We then swap the second and third (and possibly the first two) so
     //  that we have the desired origin sequence beginning [edge, face, edge, ...]
     //
-    for (int pEdge = 0; pEdge < _parent->getNumEdges(); ++pEdge) {
+    for (int pEdge = 0; pEdge < _parent->getNumEdges(); ++pEdge)
+    {
         int cVert = _edgeChildVertIndex[pEdge];
-        if (!IndexIsValid(cVert)) continue;
+        if (!IndexIsValid(cVert))
+            continue;
 
         ConstIndexArray      pEdgeFaces  = _parent->getEdgeFaces(pEdge);
         ConstLocalIndexArray pEdgeInFace = _parent->getEdgeFaceLocalIndices(pEdge);
 
-        ConstIndexArray pEdgeVerts      = _parent->getEdgeVertices(pEdge),
-                        pEdgeChildEdges = getEdgeChildEdges(pEdge);
+        ConstIndexArray pEdgeVerts = _parent->getEdgeVertices(pEdge), pEdgeChildEdges = getEdgeChildEdges(pEdge);
 
         //
         //  Reserve enough vert-edges, populate and trim to the actual size:
@@ -821,13 +837,15 @@ QuadRefinement::populateVertexEdgesFromParentEdges() {
         //
         int cVertEdgeCount = 0;
 
-        if (IndexIsValid(pEdgeChildEdges[0])) {
-            cVertEdges[cVertEdgeCount] = pEdgeChildEdges[0];
+        if (IndexIsValid(pEdgeChildEdges[0]))
+        {
+            cVertEdges[cVertEdgeCount]  = pEdgeChildEdges[0];
             cVertInEdge[cVertEdgeCount] = 0;
             cVertEdgeCount++;
         }
-        if (IndexIsValid(pEdgeChildEdges[1])) {
-            cVertEdges[cVertEdgeCount] = pEdgeChildEdges[1];
+        if (IndexIsValid(pEdgeChildEdges[1]))
+        {
+            cVertEdges[cVertEdgeCount]  = pEdgeChildEdges[1];
             cVertInEdge[cVertEdgeCount] = 0;
             cVertEdgeCount++;
         }
@@ -837,28 +855,31 @@ QuadRefinement::populateVertexEdgesFromParentEdges() {
         //  first face-edge with the second edge-edge just added to get the desired
         //  sequence of child edges originating from (edge, face0, edge, ...)
         //
-        for (int i = 0; i < pEdgeFaces.size(); ++i) {
+        for (int i = 0; i < pEdgeFaces.size(); ++i)
+        {
             Index pFace      = pEdgeFaces[i];
             int   edgeInFace = pEdgeInFace[i];
 
             Index cEdgeOfFace = getFaceChildEdges(pFace)[edgeInFace];
 
-            if (IndexIsValid(cEdgeOfFace)) {
-                cVertEdges[cVertEdgeCount] = cEdgeOfFace;
+            if (IndexIsValid(cEdgeOfFace))
+            {
+                cVertEdges[cVertEdgeCount]  = cEdgeOfFace;
                 cVertInEdge[cVertEdgeCount] = 1;
                 cVertEdgeCount++;
 
                 //  Check if swapping this first face-edge with the last edge-edge
                 //  is necessary:
-                if ((i == 0) && (cVertEdgeCount == 3)) {
+                if ((i == 0) && (cVertEdgeCount == 3))
+                {
                     //  Remember to order the first of the two child edges according
                     //  to the parent edge's orientation in this first face:
-                    if ((pEdgeVerts[0] != pEdgeVerts[1]) &&
-                            (_parent->getFaceVertices(pFace)[edgeInFace] == pEdgeVerts[0])) {
-                        std::swap(cVertEdges[0],  cVertEdges[1]);
+                    if ((pEdgeVerts[0] != pEdgeVerts[1]) && (_parent->getFaceVertices(pFace)[edgeInFace] == pEdgeVerts[0]))
+                    {
+                        std::swap(cVertEdges[0], cVertEdges[1]);
                         std::swap(cVertInEdge[0], cVertInEdge[1]);
                     }
-                    std::swap(cVertEdges[1],  cVertEdges[2]);
+                    std::swap(cVertEdges[1], cVertEdges[2]);
                     std::swap(cVertInEdge[1], cVertInEdge[2]);
                 }
             }
@@ -866,12 +887,13 @@ QuadRefinement::populateVertexEdgesFromParentEdges() {
         _child->trimVertexEdges(cVert, cVertEdgeCount);
     }
 }
-void
-QuadRefinement::populateVertexEdgesFromParentVertices() {
-
-    for (int pVert = 0; pVert < _parent->getNumVertices(); ++pVert) {
+void QuadRefinement::populateVertexEdgesFromParentVertices()
+{
+    for (int pVert = 0; pVert < _parent->getNumVertices(); ++pVert)
+    {
         int cVert = _vertChildVertIndex[pVert];
-        if (!IndexIsValid(cVert)) continue;
+        if (!IndexIsValid(cVert))
+            continue;
 
         ConstIndexArray      pVertEdges  = _parent->getVertexEdges(pVert);
         ConstLocalIndexArray pVertInEdge = _parent->getVertexEdgeLocalIndices(pVert);
@@ -885,13 +907,15 @@ QuadRefinement::populateVertexEdgesFromParentVertices() {
         LocalIndexArray cVertInEdge = _child->getVertexEdgeLocalIndices(cVert);
 
         int cVertEdgeCount = 0;
-        for (int i = 0; i < pVertEdges.size(); ++i) {
-            Index      pEdgeIndex  = pVertEdges[i];
-            LocalIndex pEdgeVert = pVertInEdge[i];
+        for (int i = 0; i < pVertEdges.size(); ++i)
+        {
+            Index      pEdgeIndex = pVertEdges[i];
+            LocalIndex pEdgeVert  = pVertInEdge[i];
 
             Index pEdgeChildIndex = getEdgeChildEdges(pEdgeIndex)[pEdgeVert];
-            if (IndexIsValid(pEdgeChildIndex)) {
-                cVertEdges[cVertEdgeCount] = pEdgeChildIndex;
+            if (IndexIsValid(pEdgeChildIndex))
+            {
+                cVertEdges[cVertEdgeCount]  = pEdgeChildIndex;
                 cVertInEdge[cVertEdgeCount] = 1;
                 cVertEdgeCount++;
             }
@@ -906,17 +930,17 @@ QuadRefinement::populateVertexEdgesFromParentVertices() {
 //  Need to find a better place for these anon helper methods now that they are required
 //  both in the base class and the two subclasses for quad- and tri-splitting...
 //
-namespace {
-    Index const IndexSparseMaskNeighboring = (1 << 0);
-    Index const IndexSparseMaskSelected    = (1 << 1);
+namespace
+{
+Index const IndexSparseMaskNeighboring = (1 << 0);
+Index const IndexSparseMaskSelected    = (1 << 1);
 
-    inline void markSparseIndexNeighbor(Index& index) { index = IndexSparseMaskNeighboring; }
-    inline void markSparseIndexSelected(Index& index) { index = IndexSparseMaskSelected; }
-}
+inline void markSparseIndexNeighbor(Index &index) { index = IndexSparseMaskNeighboring; }
+inline void markSparseIndexSelected(Index &index) { index = IndexSparseMaskSelected; }
+} // namespace
 
-void
-QuadRefinement::markSparseFaceChildren() {
-
+void QuadRefinement::markSparseFaceChildren()
+{
     assert(_parentFaceTag.size() > 0);
 
     //
@@ -930,7 +954,8 @@ QuadRefinement::markSparseFaceChildren() {
     //
     assert(_splitType == Sdc::SPLIT_TO_QUADS);
 
-    for (Index pFace = 0; pFace < parent().getNumFaces(); ++pFace) {
+    for (Index pFace = 0; pFace < parent().getNumFaces(); ++pFace)
+    {
         //
         //  Mark all descending child components of a selected face.  Otherwise inspect
         //  its incident vertices to see if anything neighboring has been selected --
@@ -944,21 +969,27 @@ QuadRefinement::markSparseFaceChildren() {
 
         ConstIndexArray fVerts = parent().getFaceVertices(pFace);
 
-        SparseTag& pFaceTag = _parentFaceTag[pFace];
+        SparseTag &pFaceTag = _parentFaceTag[pFace];
 
-        if (pFaceTag._selected) {
-            for (int i = 0; i < fVerts.size(); ++i) {
+        if (pFaceTag._selected)
+        {
+            for (int i = 0; i < fVerts.size(); ++i)
+            {
                 markSparseIndexSelected(fChildFaces[i]);
                 markSparseIndexSelected(fChildEdges[i]);
             }
             markSparseIndexSelected(_faceChildVertIndex[pFace]);
 
             pFaceTag._transitional = 0;
-        } else {
+        }
+        else
+        {
             int marked = false;
 
-            for (int i = 0; i < fVerts.size(); ++i) {
-                if (_parentVertexTag[fVerts[i]]._selected) {
+            for (int i = 0; i < fVerts.size(); ++i)
+            {
+                if (_parentVertexTag[fVerts[i]]._selected)
+                {
                     int iPrev = i ? (i - 1) : (fVerts.size() - 1);
 
                     markSparseIndexNeighbor(fChildFaces[i]);
@@ -969,7 +1000,8 @@ QuadRefinement::markSparseFaceChildren() {
                     marked = true;
                 }
             }
-            if (marked) {
+            if (marked)
+            {
                 markSparseIndexNeighbor(_faceChildVertIndex[pFace]);
 
                 //
@@ -981,20 +1013,19 @@ QuadRefinement::markSparseFaceChildren() {
                 //  4-bit mask that reflects the full transitional topology for later.
                 //
                 ConstIndexArray fEdges = parent().getFaceEdges(pFace);
-                if (fEdges.size() == 4) {
-                    pFaceTag._transitional = (unsigned char)
-                           ((_parentEdgeTag[fEdges[0]]._transitional << 0) |
-                            (_parentEdgeTag[fEdges[1]]._transitional << 1) |
-                            (_parentEdgeTag[fEdges[2]]._transitional << 2) |
-                            (_parentEdgeTag[fEdges[3]]._transitional << 3));
-                } else if (fEdges.size() == 3) {
-                    pFaceTag._transitional = (unsigned char)
-                           ((_parentEdgeTag[fEdges[0]]._transitional << 0) |
-                            (_parentEdgeTag[fEdges[1]]._transitional << 1) |
-                            (_parentEdgeTag[fEdges[2]]._transitional << 2));
-                } else {
+                if (fEdges.size() == 4)
+                {
+                    pFaceTag._transitional = (unsigned char)((_parentEdgeTag[fEdges[0]]._transitional << 0) | (_parentEdgeTag[fEdges[1]]._transitional << 1) | (_parentEdgeTag[fEdges[2]]._transitional << 2) | (_parentEdgeTag[fEdges[3]]._transitional << 3));
+                }
+                else if (fEdges.size() == 3)
+                {
+                    pFaceTag._transitional = (unsigned char)((_parentEdgeTag[fEdges[0]]._transitional << 0) | (_parentEdgeTag[fEdges[1]]._transitional << 1) | (_parentEdgeTag[fEdges[2]]._transitional << 2));
+                }
+                else
+                {
                     pFaceTag._transitional = 0;
-                    for (int i = 0; i < fEdges.size(); ++i) {
+                    for (int i = 0; i < fEdges.size(); ++i)
+                    {
                         pFaceTag._transitional |= _parentEdgeTag[fEdges[i]]._transitional;
                     }
                 }

@@ -24,46 +24,47 @@
 
 #include "../osd/clEvaluator.h"
 
+#include <cstdio>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <cstdio>
 
-#include "../osd/opencl.h"
 #include "../far/error.h"
 #include "../far/stencilTable.h"
+#include "../osd/opencl.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Osd {
+namespace Osd
+{
 
 static const char *clSource =
 #include "clKernel.gen.h"
-;
+    ;
 static const char *patchBasisTypesSource =
 #include "patchBasisTypes.gen.h"
-;
+    ;
 static const char *patchBasisSource =
 #include "patchBasis.gen.h"
-;
+    ;
 
 // ----------------------------------------------------------------------------
 
-template <class T> cl_mem
-createCLBuffer(std::vector<T> const & src, cl_context clContext) {
-    if (src.empty()) {
+template <class T> cl_mem createCLBuffer(std::vector<T> const &src, cl_context clContext)
+{
+    if (src.empty())
+    {
         return NULL;
     }
 
-    cl_int errNum = 0;
-    cl_mem devicePtr = clCreateBuffer(clContext,
-                                      CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR,
-                                      src.size()*sizeof(T),
-                                      (void*)(&src.at(0)),
-                                      &errNum);
+    cl_int errNum    = 0;
+    cl_mem devicePtr = clCreateBuffer(clContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, src.size() * sizeof(T), (void *)(&src.at(0)), &errNum);
 
-    if (errNum != CL_SUCCESS) {
+    if (errNum != CL_SUCCESS)
+    {
         Far::Error(Far::FAR_RUNTIME_ERROR, "clCreateBuffer: %d", errNum);
     }
 
@@ -72,131 +73,130 @@ createCLBuffer(std::vector<T> const & src, cl_context clContext) {
 
 // ----------------------------------------------------------------------------
 
-CLStencilTable::CLStencilTable(Far::StencilTable const *stencilTable,
-                               cl_context clContext) {
+CLStencilTable::CLStencilTable(Far::StencilTable const *stencilTable, cl_context clContext)
+{
     _numStencils = stencilTable->GetNumStencils();
 
-    if (_numStencils > 0) {
-        _sizes   = createCLBuffer(stencilTable->GetSizes(), clContext);
-        _offsets = createCLBuffer(stencilTable->GetOffsets(), clContext);
-        _indices = createCLBuffer(stencilTable->GetControlIndices(),
-                                  clContext);
-        _weights = createCLBuffer(stencilTable->GetWeights(), clContext);
+    if (_numStencils > 0)
+    {
+        _sizes     = createCLBuffer(stencilTable->GetSizes(), clContext);
+        _offsets   = createCLBuffer(stencilTable->GetOffsets(), clContext);
+        _indices   = createCLBuffer(stencilTable->GetControlIndices(), clContext);
+        _weights   = createCLBuffer(stencilTable->GetWeights(), clContext);
         _duWeights = _dvWeights = NULL;
         _duuWeights = _duvWeights = _dvvWeights = NULL;
-    } else {
+    }
+    else
+    {
         _sizes = _offsets = _indices = _weights = NULL;
         _duWeights = _dvWeights = NULL;
         _duuWeights = _duvWeights = _dvvWeights = NULL;
     }
 }
 
-CLStencilTable::CLStencilTable(Far::LimitStencilTable const *limitStencilTable,
-                               cl_context clContext) {
+CLStencilTable::CLStencilTable(Far::LimitStencilTable const *limitStencilTable, cl_context clContext)
+{
     _numStencils = limitStencilTable->GetNumStencils();
 
-    if (_numStencils > 0) {
-        _sizes   = createCLBuffer(limitStencilTable->GetSizes(), clContext);
-        _offsets = createCLBuffer(limitStencilTable->GetOffsets(), clContext);
-        _indices = createCLBuffer(limitStencilTable->GetControlIndices(),
-                                  clContext);
-        _weights = createCLBuffer(limitStencilTable->GetWeights(), clContext);
-        _duWeights = createCLBuffer(
-            limitStencilTable->GetDuWeights(), clContext);
-        _dvWeights = createCLBuffer(
-            limitStencilTable->GetDvWeights(), clContext);
-        _duuWeights = createCLBuffer(
-            limitStencilTable->GetDuuWeights(), clContext);
-        _duvWeights = createCLBuffer(
-            limitStencilTable->GetDuvWeights(), clContext);
-        _dvvWeights = createCLBuffer(
-            limitStencilTable->GetDvvWeights(), clContext);
-    } else {
+    if (_numStencils > 0)
+    {
+        _sizes      = createCLBuffer(limitStencilTable->GetSizes(), clContext);
+        _offsets    = createCLBuffer(limitStencilTable->GetOffsets(), clContext);
+        _indices    = createCLBuffer(limitStencilTable->GetControlIndices(), clContext);
+        _weights    = createCLBuffer(limitStencilTable->GetWeights(), clContext);
+        _duWeights  = createCLBuffer(limitStencilTable->GetDuWeights(), clContext);
+        _dvWeights  = createCLBuffer(limitStencilTable->GetDvWeights(), clContext);
+        _duuWeights = createCLBuffer(limitStencilTable->GetDuuWeights(), clContext);
+        _duvWeights = createCLBuffer(limitStencilTable->GetDuvWeights(), clContext);
+        _dvvWeights = createCLBuffer(limitStencilTable->GetDvvWeights(), clContext);
+    }
+    else
+    {
         _sizes = _offsets = _indices = _weights = NULL;
         _duWeights = _dvWeights = NULL;
         _duuWeights = _duvWeights = _dvvWeights = NULL;
     }
 }
 
-CLStencilTable::~CLStencilTable() {
-    if (_sizes)   clReleaseMemObject(_sizes);
-    if (_offsets) clReleaseMemObject(_offsets);
-    if (_indices) clReleaseMemObject(_indices);
-    if (_weights) clReleaseMemObject(_weights);
-    if (_duWeights) clReleaseMemObject(_duWeights);
-    if (_dvWeights) clReleaseMemObject(_dvWeights);
-    if (_duuWeights) clReleaseMemObject(_duuWeights);
-    if (_duvWeights) clReleaseMemObject(_duvWeights);
-    if (_dvvWeights) clReleaseMemObject(_dvvWeights);
+CLStencilTable::~CLStencilTable()
+{
+    if (_sizes)
+        clReleaseMemObject(_sizes);
+    if (_offsets)
+        clReleaseMemObject(_offsets);
+    if (_indices)
+        clReleaseMemObject(_indices);
+    if (_weights)
+        clReleaseMemObject(_weights);
+    if (_duWeights)
+        clReleaseMemObject(_duWeights);
+    if (_dvWeights)
+        clReleaseMemObject(_dvWeights);
+    if (_duuWeights)
+        clReleaseMemObject(_duuWeights);
+    if (_duvWeights)
+        clReleaseMemObject(_duvWeights);
+    if (_dvvWeights)
+        clReleaseMemObject(_dvvWeights);
 }
 
 // ---------------------------------------------------------------------------
 
-CLEvaluator::CLEvaluator(cl_context context, cl_command_queue queue)
-    : _clContext(context), _clCommandQueue(queue),
-      _program(NULL), _stencilKernel(NULL), _stencilDerivKernel(NULL),
-      _patchKernel(NULL) {
+CLEvaluator::CLEvaluator(cl_context context, cl_command_queue queue) : _clContext(context), _clCommandQueue(queue), _program(NULL), _stencilKernel(NULL), _stencilDerivKernel(NULL), _patchKernel(NULL) {}
+
+CLEvaluator::~CLEvaluator()
+{
+    if (_stencilKernel)
+        clReleaseKernel(_stencilKernel);
+    if (_stencilDerivKernel)
+        clReleaseKernel(_stencilDerivKernel);
+    if (_patchKernel)
+        clReleaseKernel(_patchKernel);
+    if (_program)
+        clReleaseProgram(_program);
 }
 
-CLEvaluator::~CLEvaluator() {
-    if (_stencilKernel) clReleaseKernel(_stencilKernel);
-    if (_stencilDerivKernel) clReleaseKernel(_stencilDerivKernel);
-    if (_patchKernel) clReleaseKernel(_patchKernel);
-    if (_program) clReleaseProgram(_program);
-}
-
-bool
-CLEvaluator::Compile(BufferDescriptor const &srcDesc,
-                     BufferDescriptor const &dstDesc,
-                     BufferDescriptor const & /*duDesc*/,
-                     BufferDescriptor const & /*dvDesc*/,
-                     BufferDescriptor const & /*duuDesc*/,
-                     BufferDescriptor const & /*duvDesc*/,
-                     BufferDescriptor const & /*dvvDesc*/) {
-    if (srcDesc.length > dstDesc.length) {
-        Far::Error(Far::FAR_RUNTIME_ERROR,
-                   "srcDesc length must be less than or equal to "
-                   "dstDesc length.\n");
+bool CLEvaluator::Compile(BufferDescriptor const &srcDesc, BufferDescriptor const &dstDesc, BufferDescriptor const & /*duDesc*/, BufferDescriptor const & /*dvDesc*/, BufferDescriptor const & /*duuDesc*/, BufferDescriptor const & /*duvDesc*/,
+                          BufferDescriptor const & /*dvvDesc*/)
+{
+    if (srcDesc.length > dstDesc.length)
+    {
+        Far::Error(Far::FAR_RUNTIME_ERROR, "srcDesc length must be less than or equal to "
+                                           "dstDesc length.\n");
         return false;
     }
 
     cl_int errNum;
 
     std::ostringstream defines;
-    defines << "#define LENGTH "     << srcDesc.length << "\n"
+    defines << "#define LENGTH " << srcDesc.length << "\n"
             << "#define SRC_STRIDE " << srcDesc.stride << "\n"
             << "#define DST_STRIDE " << dstDesc.stride << "\n"
             << "#define OSD_PATCH_BASIS_OPENCL\n";
     std::string defineStr = defines.str();
 
-    const char *sources[] = { defineStr.c_str(),
-                              patchBasisTypesSource,
-                              patchBasisSource,
-                              clSource };
-    _program = clCreateProgramWithSource(_clContext, 4, sources, 0, &errNum);
-    if (errNum != CL_SUCCESS) {
-        Far::Error(Far::FAR_RUNTIME_ERROR,
-                   "clCreateProgramWithSource (%d)", errNum);
+    const char *sources[] = {defineStr.c_str(), patchBasisTypesSource, patchBasisSource, clSource};
+    _program              = clCreateProgramWithSource(_clContext, 4, sources, 0, &errNum);
+    if (errNum != CL_SUCCESS)
+    {
+        Far::Error(Far::FAR_RUNTIME_ERROR, "clCreateProgramWithSource (%d)", errNum);
     }
 
     errNum = clBuildProgram(_program, 0, NULL, NULL, NULL, NULL);
-    if (errNum != CL_SUCCESS) {
+    if (errNum != CL_SUCCESS)
+    {
         Far::Error(Far::FAR_RUNTIME_ERROR, "clBuildProgram (%d) \n", errNum);
 
         cl_int numDevices = 0;
-        clGetContextInfo(
-            _clContext, CL_CONTEXT_NUM_DEVICES,
-            sizeof(cl_uint), &numDevices, NULL);
+        clGetContextInfo(_clContext, CL_CONTEXT_NUM_DEVICES, sizeof(cl_uint), &numDevices, NULL);
 
         cl_device_id *devices = new cl_device_id[numDevices];
-        clGetContextInfo(_clContext, CL_CONTEXT_DEVICES,
-                         sizeof(cl_device_id)*numDevices, devices, NULL);
+        clGetContextInfo(_clContext, CL_CONTEXT_DEVICES, sizeof(cl_device_id) * numDevices, devices, NULL);
 
-        for (int i = 0; i < numDevices; ++i) {
+        for (int i = 0; i < numDevices; ++i)
+        {
             char cBuildLog[10240];
-            clGetProgramBuildInfo(
-                _program, devices[i],
-                CL_PROGRAM_BUILD_LOG, sizeof(cBuildLog), cBuildLog, NULL);
+            clGetProgramBuildInfo(_program, devices[i], CL_PROGRAM_BUILD_LOG, sizeof(cBuildLog), cBuildLog, NULL);
             Far::Error(Far::FAR_RUNTIME_ERROR, cBuildLog);
         }
         delete[] devices;
@@ -205,39 +205,34 @@ CLEvaluator::Compile(BufferDescriptor const &srcDesc,
     }
 
     _stencilKernel = clCreateKernel(_program, "computeStencils", &errNum);
-    if (errNum != CL_SUCCESS) {
+    if (errNum != CL_SUCCESS)
+    {
         Far::Error(Far::FAR_RUNTIME_ERROR, "buildKernel (%d)\n", errNum);
         return false;
     }
 
-    _stencilDerivKernel = clCreateKernel(_program,
-                                         "computeStencilsDerivatives", &errNum);
-    if (errNum != CL_SUCCESS) {
+    _stencilDerivKernel = clCreateKernel(_program, "computeStencilsDerivatives", &errNum);
+    if (errNum != CL_SUCCESS)
+    {
         Far::Error(Far::FAR_RUNTIME_ERROR, "buildKernel (%d)\n", errNum);
         return false;
     }
 
     _patchKernel = clCreateKernel(_program, "computePatches", &errNum);
 
-    if (errNum != CL_SUCCESS) {
+    if (errNum != CL_SUCCESS)
+    {
         Far::Error(Far::FAR_RUNTIME_ERROR, "buildKernel (%d)\n", errNum);
         return false;
     }
     return true;
 }
 
-bool
-CLEvaluator::EvalStencils(cl_mem src, BufferDescriptor const &srcDesc,
-                          cl_mem dst, BufferDescriptor const &dstDesc,
-                          cl_mem sizes,
-                          cl_mem offsets,
-                          cl_mem indices,
-                          cl_mem weights,
-                          int start, int end,
-                          unsigned int numStartEvents,
-                          const cl_event* startEvents,
-                          cl_event* endEvent) const {
-    if (end <= start) return true;
+bool CLEvaluator::EvalStencils(cl_mem src, BufferDescriptor const &srcDesc, cl_mem dst, BufferDescriptor const &dstDesc, cl_mem sizes, cl_mem offsets, cl_mem indices, cl_mem weights, int start, int end, unsigned int numStartEvents,
+                               const cl_event *startEvents, cl_event *endEvent) const
+{
+    if (end <= start)
+        return true;
 
     size_t globalWorkSize = (size_t)(end - start);
 
@@ -252,53 +247,40 @@ CLEvaluator::EvalStencils(cl_mem src, BufferDescriptor const &srcDesc,
     clSetKernelArg(_stencilKernel, 8, sizeof(int), &start);
     clSetKernelArg(_stencilKernel, 9, sizeof(int), &end);
 
-    cl_int errNum = clEnqueueNDRangeKernel(
-        _clCommandQueue, _stencilKernel, 1, NULL,
-        &globalWorkSize, NULL, numStartEvents, startEvents, endEvent);
+    cl_int errNum = clEnqueueNDRangeKernel(_clCommandQueue, _stencilKernel, 1, NULL, &globalWorkSize, NULL, numStartEvents, startEvents, endEvent);
 
-    if (errNum != CL_SUCCESS) {
-        Far::Error(Far::FAR_RUNTIME_ERROR,
-                   "ApplyStencilKernel (%d) ", errNum);
+    if (errNum != CL_SUCCESS)
+    {
+        Far::Error(Far::FAR_RUNTIME_ERROR, "ApplyStencilKernel (%d) ", errNum);
         return false;
     }
 
     if (endEvent == NULL)
     {
-    clFinish(_clCommandQueue);
+        clFinish(_clCommandQueue);
     }
     return true;
 }
 
-bool
-CLEvaluator::EvalStencils(cl_mem src, BufferDescriptor const &srcDesc,
-                          cl_mem dst, BufferDescriptor const &dstDesc,
-                          cl_mem du, BufferDescriptor const &duDesc,
-                          cl_mem dv, BufferDescriptor const &dvDesc,
-                          cl_mem sizes,
-                          cl_mem offsets,
-                          cl_mem indices,
-                          cl_mem weights,
-                          cl_mem duWeights,
-                          cl_mem dvWeights,
-                          int start, int end,
-                          unsigned int numStartEvents,
-                          const cl_event* startEvents,
-                          cl_event* endEvent) const {
-    if (end <= start) return true;
+bool CLEvaluator::EvalStencils(cl_mem src, BufferDescriptor const &srcDesc, cl_mem dst, BufferDescriptor const &dstDesc, cl_mem du, BufferDescriptor const &duDesc, cl_mem dv, BufferDescriptor const &dvDesc, cl_mem sizes, cl_mem offsets, cl_mem indices,
+                               cl_mem weights, cl_mem duWeights, cl_mem dvWeights, int start, int end, unsigned int numStartEvents, const cl_event *startEvents, cl_event *endEvent) const
+{
+    if (end <= start)
+        return true;
 
     size_t globalWorkSize = (size_t)(end - start);
 
     BufferDescriptor empty;
-    clSetKernelArg(_stencilDerivKernel,  0, sizeof(cl_mem), &src);
-    clSetKernelArg(_stencilDerivKernel,  1, sizeof(int), &srcDesc.offset);
-    clSetKernelArg(_stencilDerivKernel,  2, sizeof(cl_mem), &dst);
-    clSetKernelArg(_stencilDerivKernel,  3, sizeof(int), &dstDesc.offset);
-    clSetKernelArg(_stencilDerivKernel,  4, sizeof(cl_mem), &du);
-    clSetKernelArg(_stencilDerivKernel,  5, sizeof(int), &duDesc.offset);
-    clSetKernelArg(_stencilDerivKernel,  6, sizeof(int), &duDesc.stride);
-    clSetKernelArg(_stencilDerivKernel,  7, sizeof(cl_mem), &dv);
-    clSetKernelArg(_stencilDerivKernel,  8, sizeof(int), &dvDesc.offset);
-    clSetKernelArg(_stencilDerivKernel,  9, sizeof(int), &dvDesc.stride);
+    clSetKernelArg(_stencilDerivKernel, 0, sizeof(cl_mem), &src);
+    clSetKernelArg(_stencilDerivKernel, 1, sizeof(int), &srcDesc.offset);
+    clSetKernelArg(_stencilDerivKernel, 2, sizeof(cl_mem), &dst);
+    clSetKernelArg(_stencilDerivKernel, 3, sizeof(int), &dstDesc.offset);
+    clSetKernelArg(_stencilDerivKernel, 4, sizeof(cl_mem), &du);
+    clSetKernelArg(_stencilDerivKernel, 5, sizeof(int), &duDesc.offset);
+    clSetKernelArg(_stencilDerivKernel, 6, sizeof(int), &duDesc.stride);
+    clSetKernelArg(_stencilDerivKernel, 7, sizeof(cl_mem), &dv);
+    clSetKernelArg(_stencilDerivKernel, 8, sizeof(int), &dvDesc.offset);
+    clSetKernelArg(_stencilDerivKernel, 9, sizeof(int), &dvDesc.stride);
     clSetKernelArg(_stencilDerivKernel, 10, sizeof(cl_mem), NULL);
     clSetKernelArg(_stencilDerivKernel, 11, sizeof(int), &empty.offset);
     clSetKernelArg(_stencilDerivKernel, 12, sizeof(int), &empty.stride);
@@ -320,57 +302,40 @@ CLEvaluator::EvalStencils(cl_mem src, BufferDescriptor const &srcDesc,
     clSetKernelArg(_stencilDerivKernel, 28, sizeof(int), &start);
     clSetKernelArg(_stencilDerivKernel, 29, sizeof(int), &end);
 
-    cl_int errNum = clEnqueueNDRangeKernel(
-        _clCommandQueue, _stencilDerivKernel, 1, NULL,
-        &globalWorkSize, NULL, numStartEvents, startEvents, endEvent);
+    cl_int errNum = clEnqueueNDRangeKernel(_clCommandQueue, _stencilDerivKernel, 1, NULL, &globalWorkSize, NULL, numStartEvents, startEvents, endEvent);
 
-    if (errNum != CL_SUCCESS) {
-        Far::Error(Far::FAR_RUNTIME_ERROR,
-                   "ApplyStencilKernel (%d) ", errNum);
+    if (errNum != CL_SUCCESS)
+    {
+        Far::Error(Far::FAR_RUNTIME_ERROR, "ApplyStencilKernel (%d) ", errNum);
         return false;
     }
 
-    if (endEvent == NULL) {
+    if (endEvent == NULL)
+    {
         clFinish(_clCommandQueue);
     }
     return true;
 }
 
-bool
-CLEvaluator::EvalStencils(cl_mem src, BufferDescriptor const &srcDesc,
-                          cl_mem dst, BufferDescriptor const &dstDesc,
-                          cl_mem du,  BufferDescriptor const &duDesc,
-                          cl_mem dv,  BufferDescriptor const &dvDesc,
-                          cl_mem duu, BufferDescriptor const &duuDesc,
-                          cl_mem duv, BufferDescriptor const &duvDesc,
-                          cl_mem dvv, BufferDescriptor const &dvvDesc,
-                          cl_mem sizes,
-                          cl_mem offsets,
-                          cl_mem indices,
-                          cl_mem weights,
-                          cl_mem duWeights,
-                          cl_mem dvWeights,
-                          cl_mem duuWeights,
-                          cl_mem duvWeights,
-                          cl_mem dvvWeights,
-                          int start, int end,
-                          unsigned int numStartEvents,
-                          const cl_event* startEvents,
-                          cl_event* endEvent) const {
-    if (end <= start) return true;
+bool CLEvaluator::EvalStencils(cl_mem src, BufferDescriptor const &srcDesc, cl_mem dst, BufferDescriptor const &dstDesc, cl_mem du, BufferDescriptor const &duDesc, cl_mem dv, BufferDescriptor const &dvDesc, cl_mem duu, BufferDescriptor const &duuDesc,
+                               cl_mem duv, BufferDescriptor const &duvDesc, cl_mem dvv, BufferDescriptor const &dvvDesc, cl_mem sizes, cl_mem offsets, cl_mem indices, cl_mem weights, cl_mem duWeights, cl_mem dvWeights, cl_mem duuWeights, cl_mem duvWeights,
+                               cl_mem dvvWeights, int start, int end, unsigned int numStartEvents, const cl_event *startEvents, cl_event *endEvent) const
+{
+    if (end <= start)
+        return true;
 
     size_t globalWorkSize = (size_t)(end - start);
 
-    clSetKernelArg(_stencilDerivKernel,  0, sizeof(cl_mem), &src);
-    clSetKernelArg(_stencilDerivKernel,  1, sizeof(int), &srcDesc.offset);
-    clSetKernelArg(_stencilDerivKernel,  2, sizeof(cl_mem), &dst);
-    clSetKernelArg(_stencilDerivKernel,  3, sizeof(int), &dstDesc.offset);
-    clSetKernelArg(_stencilDerivKernel,  4, sizeof(cl_mem), &du);
-    clSetKernelArg(_stencilDerivKernel,  5, sizeof(int), &duDesc.offset);
-    clSetKernelArg(_stencilDerivKernel,  6, sizeof(int), &duDesc.stride);
-    clSetKernelArg(_stencilDerivKernel,  7, sizeof(cl_mem), &dv);
-    clSetKernelArg(_stencilDerivKernel,  8, sizeof(int), &dvDesc.offset);
-    clSetKernelArg(_stencilDerivKernel,  9, sizeof(int), &dvDesc.stride);
+    clSetKernelArg(_stencilDerivKernel, 0, sizeof(cl_mem), &src);
+    clSetKernelArg(_stencilDerivKernel, 1, sizeof(int), &srcDesc.offset);
+    clSetKernelArg(_stencilDerivKernel, 2, sizeof(cl_mem), &dst);
+    clSetKernelArg(_stencilDerivKernel, 3, sizeof(int), &dstDesc.offset);
+    clSetKernelArg(_stencilDerivKernel, 4, sizeof(cl_mem), &du);
+    clSetKernelArg(_stencilDerivKernel, 5, sizeof(int), &duDesc.offset);
+    clSetKernelArg(_stencilDerivKernel, 6, sizeof(int), &duDesc.stride);
+    clSetKernelArg(_stencilDerivKernel, 7, sizeof(cl_mem), &dv);
+    clSetKernelArg(_stencilDerivKernel, 8, sizeof(int), &dvDesc.offset);
+    clSetKernelArg(_stencilDerivKernel, 9, sizeof(int), &dvDesc.stride);
     clSetKernelArg(_stencilDerivKernel, 10, sizeof(cl_mem), &duu);
     clSetKernelArg(_stencilDerivKernel, 11, sizeof(int), &duuDesc.offset);
     clSetKernelArg(_stencilDerivKernel, 12, sizeof(int), &duuDesc.stride);
@@ -392,146 +357,115 @@ CLEvaluator::EvalStencils(cl_mem src, BufferDescriptor const &srcDesc,
     clSetKernelArg(_stencilDerivKernel, 28, sizeof(int), &start);
     clSetKernelArg(_stencilDerivKernel, 29, sizeof(int), &end);
 
-    cl_int errNum = clEnqueueNDRangeKernel(
-        _clCommandQueue, _stencilDerivKernel, 1, NULL,
-        &globalWorkSize, NULL, numStartEvents, startEvents, endEvent);
+    cl_int errNum = clEnqueueNDRangeKernel(_clCommandQueue, _stencilDerivKernel, 1, NULL, &globalWorkSize, NULL, numStartEvents, startEvents, endEvent);
 
-    if (errNum != CL_SUCCESS) {
-        Far::Error(Far::FAR_RUNTIME_ERROR,
-                   "ApplyStencilKernel (%d) ", errNum);
+    if (errNum != CL_SUCCESS)
+    {
+        Far::Error(Far::FAR_RUNTIME_ERROR, "ApplyStencilKernel (%d) ", errNum);
         return false;
     }
 
-    if (endEvent == NULL) {
+    if (endEvent == NULL)
+    {
         clFinish(_clCommandQueue);
     }
     return true;
 }
 
-bool
-CLEvaluator::EvalPatches(cl_mem src, BufferDescriptor const &srcDesc,
-                         cl_mem dst, BufferDescriptor const &dstDesc,
-                         cl_mem du,  BufferDescriptor const &duDesc,
-                         cl_mem dv,  BufferDescriptor const &dvDesc,
-                         int numPatchCoords,
-                         cl_mem patchCoordsBuffer,
-                         cl_mem patchArrayBuffer,
-                         cl_mem patchIndexBuffer,
-                         cl_mem patchParamBuffer,
-                         unsigned int numStartEvents,
-                         const cl_event* startEvents,
-                         cl_event* endEvent) const {
-
+bool CLEvaluator::EvalPatches(cl_mem src, BufferDescriptor const &srcDesc, cl_mem dst, BufferDescriptor const &dstDesc, cl_mem du, BufferDescriptor const &duDesc, cl_mem dv, BufferDescriptor const &dvDesc, int numPatchCoords, cl_mem patchCoordsBuffer,
+                              cl_mem patchArrayBuffer, cl_mem patchIndexBuffer, cl_mem patchParamBuffer, unsigned int numStartEvents, const cl_event *startEvents, cl_event *endEvent) const
+{
     size_t globalWorkSize = (size_t)(numPatchCoords);
 
     BufferDescriptor empty;
-    clSetKernelArg(_patchKernel,  0, sizeof(cl_mem), &src);
-    clSetKernelArg(_patchKernel,  1, sizeof(int),    &srcDesc.offset);
-    clSetKernelArg(_patchKernel,  2, sizeof(cl_mem), &dst);
-    clSetKernelArg(_patchKernel,  3, sizeof(int),    &dstDesc.offset);
-    clSetKernelArg(_patchKernel,  4, sizeof(cl_mem), &du);
-    clSetKernelArg(_patchKernel,  5, sizeof(int),    &duDesc.offset);
-    clSetKernelArg(_patchKernel,  6, sizeof(int),    &duDesc.stride);
-    clSetKernelArg(_patchKernel,  7, sizeof(cl_mem), &dv);
-    clSetKernelArg(_patchKernel,  8, sizeof(int),    &dvDesc.offset);
-    clSetKernelArg(_patchKernel,  9, sizeof(int),    &dvDesc.stride);
+    clSetKernelArg(_patchKernel, 0, sizeof(cl_mem), &src);
+    clSetKernelArg(_patchKernel, 1, sizeof(int), &srcDesc.offset);
+    clSetKernelArg(_patchKernel, 2, sizeof(cl_mem), &dst);
+    clSetKernelArg(_patchKernel, 3, sizeof(int), &dstDesc.offset);
+    clSetKernelArg(_patchKernel, 4, sizeof(cl_mem), &du);
+    clSetKernelArg(_patchKernel, 5, sizeof(int), &duDesc.offset);
+    clSetKernelArg(_patchKernel, 6, sizeof(int), &duDesc.stride);
+    clSetKernelArg(_patchKernel, 7, sizeof(cl_mem), &dv);
+    clSetKernelArg(_patchKernel, 8, sizeof(int), &dvDesc.offset);
+    clSetKernelArg(_patchKernel, 9, sizeof(int), &dvDesc.stride);
     clSetKernelArg(_patchKernel, 10, sizeof(cl_mem), NULL);
-    clSetKernelArg(_patchKernel, 11, sizeof(int),    &empty.offset);
-    clSetKernelArg(_patchKernel, 12, sizeof(int),    &empty.stride);
+    clSetKernelArg(_patchKernel, 11, sizeof(int), &empty.offset);
+    clSetKernelArg(_patchKernel, 12, sizeof(int), &empty.stride);
     clSetKernelArg(_patchKernel, 13, sizeof(cl_mem), NULL);
-    clSetKernelArg(_patchKernel, 14, sizeof(int),    &empty.offset);
-    clSetKernelArg(_patchKernel, 15, sizeof(int),    &empty.stride);
+    clSetKernelArg(_patchKernel, 14, sizeof(int), &empty.offset);
+    clSetKernelArg(_patchKernel, 15, sizeof(int), &empty.stride);
     clSetKernelArg(_patchKernel, 16, sizeof(cl_mem), NULL);
-    clSetKernelArg(_patchKernel, 17, sizeof(int),    &empty.offset);
-    clSetKernelArg(_patchKernel, 18, sizeof(int),    &empty.stride);
+    clSetKernelArg(_patchKernel, 17, sizeof(int), &empty.offset);
+    clSetKernelArg(_patchKernel, 18, sizeof(int), &empty.stride);
     clSetKernelArg(_patchKernel, 19, sizeof(cl_mem), &patchCoordsBuffer);
     clSetKernelArg(_patchKernel, 20, sizeof(cl_mem), &patchArrayBuffer);
     clSetKernelArg(_patchKernel, 21, sizeof(cl_mem), &patchIndexBuffer);
     clSetKernelArg(_patchKernel, 22, sizeof(cl_mem), &patchParamBuffer);
 
-    cl_int errNum = clEnqueueNDRangeKernel(
-        _clCommandQueue, _patchKernel, 1, NULL,
-        &globalWorkSize, NULL, numStartEvents, startEvents, endEvent);
+    cl_int errNum = clEnqueueNDRangeKernel(_clCommandQueue, _patchKernel, 1, NULL, &globalWorkSize, NULL, numStartEvents, startEvents, endEvent);
 
-    if (errNum != CL_SUCCESS) {
-        Far::Error(Far::FAR_RUNTIME_ERROR,
-                   "ApplyPatchKernel (%d) ", errNum);
+    if (errNum != CL_SUCCESS)
+    {
+        Far::Error(Far::FAR_RUNTIME_ERROR, "ApplyPatchKernel (%d) ", errNum);
         return false;
     }
 
-    if (endEvent == NULL) {
+    if (endEvent == NULL)
+    {
         clFinish(_clCommandQueue);
     }
     return true;
 }
 
-bool
-CLEvaluator::EvalPatches(cl_mem src, BufferDescriptor const &srcDesc,
-                         cl_mem dst, BufferDescriptor const &dstDesc,
-                         cl_mem du,  BufferDescriptor const &duDesc,
-                         cl_mem dv,  BufferDescriptor const &dvDesc,
-                         cl_mem duu, BufferDescriptor const &duuDesc,
-                         cl_mem duv, BufferDescriptor const &duvDesc,
-                         cl_mem dvv, BufferDescriptor const &dvvDesc,
-                         int numPatchCoords,
-                         cl_mem patchCoordsBuffer,
-                         cl_mem patchArrayBuffer,
-                         cl_mem patchIndexBuffer,
-                         cl_mem patchParamBuffer,
-                         unsigned int numStartEvents,
-                         const cl_event* startEvents,
-                         cl_event* endEvent) const {
-
+bool CLEvaluator::EvalPatches(cl_mem src, BufferDescriptor const &srcDesc, cl_mem dst, BufferDescriptor const &dstDesc, cl_mem du, BufferDescriptor const &duDesc, cl_mem dv, BufferDescriptor const &dvDesc, cl_mem duu, BufferDescriptor const &duuDesc,
+                              cl_mem duv, BufferDescriptor const &duvDesc, cl_mem dvv, BufferDescriptor const &dvvDesc, int numPatchCoords, cl_mem patchCoordsBuffer, cl_mem patchArrayBuffer, cl_mem patchIndexBuffer, cl_mem patchParamBuffer,
+                              unsigned int numStartEvents, const cl_event *startEvents, cl_event *endEvent) const
+{
     size_t globalWorkSize = (size_t)(numPatchCoords);
 
-    clSetKernelArg(_patchKernel,  0, sizeof(cl_mem), &src);
-    clSetKernelArg(_patchKernel,  1, sizeof(int),    &srcDesc.offset);
-    clSetKernelArg(_patchKernel,  2, sizeof(cl_mem), &dst);
-    clSetKernelArg(_patchKernel,  3, sizeof(int),    &dstDesc.offset);
-    clSetKernelArg(_patchKernel,  4, sizeof(cl_mem), &du);
-    clSetKernelArg(_patchKernel,  5, sizeof(int),    &duDesc.offset);
-    clSetKernelArg(_patchKernel,  6, sizeof(int),    &duDesc.stride);
-    clSetKernelArg(_patchKernel,  7, sizeof(cl_mem), &dv);
-    clSetKernelArg(_patchKernel,  8, sizeof(int),    &dvDesc.offset);
-    clSetKernelArg(_patchKernel,  9, sizeof(int),    &dvDesc.stride);
+    clSetKernelArg(_patchKernel, 0, sizeof(cl_mem), &src);
+    clSetKernelArg(_patchKernel, 1, sizeof(int), &srcDesc.offset);
+    clSetKernelArg(_patchKernel, 2, sizeof(cl_mem), &dst);
+    clSetKernelArg(_patchKernel, 3, sizeof(int), &dstDesc.offset);
+    clSetKernelArg(_patchKernel, 4, sizeof(cl_mem), &du);
+    clSetKernelArg(_patchKernel, 5, sizeof(int), &duDesc.offset);
+    clSetKernelArg(_patchKernel, 6, sizeof(int), &duDesc.stride);
+    clSetKernelArg(_patchKernel, 7, sizeof(cl_mem), &dv);
+    clSetKernelArg(_patchKernel, 8, sizeof(int), &dvDesc.offset);
+    clSetKernelArg(_patchKernel, 9, sizeof(int), &dvDesc.stride);
     clSetKernelArg(_patchKernel, 10, sizeof(cl_mem), &duu);
-    clSetKernelArg(_patchKernel, 11, sizeof(int),    &duuDesc.offset);
-    clSetKernelArg(_patchKernel, 12, sizeof(int),    &duuDesc.stride);
+    clSetKernelArg(_patchKernel, 11, sizeof(int), &duuDesc.offset);
+    clSetKernelArg(_patchKernel, 12, sizeof(int), &duuDesc.stride);
     clSetKernelArg(_patchKernel, 13, sizeof(cl_mem), &duv);
-    clSetKernelArg(_patchKernel, 14, sizeof(int),    &duvDesc.offset);
-    clSetKernelArg(_patchKernel, 15, sizeof(int),    &duvDesc.stride);
+    clSetKernelArg(_patchKernel, 14, sizeof(int), &duvDesc.offset);
+    clSetKernelArg(_patchKernel, 15, sizeof(int), &duvDesc.stride);
     clSetKernelArg(_patchKernel, 16, sizeof(cl_mem), &dvv);
-    clSetKernelArg(_patchKernel, 17, sizeof(int),    &dvvDesc.offset);
-    clSetKernelArg(_patchKernel, 18, sizeof(int),    &dvvDesc.stride);
+    clSetKernelArg(_patchKernel, 17, sizeof(int), &dvvDesc.offset);
+    clSetKernelArg(_patchKernel, 18, sizeof(int), &dvvDesc.stride);
     clSetKernelArg(_patchKernel, 19, sizeof(cl_mem), &patchCoordsBuffer);
     clSetKernelArg(_patchKernel, 20, sizeof(cl_mem), &patchArrayBuffer);
     clSetKernelArg(_patchKernel, 21, sizeof(cl_mem), &patchIndexBuffer);
     clSetKernelArg(_patchKernel, 22, sizeof(cl_mem), &patchParamBuffer);
 
-    cl_int errNum = clEnqueueNDRangeKernel(
-        _clCommandQueue, _patchKernel, 1, NULL,
-        &globalWorkSize, NULL, numStartEvents, startEvents, endEvent);
+    cl_int errNum = clEnqueueNDRangeKernel(_clCommandQueue, _patchKernel, 1, NULL, &globalWorkSize, NULL, numStartEvents, startEvents, endEvent);
 
-    if (errNum != CL_SUCCESS) {
-        Far::Error(Far::FAR_RUNTIME_ERROR,
-                   "ApplyPatchKernel (%d) ", errNum);
+    if (errNum != CL_SUCCESS)
+    {
+        Far::Error(Far::FAR_RUNTIME_ERROR, "ApplyPatchKernel (%d) ", errNum);
         return false;
     }
 
-    if (endEvent == NULL) {
+    if (endEvent == NULL)
+    {
         clFinish(_clCommandQueue);
     }
     return true;
 }
 
-
 /* static */
-void
-CLEvaluator::Synchronize(cl_command_queue clCommandQueue) {
-    clFinish(clCommandQueue);
-}
+void CLEvaluator::Synchronize(cl_command_queue clCommandQueue) { clFinish(clCommandQueue); }
 
-}  // end namespace Osd
+} // end namespace Osd
 
-}  // end namespace OPENSUBDIV_VERSION
-}  // end namespace OpenSubdiv
+} // end namespace OPENSUBDIV_VERSION
+} // end namespace OpenSubdiv

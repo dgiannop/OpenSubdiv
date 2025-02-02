@@ -25,16 +25,20 @@
 #ifndef OPENSUBDIV3_BFR_HASH_H
 #define OPENSUBDIV3_BFR_HASH_H
 
+#include <cstddef>
+#include <cstdint>
+
 #include "../version.h"
 
-#include <cstdint>
-#include <cstddef>
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Bfr {
-namespace internal {
+namespace Bfr
+{
+namespace internal
+{
 
 //
 //  Internal functions to hash data to unsigned ints for caching. Both
@@ -46,7 +50,7 @@ namespace internal {
 //  hash value by passing it on as a seed.  Note that this is *not*
 //  equivalent to hashing the contiguous pieces as a whole.  Support
 //  for that may be added in future.
-// 
+//
 uint32_t Hash32(const void *data, size_t len);
 uint32_t Hash32(const void *data, size_t len, uint32_t seed);
 

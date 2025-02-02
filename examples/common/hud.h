@@ -41,17 +41,17 @@
 
 class Hud
 {
-public:
+  public:
 #if OSD_HUD_USE_FUNCTION_POINTERS
     typedef void (*RadioButtonCallback)(int c);
     typedef void (*CheckBoxCallback)(bool checked, int data);
     typedef void (*SliderCallback)(float value, int data);
     typedef void (*PullDownCallback)(int value);
 #else
-    typedef std::function<void(int)> RadioButtonCallback;
-    typedef std::function<void(bool,int)> CheckBoxCallback;
+    typedef std::function<void(int)>        RadioButtonCallback;
+    typedef std::function<void(bool, int)>  CheckBoxCallback;
     typedef std::function<void(float, int)> SliderCallback;
-    typedef std::function<void(int)> PullDownCallback;
+    typedef std::function<void(int)>        PullDownCallback;
 #endif
 
     Hud();
@@ -59,8 +59,7 @@ public:
 
     virtual void Init(int width, int height, int framebufferWidth, int framebufferHeight);
 
-    virtual void Rebuild(int width, int height,
-                         int framebufferWidth, int framebufferHeight);
+    virtual void Rebuild(int width, int height, int framebufferWidth, int framebufferHeight);
 
     virtual bool Flush();
 
@@ -76,20 +75,15 @@ public:
 
     void AddLabel(const char *label, int x, int y);
 
-    void AddRadioButton(int group, const char *label, bool checked, int x, int y,
-                        RadioButtonCallback callback=0, int data=0, int shortcut=0);
+    void AddRadioButton(int group, const char *label, bool checked, int x, int y, RadioButtonCallback callback = 0, int data = 0, int shortcut = 0);
 
-    void AddCheckBox(const char *label, bool checked, int x, int y,
-                     CheckBoxCallback callback=0, int data=0, int shortcut=0);
+    void AddCheckBox(const char *label, bool checked, int x, int y, CheckBoxCallback callback = 0, int data = 0, int shortcut = 0);
 
-    void AddSlider(const char *label, float min, float max, float value,
-                   int x, int y, int width, bool intStep,
-                   SliderCallback callback=0, int data=0);
+    void AddSlider(const char *label, float min, float max, float value, int x, int y, int width, bool intStep, SliderCallback callback = 0, int data = 0);
 
-    int AddPullDown(const char *label, int x, int y, int width,
-                    PullDownCallback callback=0, int shortcut=0);
+    int AddPullDown(const char *label, int x, int y, int width, PullDownCallback callback = 0, int shortcut = 0);
 
-    void AddPullDownButton(int handle, const char *label, int value, bool checked=false);
+    void AddPullDownButton(int handle, const char *label, int value, bool checked = false);
 
     bool KeyDown(int key);
 
@@ -105,102 +99,107 @@ public:
 
     int GetHeight() const;
 
-protected:
-    struct Item {
+  protected:
+    struct Item
+    {
 
-        int x, y, w, h;
+        int         x, y, w, h;
         std::string label;
     };
 
-    struct RadioButton : public Item {
+    struct RadioButton : public Item
+    {
 
-        int group;
-        int localIndex;
-        bool checked;
-        int shortcut;
-        bool sharedShortcut;
+        int                 group;
+        int                 localIndex;
+        bool                checked;
+        int                 shortcut;
+        bool                sharedShortcut;
         RadioButtonCallback callback;
-        int callbackData;
+        int                 callbackData;
     };
 
-    struct CheckBox : public Item {
+    struct CheckBox : public Item
+    {
 
-        bool checked;
+        bool             checked;
         CheckBoxCallback callback;
-        int callbackData;
-        int shortcut;
+        int              callbackData;
+        int              shortcut;
     };
 
-    struct Slider : public Item {
+    struct Slider : public Item
+    {
 
-        float min, max;
-        float value;
+        float          min, max;
+        float          value;
         SliderCallback callback;
-        int callbackData;
-        bool intStep;
+        int            callbackData;
+        bool           intStep;
 
-        void SetValue(float v) {
+        void SetValue(float v)
+        {
             v = std::max(std::min(v, max), min);
-            if (intStep) {
+            if (intStep)
+            {
                 // MSVC 2010 does not have std::round() or roundf()
-                v = v>0.0f ? floorf(v+0.5f) : ceilf(v-0.5f);
+                v = v > 0.0f ? floorf(v + 0.5f) : ceilf(v - 0.5f);
             }
             value = v;
         }
     };
 
-    struct PullDown : public Item {
+    struct PullDown : public Item
+    {
 
-        bool open;
-        int selected;
+        bool                      open;
+        int                       selected;
         std::vector<char const *> labels;
-        std::vector<int> values;
-        int shortcut;
-        PullDownCallback callback;
+        std::vector<int>          values;
+        int                       shortcut;
+        PullDownCallback          callback;
 
-        void SetSelected(int idx) {
-            if (idx>=0 && idx<(int)labels.size()) {
-                selected=idx;
+        void SetSelected(int idx)
+        {
+            if (idx >= 0 && idx < (int)labels.size())
+            {
+                selected = idx;
             }
         }
     };
 
-    static int drawString(std::vector<float> &vboSource, int x, int y,
-                   float r, float g, float b, const char *c);
+    static int drawString(std::vector<float> &vboSource, int x, int y, float r, float g, float b, const char *c);
 
-    static int drawChar(std::vector<float> &vboSource, int x, int y,
-                   float r, float g, float b, char ch);
+    static int drawChar(std::vector<float> &vboSource, int x, int y, float r, float g, float b, char ch);
 
-    bool hitTest(Item const &item, int x, int y) const {
+    bool hitTest(Item const &item, int x, int y) const
+    {
         int ix = item.x > 0 ? item.x : _windowWidth + item.x;
         int iy = item.y > 0 ? item.y : _windowHeight + item.y;
-        return (x >= ix &&
-                y >= iy &&
-                x <= (ix + item.w) &&
-                y <= (iy + item.h));
+        return (x >= ix && y >= iy && x <= (ix + item.w) && y <= (iy + item.h));
     }
 
-    void getWindowPos(Item const &item, int *x, int *y) const {
+    void getWindowPos(Item const &item, int *x, int *y) const
+    {
         *x = item.x > 0 ? item.x : _windowWidth + item.x;
         *y = item.y > 0 ? item.y : _windowHeight + item.y;
     }
 
-    std::vector<float> & getVboSource();
-    std::vector<float> & getStaticVboSource();
+    std::vector<float> &getVboSource();
+    std::vector<float> &getStaticVboSource();
 
-private:
-
-    bool _visible;
-    std::vector<float> _vboSource, _staticVboSource;
-    int _windowWidth, _windowHeight;
-    int _framebufferWidth, _framebufferHeight;
-    bool _requiresRebuildStatic;
-    std::vector<Item> _labels;
+  private:
+    bool                     _visible;
+    std::vector<float>       _vboSource, _staticVboSource;
+    int                      _windowWidth, _windowHeight;
+    int                      _framebufferWidth, _framebufferHeight;
+    bool                     _requiresRebuildStatic;
+    std::vector<Item>        _labels;
     std::vector<RadioButton> _radioButtons;
-    std::vector<CheckBox> _checkBoxes;
-    std::vector<Slider> _sliders;
-    std::vector<PullDown> _pulldowns;
-    int _capturedSlider;
+    std::vector<CheckBox>    _checkBoxes;
+    std::vector<Slider>      _sliders;
+    std::vector<PullDown>    _pulldowns;
+    int                      _capturedSlider;
 };
 
 #endif // HUD_H

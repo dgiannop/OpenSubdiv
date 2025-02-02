@@ -26,43 +26,41 @@
 #include "../../regression/common/shape_utils.h"
 
 #include <cassert>
-#include <cstdio>
 #include <cmath>
+#include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <sstream>
 
 #include <sstream>
-ObjAnim::ObjAnim() : _shape(0) {
-}
+ObjAnim::ObjAnim() : _shape(0) {}
 
-ObjAnim::~ObjAnim() {
+ObjAnim::~ObjAnim() { delete _shape; }
 
-    delete _shape;
-}
-
-void
-ObjAnim::InterpolatePositions(float time, float * positions, int stride) const {
+void ObjAnim::InterpolatePositions(float time, float *positions, int stride) const
+{
 
     assert(positions);
 
-    if ( _positions.empty() || (! _shape)) {
-        //printf("Error: InterpolatePositions on unfit ObjAnim instance\n");
+    if (_positions.empty() || (!_shape))
+    {
+        // printf("Error: InterpolatePositions on unfit ObjAnim instance\n");
         return;
     }
 
-    int nkeys = GetNumKeyframes(),
-        nverts = GetShape()->GetNumVertices();
+    int nkeys = GetNumKeyframes(), nverts = GetShape()->GetNumVertices();
 
-    assert(nkeys>0);
+    assert(nkeys > 0);
 
-    if (nkeys==1) {
+    if (nkeys == 1)
+    {
         // nothing to interpolate - just copy the coarse verts positions
-        float const * vert = &_positions[0][0];
-        for (int i = 0; i <nverts; ++i) {
-             memcpy( positions, vert, sizeof(float)*3);
-             positions += stride;
-             vert += 3;
+        float const *vert = &_positions[0][0];
+        for (int i = 0; i < nverts; ++i)
+        {
+            memcpy(positions, vert, sizeof(float) * 3);
+            positions += stride;
+            vert += 3;
         }
         return;
     }
@@ -75,40 +73,46 @@ ObjAnim::InterpolatePositions(float time, float * positions, int stride) const {
 
     float b = p - key;
 
-    for (int i = 0; i <nverts; ++i) {
+    for (int i = 0; i < nverts; ++i)
+    {
 
-        for (int j=0; j<3; ++j) {
+        for (int j = 0; j < 3; ++j)
+        {
 
-            float p0 = _positions[ key         ][i*3+j];
-            float p1 = _positions[(key+1)%nkeys][i*3+j];
+            float p0 = _positions[key][i * 3 + j];
+            float p1 = _positions[(key + 1) % nkeys][i * 3 + j];
 
-            positions[i*stride + j] = p0*(1-b) + p1*b;
+            positions[i * stride + j] = p0 * (1 - b) + p1 * b;
         }
     }
 }
 
-ObjAnim const *
-ObjAnim::Create(std::vector<char const *> objFiles, Scheme scheme, bool isLeftHanded) {
+ObjAnim const *ObjAnim::Create(std::vector<char const *> objFiles, Scheme scheme, bool isLeftHanded)
+{
 
-    ObjAnim * anim=0;
+    ObjAnim *anim = 0;
 
-    Shape const * shape = 0;
+    Shape const *shape = 0;
 
-    if (! objFiles.empty()) {
+    if (!objFiles.empty())
+    {
 
         anim = new ObjAnim;
 
         anim->_positions.reserve(objFiles.size());
 
-        for (int i = 0; i < (int)objFiles.size(); ++i) {
+        for (int i = 0; i < (int)objFiles.size(); ++i)
+        {
 
-            if (! objFiles[i]) {
+            if (!objFiles[i])
+            {
                 continue;
             }
 
             std::ifstream ifs(objFiles[i]);
 
-            if (ifs) {
+            if (ifs)
+            {
 
                 std::stringstream ss;
                 ss << ifs.rdbuf();
@@ -120,23 +124,29 @@ ObjAnim::Create(std::vector<char const *> objFiles, Scheme scheme, bool isLeftHa
 
                 shape = Shape::parseObj(str.c_str(), scheme, isLeftHanded);
 
-                if (i==0) {
+                if (i == 0)
+                {
 
                     anim->_shape = shape;
                     anim->_positions.push_back(shape->verts);
-                } else {
+                }
+                else
+                {
 
-                    if (shape->verts.size() != anim->_shape->verts.size()) {
+                    if (shape->verts.size() != anim->_shape->verts.size())
+                    {
                         printf("Error: vertex count doesn't match (%s)\n", objFiles[i]);
                         goto error;
                     }
 
-                    if (shape->nvertsPerFace.size() != anim->_shape->nvertsPerFace.size()) {
+                    if (shape->nvertsPerFace.size() != anim->_shape->nvertsPerFace.size())
+                    {
                         printf("Error: face vertex count array doesn't match (%s)\n", objFiles[i]);
                         goto error;
                     }
 
-                    if (shape->faceverts.size() != anim->_shape->faceverts.size()) {
+                    if (shape->faceverts.size() != anim->_shape->faceverts.size())
+                    {
                         printf("Error: face vertices array doesn't match (%s)\n", objFiles[i]);
                         goto error;
                     }
@@ -144,8 +154,9 @@ ObjAnim::Create(std::vector<char const *> objFiles, Scheme scheme, bool isLeftHa
                     anim->_positions.push_back(shape->verts);
                     delete shape;
                 }
-
-            } else {
+            }
+            else
+            {
                 printf("Error in reading %s\n", objFiles[i]);
                 goto error;
             }

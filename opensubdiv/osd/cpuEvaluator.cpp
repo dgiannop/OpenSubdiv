@@ -23,154 +23,130 @@
 //
 
 #include "../osd/cpuEvaluator.h"
-#include "../osd/cpuKernel.h"
-#include "../osd/patchBasis.h"
 
 #include <cstdlib>
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+#include "../osd/cpuKernel.h"
+#include "../osd/patchBasis.h"
 
-namespace Osd {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
+
+namespace Osd
+{
 
 /* static */
-bool
-CpuEvaluator::EvalStencils(const float *src, BufferDescriptor const &srcDesc,
-                           float *dst,       BufferDescriptor const &dstDesc,
-                           const int * sizes,
-                           const int * offsets,
-                           const int * indices,
-                           const float * weights,
-                           int start, int end) {
-
-    if (end <= start) return true;
-    if (srcDesc.length != dstDesc.length) return false;
+bool CpuEvaluator::EvalStencils(const float *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, const int *sizes, const int *offsets, const int *indices, const float *weights, int start, int end)
+{
+    if (end <= start)
+        return true;
+    if (srcDesc.length != dstDesc.length)
+        return false;
 
     // XXX: we can probably expand cpuKernel.cpp to here.
-    CpuEvalStencils(src, srcDesc, dst, dstDesc,
-                    sizes, offsets, indices, weights, start, end);
+    CpuEvalStencils(src, srcDesc, dst, dstDesc, sizes, offsets, indices, weights, start, end);
 
     return true;
 }
 
 /* static */
-bool
-CpuEvaluator::EvalStencils(const float *src, BufferDescriptor const &srcDesc,
-                           float *dst,       BufferDescriptor const &dstDesc,
-                           float *du,        BufferDescriptor const &duDesc,
-                           float *dv,        BufferDescriptor const &dvDesc,
-                           const int * sizes,
-                           const int * offsets,
-                           const int * indices,
-                           const float * weights,
-                           const float * duWeights,
-                           const float * dvWeights,
-                           int start, int end) {
-    if (end <= start) return true;
-    if (srcDesc.length != dstDesc.length) return false;
-    if (srcDesc.length != duDesc.length) return false;
-    if (srcDesc.length != dvDesc.length) return false;
+bool CpuEvaluator::EvalStencils(const float *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, float *du, BufferDescriptor const &duDesc, float *dv, BufferDescriptor const &dvDesc, const int *sizes, const int *offsets,
+                                const int *indices, const float *weights, const float *duWeights, const float *dvWeights, int start, int end)
+{
+    if (end <= start)
+        return true;
+    if (srcDesc.length != dstDesc.length)
+        return false;
+    if (srcDesc.length != duDesc.length)
+        return false;
+    if (srcDesc.length != dvDesc.length)
+        return false;
 
-    CpuEvalStencils(src, srcDesc,
-                    dst, dstDesc,
-                    du,  duDesc,
-                    dv,  dvDesc,
-                    sizes, offsets, indices,
-                    weights, duWeights, dvWeights,
-                    start, end);
+    CpuEvalStencils(src, srcDesc, dst, dstDesc, du, duDesc, dv, dvDesc, sizes, offsets, indices, weights, duWeights, dvWeights, start, end);
 
     return true;
 }
 
 /* static */
-bool
-CpuEvaluator::EvalStencils(const float *src, BufferDescriptor const &srcDesc,
-                           float *dst,       BufferDescriptor const &dstDesc,
-                           float *du,        BufferDescriptor const &duDesc,
-                           float *dv,        BufferDescriptor const &dvDesc,
-                           float *duu,       BufferDescriptor const &duuDesc,
-                           float *duv,       BufferDescriptor const &duvDesc,
-                           float *dvv,       BufferDescriptor const &dvvDesc,
-                           const int * sizes,
-                           const int * offsets,
-                           const int * indices,
-                           const float * weights,
-                           const float * duWeights,
-                           const float * dvWeights,
-                           const float * duuWeights,
-                           const float * duvWeights,
-                           const float * dvvWeights,
-                           int start, int end) {
-    if (end <= start) return true;
-    if (srcDesc.length != dstDesc.length) return false;
-    if (srcDesc.length != duDesc.length) return false;
-    if (srcDesc.length != dvDesc.length) return false;
-    if (srcDesc.length != duuDesc.length) return false;
-    if (srcDesc.length != duvDesc.length) return false;
-    if (srcDesc.length != dvvDesc.length) return false;
+bool CpuEvaluator::EvalStencils(const float *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, float *du, BufferDescriptor const &duDesc, float *dv, BufferDescriptor const &dvDesc, float *duu,
+                                BufferDescriptor const &duuDesc, float *duv, BufferDescriptor const &duvDesc, float *dvv, BufferDescriptor const &dvvDesc, const int *sizes, const int *offsets, const int *indices, const float *weights,
+                                const float *duWeights, const float *dvWeights, const float *duuWeights, const float *duvWeights, const float *dvvWeights, int start, int end)
+{
+    if (end <= start)
+        return true;
+    if (srcDesc.length != dstDesc.length)
+        return false;
+    if (srcDesc.length != duDesc.length)
+        return false;
+    if (srcDesc.length != dvDesc.length)
+        return false;
+    if (srcDesc.length != duuDesc.length)
+        return false;
+    if (srcDesc.length != duvDesc.length)
+        return false;
+    if (srcDesc.length != dvvDesc.length)
+        return false;
 
-    CpuEvalStencils(src, srcDesc,
-                    dst, dstDesc,
-                    du,  duDesc,
-                    dv,  dvDesc,
-                    duu, duuDesc,
-                    duv, duvDesc,
-                    dvv, dvvDesc,
-                    sizes, offsets, indices,
-                    weights, duWeights, dvWeights,
-                    duuWeights, duvWeights, dvvWeights,
-                    start, end);
+    CpuEvalStencils(src, srcDesc, dst, dstDesc, du, duDesc, dv, dvDesc, duu, duuDesc, duv, duvDesc, dvv, dvvDesc, sizes, offsets, indices, weights, duWeights, dvWeights, duuWeights, duvWeights, dvvWeights, start, end);
 
     return true;
 }
 
-template <typename T>
-struct BufferAdapter {
-    BufferAdapter(T *p, int length, int stride) :
-        _p(p), _length(length), _stride(stride) { }
-    void Clear() {
-        for (int i = 0; i < _length; ++i) _p[i] = 0;
+template <typename T> struct BufferAdapter
+{
+    BufferAdapter(T *p, int length, int stride) : _p(p), _length(length), _stride(stride) {}
+    void Clear()
+    {
+        for (int i = 0; i < _length; ++i)
+            _p[i] = 0;
     }
-    void AddWithWeight(T const *src, float w) {
-        if (_p) {
-            for (int i = 0; i < _length; ++i) {
+    void AddWithWeight(T const *src, float w)
+    {
+        if (_p)
+        {
+            for (int i = 0; i < _length; ++i)
+            {
                 _p[i] += src[i] * w;
             }
         }
     }
-    const T *operator[] (int index) const {
-        return _p + _stride * index;
-    }
-    BufferAdapter<T> & operator ++() {
-        if (_p) {
+    const T *         operator[](int index) const { return _p + _stride * index; }
+    BufferAdapter<T> &operator++()
+    {
+        if (_p)
+        {
             _p += _stride;
         }
         return *this;
     }
 
-    T *_p;
+    T * _p;
     int _length;
     int _stride;
 };
 
 /* static */
-bool
-CpuEvaluator::EvalPatches(const float *src, BufferDescriptor const &srcDesc,
-                          float *dst,       BufferDescriptor const &dstDesc,
-                          int numPatchCoords,
-                          const PatchCoord *patchCoords,
-                          const PatchArray *patchArrays,
-                          const int *patchIndexBuffer,
-                          const PatchParam *patchParamBuffer) {
-    if (src) {
+bool CpuEvaluator::EvalPatches(const float *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, int numPatchCoords, const PatchCoord *patchCoords, const PatchArray *patchArrays, const int *patchIndexBuffer,
+                               const PatchParam *patchParamBuffer)
+{
+    if (src)
+    {
         src += srcDesc.offset;
-    } else {
+    }
+    else
+    {
         return false;
     }
-    if (dst) {
+    if (dst)
+    {
         dst += dstDesc.offset;
-        if (srcDesc.length != dstDesc.length) return false;
-    } else {
+        if (srcDesc.length != dstDesc.length)
+            return false;
+    }
+    else
+    {
         return false;
     }
 
@@ -179,29 +155,25 @@ CpuEvaluator::EvalPatches(const float *src, BufferDescriptor const &srcDesc,
 
     float wP[20];
 
-    for (int i = 0; i < numPatchCoords; ++i) {
+    for (int i = 0; i < numPatchCoords; ++i)
+    {
         PatchCoord const &coord = patchCoords[i];
         PatchArray const &array = patchArrays[coord.handle.arrayIndex];
 
-        Osd::PatchParam const & paramStruct =
-            patchParamBuffer[coord.handle.patchIndex];
-        OsdPatchParam param = OsdPatchParamInit(
-            paramStruct.field0, paramStruct.field1, paramStruct.sharpness);
+        Osd::PatchParam const &paramStruct = patchParamBuffer[coord.handle.patchIndex];
+        OsdPatchParam          param       = OsdPatchParamInit(paramStruct.field0, paramStruct.field1, paramStruct.sharpness);
 
-        int patchType = OsdPatchParamIsRegular(param)
-            ? array.GetPatchTypeRegular()
-            : array.GetPatchTypeIrregular();
+        int patchType = OsdPatchParamIsRegular(param) ? array.GetPatchTypeRegular() : array.GetPatchTypeIrregular();
 
-        int nPoints = OsdEvaluatePatchBasis(patchType, param,
-                coord.s, coord.t, wP, 0, 0, 0, 0, 0);
+        int nPoints = OsdEvaluatePatchBasis(patchType, param, coord.s, coord.t, wP, 0, 0, 0, 0, 0);
 
-        int indexBase = array.GetIndexBase() + array.GetStride() *
-                (coord.handle.patchIndex - array.GetPrimitiveIdBase());
+        int indexBase = array.GetIndexBase() + array.GetStride() * (coord.handle.patchIndex - array.GetPrimitiveIdBase());
 
         const int *cvs = &patchIndexBuffer[indexBase];
 
         dstT.Clear();
-        for (int j = 0; j < nPoints; ++j) {
+        for (int j = 0; j < nPoints; ++j)
+        {
             dstT.AddWithWeight(srcT[cvs[j]], wP[j]);
         }
         ++dstT;
@@ -210,69 +182,67 @@ CpuEvaluator::EvalPatches(const float *src, BufferDescriptor const &srcDesc,
 }
 
 /* static */
-bool
-CpuEvaluator::EvalPatches(const float *src, BufferDescriptor const &srcDesc,
-                          float *dst,       BufferDescriptor const &dstDesc,
-                          float *du,        BufferDescriptor const &duDesc,
-                          float *dv,        BufferDescriptor const &dvDesc,
-                          int numPatchCoords,
-                          const PatchCoord *patchCoords,
-                          const PatchArray *patchArrays,
-                          const int *patchIndexBuffer,
-                          const PatchParam *patchParamBuffer) {
-    if (src) {
+bool CpuEvaluator::EvalPatches(const float *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, float *du, BufferDescriptor const &duDesc, float *dv, BufferDescriptor const &dvDesc, int numPatchCoords,
+                               const PatchCoord *patchCoords, const PatchArray *patchArrays, const int *patchIndexBuffer, const PatchParam *patchParamBuffer)
+{
+    if (src)
+    {
         src += srcDesc.offset;
-    } else {
+    }
+    else
+    {
         return false;
     }
-    if (dst) {
-        if (srcDesc.length != dstDesc.length) return false;
+    if (dst)
+    {
+        if (srcDesc.length != dstDesc.length)
+            return false;
         dst += dstDesc.offset;
     }
-    if (du) {
-        du  += duDesc.offset;
-        if (srcDesc.length != duDesc.length) return false;
+    if (du)
+    {
+        du += duDesc.offset;
+        if (srcDesc.length != duDesc.length)
+            return false;
     }
-    if (dv) {
-        dv  += dvDesc.offset;
-        if (srcDesc.length != dvDesc.length) return false;
+    if (dv)
+    {
+        dv += dvDesc.offset;
+        if (srcDesc.length != dvDesc.length)
+            return false;
     }
 
     BufferAdapter<const float> srcT(src, srcDesc.length, srcDesc.stride);
     BufferAdapter<float>       dstT(dst, dstDesc.length, dstDesc.stride);
-    BufferAdapter<float>        duT(du,  duDesc.length,  duDesc.stride);
-    BufferAdapter<float>        dvT(dv,  dvDesc.length,  dvDesc.stride);
+    BufferAdapter<float>       duT(du, duDesc.length, duDesc.stride);
+    BufferAdapter<float>       dvT(dv, dvDesc.length, dvDesc.stride);
 
     float wP[20], wDs[20], wDt[20];
 
-    for (int i = 0; i < numPatchCoords; ++i) {
+    for (int i = 0; i < numPatchCoords; ++i)
+    {
         PatchCoord const &coord = patchCoords[i];
         PatchArray const &array = patchArrays[coord.handle.arrayIndex];
 
-        Osd::PatchParam const & paramStruct =
-            patchParamBuffer[coord.handle.patchIndex];
-        OsdPatchParam param = OsdPatchParamInit(
-            paramStruct.field0, paramStruct.field1, paramStruct.sharpness);
+        Osd::PatchParam const &paramStruct = patchParamBuffer[coord.handle.patchIndex];
+        OsdPatchParam          param       = OsdPatchParamInit(paramStruct.field0, paramStruct.field1, paramStruct.sharpness);
 
-        int patchType = OsdPatchParamIsRegular(param)
-            ? array.GetPatchTypeRegular()
-            : array.GetPatchTypeIrregular();
+        int patchType = OsdPatchParamIsRegular(param) ? array.GetPatchTypeRegular() : array.GetPatchTypeIrregular();
 
-        int nPoints = OsdEvaluatePatchBasis(patchType, param,
-                coord.s, coord.t, wP, wDs, wDt, 0, 0, 0);
+        int nPoints = OsdEvaluatePatchBasis(patchType, param, coord.s, coord.t, wP, wDs, wDt, 0, 0, 0);
 
-        int indexBase = array.GetIndexBase() + array.GetStride() *
-                (coord.handle.patchIndex - array.GetPrimitiveIdBase());
+        int indexBase = array.GetIndexBase() + array.GetStride() * (coord.handle.patchIndex - array.GetPrimitiveIdBase());
 
         const int *cvs = &patchIndexBuffer[indexBase];
 
         dstT.Clear();
         duT.Clear();
         dvT.Clear();
-        for (int j = 0; j < nPoints; ++j) {
+        for (int j = 0; j < nPoints; ++j)
+        {
             dstT.AddWithWeight(srcT[cvs[j]], wP[j]);
-            duT.AddWithWeight (srcT[cvs[j]], wDs[j]);
-            dvT.AddWithWeight (srcT[cvs[j]], wDt[j]);
+            duT.AddWithWeight(srcT[cvs[j]], wDs[j]);
+            dvT.AddWithWeight(srcT[cvs[j]], wDt[j]);
         }
         ++dstT;
         ++duT;
@@ -282,77 +252,78 @@ CpuEvaluator::EvalPatches(const float *src, BufferDescriptor const &srcDesc,
 }
 
 /* static */
-bool
-CpuEvaluator::EvalPatches(const float *src, BufferDescriptor const &srcDesc,
-                          float *dst,       BufferDescriptor const &dstDesc,
-                          float *du,        BufferDescriptor const &duDesc,
-                          float *dv,        BufferDescriptor const &dvDesc,
-                          float *duu,       BufferDescriptor const &duuDesc,
-                          float *duv,       BufferDescriptor const &duvDesc,
-                          float *dvv,       BufferDescriptor const &dvvDesc,
-                          int numPatchCoords,
-                          const PatchCoord *patchCoords,
-                          const PatchArray *patchArrays,
-                          const int *patchIndexBuffer,
-                          const PatchParam *patchParamBuffer) {
-    if (src) {
+bool CpuEvaluator::EvalPatches(const float *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, float *du, BufferDescriptor const &duDesc, float *dv, BufferDescriptor const &dvDesc, float *duu,
+                               BufferDescriptor const &duuDesc, float *duv, BufferDescriptor const &duvDesc, float *dvv, BufferDescriptor const &dvvDesc, int numPatchCoords, const PatchCoord *patchCoords, const PatchArray *patchArrays,
+                               const int *patchIndexBuffer, const PatchParam *patchParamBuffer)
+{
+    if (src)
+    {
         src += srcDesc.offset;
-    } else {
+    }
+    else
+    {
         return false;
     }
-    if (dst) {
-        if (srcDesc.length != dstDesc.length) return false;
+    if (dst)
+    {
+        if (srcDesc.length != dstDesc.length)
+            return false;
         dst += dstDesc.offset;
     }
-    if (du) {
-        du  += duDesc.offset;
-        if (srcDesc.length != duDesc.length) return false;
+    if (du)
+    {
+        du += duDesc.offset;
+        if (srcDesc.length != duDesc.length)
+            return false;
     }
-    if (dv) {
-        dv  += dvDesc.offset;
-        if (srcDesc.length != dvDesc.length) return false;
+    if (dv)
+    {
+        dv += dvDesc.offset;
+        if (srcDesc.length != dvDesc.length)
+            return false;
     }
-    if (duu) {
+    if (duu)
+    {
         duu += duuDesc.offset;
-        if (srcDesc.length != duuDesc.length) return false;
+        if (srcDesc.length != duuDesc.length)
+            return false;
     }
-    if (duv) {
+    if (duv)
+    {
         duv += duvDesc.offset;
-        if (srcDesc.length != duvDesc.length) return false;
+        if (srcDesc.length != duvDesc.length)
+            return false;
     }
-    if (dvv) {
+    if (dvv)
+    {
         dvv += dvvDesc.offset;
-        if (srcDesc.length != dvvDesc.length) return false;
+        if (srcDesc.length != dvvDesc.length)
+            return false;
     }
 
     BufferAdapter<const float> srcT(src, srcDesc.length, srcDesc.stride);
     BufferAdapter<float>       dstT(dst, dstDesc.length, dstDesc.stride);
-    BufferAdapter<float>       duT(du,   duDesc.length,  duDesc.stride);
-    BufferAdapter<float>       dvT(dv,   dvDesc.length,  dvDesc.stride);
+    BufferAdapter<float>       duT(du, duDesc.length, duDesc.stride);
+    BufferAdapter<float>       dvT(dv, dvDesc.length, dvDesc.stride);
     BufferAdapter<float>       duuT(duu, duuDesc.length, duuDesc.stride);
     BufferAdapter<float>       duvT(duv, duvDesc.length, duvDesc.stride);
     BufferAdapter<float>       dvvT(dvv, dvvDesc.length, dvvDesc.stride);
 
     float wP[20], wDu[20], wDv[20], wDuu[20], wDuv[20], wDvv[20];
 
-    for (int i = 0; i < numPatchCoords; ++i) {
+    for (int i = 0; i < numPatchCoords; ++i)
+    {
         PatchCoord const &coord = patchCoords[i];
         PatchArray const &array = patchArrays[coord.handle.arrayIndex];
 
-        Osd::PatchParam const & paramStruct =
-            patchParamBuffer[coord.handle.patchIndex];
-        OsdPatchParam param = OsdPatchParamInit(
-            paramStruct.field0, paramStruct.field1, paramStruct.sharpness);
+        Osd::PatchParam const &paramStruct = patchParamBuffer[coord.handle.patchIndex];
+        OsdPatchParam          param       = OsdPatchParamInit(paramStruct.field0, paramStruct.field1, paramStruct.sharpness);
 
-        int patchType = OsdPatchParamIsRegular(param)
-            ? array.GetPatchTypeRegular()
-            : array.GetPatchTypeIrregular();
+        int patchType = OsdPatchParamIsRegular(param) ? array.GetPatchTypeRegular() : array.GetPatchTypeIrregular();
 
-        int nPoints = OsdEvaluatePatchBasis(patchType, param,
-                coord.s, coord.t, wP, wDu, wDv, wDuu, wDuv, wDvv);
+        int nPoints = OsdEvaluatePatchBasis(patchType, param, coord.s, coord.t, wP, wDu, wDv, wDuu, wDuv, wDvv);
 
-        int indexBase = array.GetIndexBase() + array.GetStride() *
-                (coord.handle.patchIndex - array.GetPrimitiveIdBase());
+        int indexBase = array.GetIndexBase() + array.GetStride() * (coord.handle.patchIndex - array.GetPrimitiveIdBase());
 
         const int *cvs = &patchIndexBuffer[indexBase];
 
@@ -362,13 +333,14 @@ CpuEvaluator::EvalPatches(const float *src, BufferDescriptor const &srcDesc,
         duuT.Clear();
         duvT.Clear();
         dvvT.Clear();
-        for (int j = 0; j < nPoints; ++j) {
+        for (int j = 0; j < nPoints; ++j)
+        {
             dstT.AddWithWeight(srcT[cvs[j]], wP[j]);
-            duT.AddWithWeight (srcT[cvs[j]], wDu[j]);
-            dvT.AddWithWeight (srcT[cvs[j]], wDv[j]);
-            duuT.AddWithWeight (srcT[cvs[j]], wDuu[j]);
-            duvT.AddWithWeight (srcT[cvs[j]], wDuv[j]);
-            dvvT.AddWithWeight (srcT[cvs[j]], wDvv[j]);
+            duT.AddWithWeight(srcT[cvs[j]], wDu[j]);
+            dvT.AddWithWeight(srcT[cvs[j]], wDv[j]);
+            duuT.AddWithWeight(srcT[cvs[j]], wDuu[j]);
+            duvT.AddWithWeight(srcT[cvs[j]], wDuv[j]);
+            dvvT.AddWithWeight(srcT[cvs[j]], wDvv[j]);
         }
         ++dstT;
         ++duT;
@@ -380,8 +352,7 @@ CpuEvaluator::EvalPatches(const float *src, BufferDescriptor const &srcDesc,
     return true;
 }
 
+} // end namespace Osd
 
-}  // end namespace Osd
-
-}  // end namespace OPENSUBDIV_VERSION
-}  // end namespace OpenSubdiv
+} // end namespace OPENSUBDIV_VERSION
+} // end namespace OpenSubdiv

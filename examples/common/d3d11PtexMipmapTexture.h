@@ -34,12 +34,10 @@ struct ID3D11Texture2D;
 struct ID3D11DeviceContext;
 struct ID3D11ShaderResourceView;
 
-class D3D11PtexMipmapTexture : OpenSubdiv::Osd::NonCopyable<D3D11PtexMipmapTexture> {
-public:
-    static D3D11PtexMipmapTexture * Create(ID3D11DeviceContext *deviceContext,
-                                              PtexTexture * reader,
-                                              int maxLevels=10,
-                                              size_t targetMemory=0);
+class D3D11PtexMipmapTexture : OpenSubdiv::Osd::NonCopyable<D3D11PtexMipmapTexture>
+{
+  public:
+    static D3D11PtexMipmapTexture *Create(ID3D11DeviceContext *deviceContext, PtexTexture *reader, int maxLevels = 10, size_t targetMemory = 0);
 
     /// Returns GLSL shader snippet to fetch ptex
     static const char *GetShaderSource();
@@ -60,21 +58,20 @@ public:
 
     ~D3D11PtexMipmapTexture();
 
-private:
+  private:
     D3D11PtexMipmapTexture();
 
-    int _width,   // width / height / depth of the 3D texel buffer
-        _height,
-        _depth;
+    int _width, // width / height / depth of the 3D texel buffer
+        _height, _depth;
 
-    int _format;  // texel color format
+    int _format; // texel color format
 
-    ID3D11Buffer *_layout;     // per-face lookup table
-    ID3D11Texture2D *_texels;  // texel data
+    ID3D11Buffer *            _layout; // per-face lookup table
+    ID3D11Texture2D *         _texels; // texel data
     ID3D11ShaderResourceView *_layoutSRV;
     ID3D11ShaderResourceView *_texelsSRV;
 
-    size_t _memoryUsage;  // total amount of memory used (estimate)
+    size_t _memoryUsage; // total amount of memory used (estimate)
 };
 
-#endif  // OPENSUBDIV_EXAMPLES_D3D11_PTEX_TEXTURE_H
+#endif // OPENSUBDIV_EXAMPLES_D3D11_PTEX_TEXTURE_H

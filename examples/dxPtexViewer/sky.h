@@ -28,38 +28,35 @@
 //
 // Draws an environment sphere centered on the camera w/ a texture
 //
-class Sky {
+class Sky
+{
 
-public:
-
+  public:
     // Constructor (Sky does not own the texture asset)
-    Sky(ID3D11Device * device, ID3D11Texture2D * environmentMap);
+    Sky(ID3D11Device *device, ID3D11Texture2D *environmentMap);
 
     ~Sky();
 
-    void Draw(ID3D11DeviceContext * deviceContext, float const mvp[16]);
+    void Draw(ID3D11DeviceContext *deviceContext, float const mvp[16]);
 
-private:
+  private:
+    void initialize(ID3D11Device *device);
 
-    void initialize(ID3D11Device * device);
-
-private:
-
+  private:
     int numIndices;
 
-    ID3D11VertexShader * vertexShader;
+    ID3D11VertexShader *vertexShader;
     ID3D11PixelShader * pixelShader;
-    ID3D11Buffer * shaderConstants;
+    ID3D11Buffer *      shaderConstants;
 
-    ID3D11InputLayout * inputLayout;
-    ID3D11RasterizerState * rasterizerState;
-    ID3D11DepthStencilState * depthStencilState;
+    ID3D11InputLayout *      inputLayout;
+    ID3D11RasterizerState *  rasterizerState;
+    ID3D11DepthStencilState *depthStencilState;
 
-    ID3D11Texture2D * texture;
-    ID3D11ShaderResourceView * textureSRV;
-    ID3D11SamplerState * textureSS;
+    ID3D11Texture2D *         texture;
+    ID3D11ShaderResourceView *textureSRV;
+    ID3D11SamplerState *      textureSS;
 
-    ID3D11Buffer * sphere;
-    ID3D11Buffer * sphereIndices;
+    ID3D11Buffer *sphere;
+    ID3D11Buffer *sphereIndices;
 };
-

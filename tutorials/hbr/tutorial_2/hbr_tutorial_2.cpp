@@ -22,7 +22,6 @@
 //   language governing permissions and limitations under the Apache License.
 //
 
-
 //------------------------------------------------------------------------------
 // Tutorial description:
 //
@@ -34,14 +33,13 @@
 // We then apply the Refine() function sequentially to all the faces in the
 // mesh to generate several levels of uniform subdivision. The resulting data
 // is then dumped to the terminal in Wavefront OBJ format for inspection.
-// 
+//
 
-#include <opensubdiv/hbr/mesh.h>
 #include <opensubdiv/hbr/catmark.h>
+#include <opensubdiv/hbr/mesh.h>
 
 #include <cassert>
 #include <cstdio>
-
 
 //------------------------------------------------------------------------------
 //
@@ -52,79 +50,83 @@
 // This vertex specialization pattern leaves client-code free to implement
 // arbitrary vertex primvar data schemes (or none at all to conserve efficiency)
 //
-struct Vertex {
+struct Vertex
+{
 
     // Hbr minimal required interface ----------------------
-    Vertex() { }
+    Vertex() {}
 
-    Vertex(int /*i*/) { }
+    Vertex(int /*i*/) {}
 
-    Vertex(Vertex const & src) {
+    Vertex(Vertex const &src)
+    {
         _position[0] = src._position[0];
         _position[1] = src._position[1];
         _position[2] = src._position[2];
     }
 
-    void Clear( void * =0 ) {
-        _position[0]=_position[1]=_position[2]=0.0f;
+    void Clear(void * = 0) { _position[0] = _position[1] = _position[2] = 0.0f; }
+
+    void AddWithWeight(Vertex const &src, float weight)
+    {
+        _position[0] += weight * src._position[0];
+        _position[1] += weight * src._position[1];
+        _position[2] += weight * src._position[2];
     }
 
-    void AddWithWeight(Vertex const & src, float weight) {
-        _position[0]+=weight*src._position[0];
-        _position[1]+=weight*src._position[1];
-        _position[2]+=weight*src._position[2];
-    }
-
-    void AddVaryingWithWeight(Vertex const &, float) { }
+    void AddVaryingWithWeight(Vertex const &, float) {}
 
     // Public interface ------------------------------------
-    void SetPosition(float x, float y, float z) {
-        _position[0]=x;
-        _position[1]=y;
-        _position[2]=z;
+    void SetPosition(float x, float y, float z)
+    {
+        _position[0] = x;
+        _position[1] = y;
+        _position[2] = z;
     }
 
-    const float * GetPosition() const {
-        return _position;
-    }
+    const float *GetPosition() const { return _position; }
 
-private:
+  private:
     float _position[3];
 };
 
-typedef OpenSubdiv::HbrMesh<Vertex>      Hmesh;
-typedef OpenSubdiv::HbrFace<Vertex>      Hface;
-typedef OpenSubdiv::HbrVertex<Vertex>    Hvertex;
-typedef OpenSubdiv::HbrHalfedge<Vertex>  Hhalfedge;
+typedef OpenSubdiv::HbrMesh<Vertex>     Hmesh;
+typedef OpenSubdiv::HbrFace<Vertex>     Hface;
+typedef OpenSubdiv::HbrVertex<Vertex>   Hvertex;
+typedef OpenSubdiv::HbrHalfedge<Vertex> Hhalfedge;
 
-Hmesh * createMesh();
+Hmesh *createMesh();
 
 //------------------------------------------------------------------------------
-int main(int, char **) {
+int main(int, char **)
+{
 
-    Hmesh * hmesh = createMesh();
+    Hmesh *hmesh = createMesh();
 
-    int maxlevel=2,    // 2 levels of subdivision
-        firstface=0,   // marker to the first face index of level 2
-        firstvertex=0; // marker to the first vertex index of level 2
+    int maxlevel    = 2, // 2 levels of subdivision
+        firstface   = 0, // marker to the first face index of level 2
+        firstvertex = 0; // marker to the first vertex index of level 2
 
     // Refine the mesh to 'maxlevel'
-    for (int level=0; level<maxlevel; ++level) {
+    for (int level = 0; level < maxlevel; ++level)
+    {
 
         // Total number of faces in the mesh, across all levels
         //
         // Note: this function iterates over the list of faces and can be slow
         int nfaces = hmesh->GetNumFaces();
 
-        if (level==(maxlevel-1)) {
+        if (level == (maxlevel - 1))
+        {
             // Save our vertex marker
             firstvertex = hmesh->GetNumVertices();
         }
 
         // Iterate over the faces of the current level of subdivision
-        for (int face=firstface; face<nfaces; ++face) {
+        for (int face = firstface; face < nfaces; ++face)
+        {
 
-            Hface * f = hmesh->GetFace(face);
+            Hface *f = hmesh->GetFace(face);
 
             // Note: hole tags would have to be dealt with here.
             f->Refine();
@@ -138,20 +140,23 @@ int main(int, char **) {
 
         // Print vertex positions
         int nverts = hmesh->GetNumVertices();
-        for (int vert=firstvertex; vert<nverts; ++vert) {
-            float const * pos = hmesh->GetVertex(vert)->GetData().GetPosition();
+        for (int vert = firstvertex; vert < nverts; ++vert)
+        {
+            float const *pos = hmesh->GetVertex(vert)->GetData().GetPosition();
             printf("v %f %f %f\n", pos[0], pos[1], pos[2]);
         }
 
         // Print faces
-        for (int face=firstface; face<hmesh->GetNumFaces(); ++face) {
+        for (int face = firstface; face < hmesh->GetNumFaces(); ++face)
+        {
 
-            Hface * f = hmesh->GetFace(face);
+            Hface *f = hmesh->GetFace(face);
 
-            assert(f->GetNumVertices()==4 );
+            assert(f->GetNumVertices() == 4);
 
             printf("f ");
-            for (int vert=0; vert<4; ++vert) {
+            for (int vert = 0; vert < 4; ++vert)
+            {
 
                 // OBJ uses 1-based arrays
                 printf("%d ", f->GetVertex(vert)->GetID() - firstvertex + 1);
@@ -159,7 +164,6 @@ int main(int, char **) {
             printf("\n");
         }
     }
-
 }
 
 //------------------------------------------------------------------------------
@@ -167,90 +171,89 @@ int main(int, char **) {
 //
 // see hbr_tutorial_0 and hbr_tutorial_1 for more details
 //
-Hmesh *
-createMesh() {
+Hmesh *createMesh()
+{
 
     // Pyramid geometry from catmark_pyramid.h
-    static float verts[5][3] = {{ 0.0f,  0.0f,  2.0f},
-                                { 0.0f, -2.0f,  0.0f},
-                                { 2.0f,  0.0f,  0.0f},
-                                { 0.0f,  2.0f,  0.0f},
-                                {-2.0f,  0.0f,  0.0f}};
+    static float verts[5][3] = {{0.0f, 0.0f, 2.0f}, {0.0f, -2.0f, 0.0f}, {2.0f, 0.0f, 0.0f}, {0.0f, 2.0f, 0.0f}, {-2.0f, 0.0f, 0.0f}};
 
-    static int nverts = 5,
-               nfaces = 5;
+    static int nverts = 5, nfaces = 5;
 
-    static int facenverts[5] = { 3, 3, 3, 3, 4 };
+    static int facenverts[5] = {3, 3, 3, 3, 4};
 
-    static int faceverts[16] = { 0, 1, 2,
-                                 0, 2, 3,
-                                 0, 3, 4,
-                                 0, 4, 1,
-                                 4, 3, 2, 1 };
+    static int faceverts[16] = {0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1, 4, 3, 2, 1};
 
-    OpenSubdiv::HbrCatmarkSubdivision<Vertex> * catmark =
-        new OpenSubdiv::HbrCatmarkSubdivision<Vertex>();
+    OpenSubdiv::HbrCatmarkSubdivision<Vertex> *catmark = new OpenSubdiv::HbrCatmarkSubdivision<Vertex>();
 
-    Hmesh * hmesh = new Hmesh(catmark);
+    Hmesh *hmesh = new Hmesh(catmark);
 
     // Populate the vertices
     Vertex v;
-    for (int i=0; i<nverts; ++i) {
+    for (int i = 0; i < nverts; ++i)
+    {
         v.SetPosition(verts[i][0], verts[i][1], verts[i][2]);
         hmesh->NewVertex(i, v);
     }
 
     // Create the topology
-    int * fv = faceverts;
-    for (int i=0; i<nfaces; ++i) {
+    int *fv = faceverts;
+    for (int i = 0; i < nfaces; ++i)
+    {
 
         int nv = facenverts[i];
 
         bool valid = true;
 
-        for(int j=0;j<nv;j++) {
+        for (int j = 0; j < nv; j++)
+        {
 
-            Hvertex const * origin      = hmesh->GetVertex(fv[j]),
-                          * destination = hmesh->GetVertex(fv[(j+1)%nv]);
-            Hhalfedge const * opposite = destination->GetEdge(origin);
+            Hvertex const *  origin = hmesh->GetVertex(fv[j]), *destination = hmesh->GetVertex(fv[(j + 1) % nv]);
+            Hhalfedge const *opposite = destination->GetEdge(origin);
 
             // Make sure that the vertices exist in the mesh
-            if (origin==NULL || destination==NULL) {
+            if (origin == NULL || destination == NULL)
+            {
                 printf(" An edge was specified that connected a nonexistent vertex\n");
-                valid=false;
+                valid = false;
                 break;
             }
 
             // Check for a degenerate edge
-            if (origin == destination) {
+            if (origin == destination)
+            {
                 printf(" An edge was specified that connected a vertex to itself\n");
-                valid=false;
+                valid = false;
                 break;
             }
 
             // Check that no more than 2 faces are adjacent to the edge
-            if (opposite && opposite->GetOpposite() ) {
+            if (opposite && opposite->GetOpposite())
+            {
                 printf(" A non-manifold edge incident to more than 2 faces was found\n");
-                valid=false;
+                valid = false;
                 break;
             }
 
             // Check that the edge is unique and oriented properly
-            if (origin->GetEdge(destination)) {
+            if (origin->GetEdge(destination))
+            {
                 printf(" An edge connecting two vertices was specified more than once."
                        " It's likely that an incident face was flipped\n");
-                valid=false;
+                valid = false;
                 break;
             }
         }
 
-        if (valid) {
+        if (valid)
+        {
             hmesh->NewFace(nv, fv, 0);
-        } else {
+        }
+        else
+        {
             printf(" Skipped face %d\n", i);
         }
 
-        fv+=nv;
+        fv += nv;
     }
 
     hmesh->SetInterpolateBoundaryMethod(Hmesh::k_InterpolateBoundaryEdgeOnly);
@@ -259,6 +262,5 @@ createMesh() {
 
     return hmesh;
 }
-
 
 //------------------------------------------------------------------------------

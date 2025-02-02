@@ -24,27 +24,19 @@
 
 #include "farPatchEvaluator.h"
 
-#include <opensubdiv/far/topologyRefinerFactory.h>
-#include <opensubdiv/far/topologyDescriptor.h>
 #include <opensubdiv/far/primvarRefiner.h>
 #include <opensubdiv/far/stencilTable.h>
-
+#include <opensubdiv/far/topologyDescriptor.h>
+#include <opensubdiv/far/topologyRefinerFactory.h>
 
 template <typename REAL>
-FarPatchEvaluator<REAL>::FarPatchEvaluator(
-        Far::TopologyRefiner const & baseMesh,
-        Vec3RealVector       const & basePos,
-        Vec3RealVector       const & baseUVs,
-        BfrSurfaceOptions    const & bfrSurfaceOptions) :
-            _baseMesh(baseMesh),
-            _baseMeshPos(basePos),
-            _baseMeshUVs(baseUVs) {
+FarPatchEvaluator<REAL>::FarPatchEvaluator(Far::TopologyRefiner const &baseMesh, Vec3RealVector const &basePos, Vec3RealVector const &baseUVs, BfrSurfaceOptions const &bfrSurfaceOptions) : _baseMesh(baseMesh), _baseMeshPos(basePos), _baseMeshUVs(baseUVs)
+{
 
     //
     //  Initialize simple members first:
     //
-    _regFaceSize = Sdc::SchemeTypeTraits::GetRegularFaceSize(
-                        baseMesh.GetSchemeType());
+    _regFaceSize = Sdc::SchemeTypeTraits::GetRegularFaceSize(baseMesh.GetSchemeType());
 
     //
     //  Declare options to use in construction of PatchTable et al:
@@ -55,24 +47,22 @@ FarPatchEvaluator<REAL>::FarPatchEvaluator(
     Far::PatchTableFactory::Options patchOptions(primaryLevel);
     patchOptions.SetPatchPrecision<REAL>();
     patchOptions.SetFVarPatchPrecision<REAL>();
-    patchOptions.useInfSharpPatch = true;
+    patchOptions.useInfSharpPatch                 = true;
     patchOptions.generateLegacySharpCornerPatches = false;
-    patchOptions.shareEndCapPatchPoints = false;
-    patchOptions.endCapType =
-        Far::PatchTableFactory::Options::ENDCAP_GREGORY_BASIS;
+    patchOptions.shareEndCapPatchPoints           = false;
+    patchOptions.endCapType                       = Far::PatchTableFactory::Options::ENDCAP_GREGORY_BASIS;
 
-    bool hasUVs = !baseUVs.empty();
+    bool hasUVs      = !baseUVs.empty();
     int  fvarChannel = 0;
 
-    patchOptions.generateFVarTables = hasUVs;
-    patchOptions.numFVarChannels = hasUVs ? 1 : 0;
-    patchOptions.fvarChannelIndices = &fvarChannel;
+    patchOptions.generateFVarTables              = hasUVs;
+    patchOptions.numFVarChannels                 = hasUVs ? 1 : 0;
+    patchOptions.fvarChannelIndices              = &fvarChannel;
     patchOptions.generateFVarLegacyLinearPatches = false;
 
     patchOptions.generateVaryingTables = false;
 
-    Far::TopologyRefiner::AdaptiveOptions refineOptions =
-            patchOptions.GetRefineAdaptiveOptions();
+    Far::TopologyRefiner::AdaptiveOptions refineOptions = patchOptions.GetRefineAdaptiveOptions();
     refineOptions.SetIsolationLevel(primaryLevel);
     refineOptions.SetSecondaryLevel(secondaryLevel);
 
@@ -80,9 +70,7 @@ FarPatchEvaluator<REAL>::FarPatchEvaluator(
     //  Create a TopologyRefiner (sharing the base) to adaptively refine
     //  and create the associated PatchTable:
     //
-    Far::TopologyRefiner *patchRefiner =
-        Far::TopologyRefinerFactory<Far::TopologyDescriptor>::Create(
-            baseMesh);
+    Far::TopologyRefiner *patchRefiner = Far::TopologyRefinerFactory<Far::TopologyDescriptor>::Create(baseMesh);
 
     patchRefiner->RefineAdaptive(refineOptions);
 
@@ -92,11 +80,10 @@ FarPatchEvaluator<REAL>::FarPatchEvaluator(
 
     _patchMap = new Far::PatchMap(*_patchTable);
 
-
     //
     //  Declare buffers/vectors for refined/patch points:
     //
-    Far::TopologyLevel const & baseLevel = baseMesh.GetLevel(0);
+    Far::TopologyLevel const &baseLevel = baseMesh.GetLevel(0);
 
     int numBasePoints    = baseLevel.GetNumVertices();
     int numRefinedPoints = patchRefiner->GetNumVerticesTotal() - numBasePoints;
@@ -113,7 +100,8 @@ FarPatchEvaluator<REAL>::FarPatchEvaluator(
     int numRefinedUVs = 0;
     int numLocalUVs   = 0;
 
-    if (hasUVs) {
+    if (hasUVs)
+    {
         numBaseUVs    = baseLevel.GetNumFVarValues();
         numRefinedUVs = patchRefiner->GetNumFVarValuesTotal() - numBaseUVs;
         numLocalUVs   = _patchTable->GetNumLocalPointsFaceVarying();
@@ -126,55 +114,50 @@ FarPatchEvaluator<REAL>::FarPatchEvaluator(
     //
     //  Compute refined and local patch points and UVs:
     //
-    if (numRefinedPoints) {
+    if (numRefinedPoints)
+    {
         Far::PrimvarRefinerReal<REAL> primvarRefiner(*patchRefiner);
 
-        Vec3Real const * srcP = &_patchPos[0];
-        Vec3Real       * dstP = &_patchPos[numBasePoints];
+        Vec3Real const *srcP = &_patchPos[0];
+        Vec3Real *      dstP = &_patchPos[numBasePoints];
 
-        Vec3Real const * srcUV = hasUVs ? &_patchUVs[0] : 0;
-        Vec3Real       * dstUV = hasUVs ? &_patchUVs[numBaseUVs] : 0;
+        Vec3Real const *srcUV = hasUVs ? &_patchUVs[0] : 0;
+        Vec3Real *      dstUV = hasUVs ? &_patchUVs[numBaseUVs] : 0;
 
-        for (int level = 1; level < patchRefiner->GetNumLevels(); ++level) {
+        for (int level = 1; level < patchRefiner->GetNumLevels(); ++level)
+        {
             primvarRefiner.Interpolate(level, srcP, dstP);
-            srcP  = dstP;
+            srcP = dstP;
             dstP += patchRefiner->GetLevel(level).GetNumVertices();
 
-            if (hasUVs) {
+            if (hasUVs)
+            {
                 primvarRefiner.InterpolateFaceVarying(level, srcUV, dstUV);
-                srcUV  = dstUV;
+                srcUV = dstUV;
                 dstUV += patchRefiner->GetLevel(level).GetNumFVarValues();
             }
         }
     }
-    if (numLocalPoints) {
-        _patchTable->GetLocalPointStencilTable<REAL>()->UpdateValues(
-            &_patchPos[0], &_patchPos[numBasePoints + numRefinedPoints]);
+    if (numLocalPoints)
+    {
+        _patchTable->GetLocalPointStencilTable<REAL>()->UpdateValues(&_patchPos[0], &_patchPos[numBasePoints + numRefinedPoints]);
     }
-    if (hasUVs && numLocalUVs) {
-        _patchTable->GetLocalPointFaceVaryingStencilTable<REAL>()->UpdateValues(
-            &_patchUVs[0], &_patchUVs[numBaseUVs + numRefinedUVs]);
+    if (hasUVs && numLocalUVs)
+    {
+        _patchTable->GetLocalPointFaceVaryingStencilTable<REAL>()->UpdateValues(&_patchUVs[0], &_patchUVs[numBaseUVs + numRefinedUVs]);
     }
 
     delete patchRefiner;
 }
 
-template <typename REAL>
-bool
-FarPatchEvaluator<REAL>::FaceHasLimit(Far::Index baseFace) const {
+template <typename REAL> bool FarPatchEvaluator<REAL>::FaceHasLimit(Far::Index baseFace) const { return !_baseMesh.GetLevel(0).IsFaceHole(baseFace); }
 
-    return ! _baseMesh.GetLevel(0).IsFaceHole(baseFace);
-}
-
-template <typename REAL>
-void
-FarPatchEvaluator<REAL>::Evaluate(Far::Index                baseFace,
-                                  TessCoordVector   const & tessCoords,
-                                  EvalResults<REAL>       & results) const {
+template <typename REAL> void FarPatchEvaluator<REAL>::Evaluate(Far::Index baseFace, TessCoordVector const &tessCoords, EvalResults<REAL> &results) const
+{
 
     assert(FaceHasLimit(baseFace));
 
-    int numCoords = (int) tessCoords.size() / 2;
+    int numCoords = (int)tessCoords.size() / 2;
 
     //  Allocate vectors for the properties to be evaluated:
     results.Resize(numCoords);
@@ -193,63 +176,72 @@ FarPatchEvaluator<REAL>::Evaluate(Far::Index                baseFace,
     //
     //  Evaluate at each of the given coordinates:
     //
-    REAL const * stPair = &tessCoords[0];
-    for (int i = 0; i < numCoords; ++i, stPair += 2) {
-        REAL st[2] = { stPair[0], stPair[1] };
+    REAL const *stPair = &tessCoords[0];
+    for (int i = 0; i < numCoords; ++i, stPair += 2)
+    {
+        REAL st[2] = {stPair[0], stPair[1]};
 
         int patchIndex = patchFace;
-        if (reparameterize) {
+        if (reparameterize)
+        {
             patchIndex += faceParam.ConvertCoordToNormalizedSubFace(st, st);
         }
 
         REAL s = st[0];
         REAL t = st[1];
 
-        Far::PatchTable::PatchHandle const * patchHandle =
-                _patchMap->FindPatch(patchIndex, s, t);
+        Far::PatchTable::PatchHandle const *patchHandle = _patchMap->FindPatch(patchIndex, s, t);
         assert(patchHandle);
 
         //  Evaluate position and derivatives:
-        if (results.evalPosition) {
+        if (results.evalPosition)
+        {
             REAL wP[20], wDu[20], wDv[20], wDuu[20], wDuv[20], wDvv[20];
 
-            if (!results.eval1stDeriv) {
+            if (!results.eval1stDeriv)
+            {
                 _patchTable->EvaluateBasis(*patchHandle, s, t, wP);
-            } else if (!results.eval2ndDeriv) {
-                _patchTable->EvaluateBasis(*patchHandle, s, t, wP,
-                                           wDu, wDv);
-            } else {
-                _patchTable->EvaluateBasis(*patchHandle, s, t, wP,
-                                           wDu, wDv, wDuu, wDuv, wDvv);
+            }
+            else if (!results.eval2ndDeriv)
+            {
+                _patchTable->EvaluateBasis(*patchHandle, s, t, wP, wDu, wDv);
+            }
+            else
+            {
+                _patchTable->EvaluateBasis(*patchHandle, s, t, wP, wDu, wDv, wDuu, wDuv, wDvv);
             }
 
-            Vec3Real * P   = results.evalPosition ? &results.p[i]   : 0;
-            Vec3Real * Du  = results.eval1stDeriv ? &results.du[i]  : 0;
-            Vec3Real * Dv  = results.eval1stDeriv ? &results.dv[i]  : 0;
-            Vec3Real * Duu = results.eval2ndDeriv ? &results.duu[i] : 0;
-            Vec3Real * Duv = results.eval2ndDeriv ? &results.duv[i] : 0;
-            Vec3Real * Dvv = results.eval2ndDeriv ? &results.dvv[i] : 0;
+            Vec3Real *P   = results.evalPosition ? &results.p[i] : 0;
+            Vec3Real *Du  = results.eval1stDeriv ? &results.du[i] : 0;
+            Vec3Real *Dv  = results.eval1stDeriv ? &results.dv[i] : 0;
+            Vec3Real *Duu = results.eval2ndDeriv ? &results.duu[i] : 0;
+            Vec3Real *Duv = results.eval2ndDeriv ? &results.duv[i] : 0;
+            Vec3Real *Dvv = results.eval2ndDeriv ? &results.dvv[i] : 0;
 
-            Far::ConstIndexArray cvIndices =
-                    _patchTable->GetPatchVertices(*patchHandle);
+            Far::ConstIndexArray cvIndices = _patchTable->GetPatchVertices(*patchHandle);
 
             P->Clear();
-            if (results.eval1stDeriv) {
+            if (results.eval1stDeriv)
+            {
                 Du->Clear();
                 Dv->Clear();
-                if (results.eval2ndDeriv) {
+                if (results.eval2ndDeriv)
+                {
                     Duu->Clear();
                     Duv->Clear();
                     Dvv->Clear();
                 }
             }
 
-            for (int cv = 0; cv < cvIndices.size(); ++cv) {
+            for (int cv = 0; cv < cvIndices.size(); ++cv)
+            {
                 P->AddWithWeight(_patchPos[cvIndices[cv]], wP[cv]);
-                if (results.eval1stDeriv) {
+                if (results.eval1stDeriv)
+                {
                     Du->AddWithWeight(_patchPos[cvIndices[cv]], wDu[cv]);
                     Dv->AddWithWeight(_patchPos[cvIndices[cv]], wDv[cv]);
-                    if (results.eval2ndDeriv) {
+                    if (results.eval2ndDeriv)
+                    {
                         Duu->AddWithWeight(_patchPos[cvIndices[cv]], wDuu[cv]);
                         Duv->AddWithWeight(_patchPos[cvIndices[cv]], wDuv[cv]);
                         Dvv->AddWithWeight(_patchPos[cvIndices[cv]], wDvv[cv]);
@@ -257,26 +249,27 @@ FarPatchEvaluator<REAL>::Evaluate(Far::Index                baseFace,
                 }
             }
         }
-        if (results.evalUV) {
+        if (results.evalUV)
+        {
             REAL wUV[20];
             _patchTable->EvaluateBasisFaceVarying(*patchHandle, s, t, wUV);
 
-            Vec3Real & UV = results.uv[i];
+            Vec3Real &UV = results.uv[i];
 
             UV.Clear();
 
-            Far::ConstIndexArray cvIndices =
-                    _patchTable->GetPatchFVarValues(*patchHandle);
+            Far::ConstIndexArray cvIndices = _patchTable->GetPatchFVarValues(*patchHandle);
 
-            for (int cv = 0; cv < cvIndices.size(); ++cv) {
+            for (int cv = 0; cv < cvIndices.size(); ++cv)
+            {
                 UV.AddWithWeight(_patchUVs[cvIndices[cv]], wUV[cv]);
             }
         }
     }
 }
 
-template <typename REAL>
-FarPatchEvaluator<REAL>::~FarPatchEvaluator() {
+template <typename REAL> FarPatchEvaluator<REAL>::~FarPatchEvaluator()
+{
 
     delete _patchTable;
     delete _patchFaces;
@@ -288,4 +281,3 @@ FarPatchEvaluator<REAL>::~FarPatchEvaluator() {
 //
 template class FarPatchEvaluator<float>;
 template class FarPatchEvaluator<double>;
-

@@ -25,20 +25,23 @@
 #ifndef OPENSUBDIV3_OSD_HLSL_PATCH_SHADER_SOURCE_H
 #define OPENSUBDIV3_OSD_HLSL_PATCH_SHADER_SOURCE_H
 
-#include "../version.h"
-
-#include "../far/patchDescriptor.h"
-
 #include <string>
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+#include "../far/patchDescriptor.h"
+#include "../version.h"
 
-namespace Osd {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
+
+namespace Osd
+{
 
 /// \brief Provides shader source which can be used by client code.
-class HLSLPatchShaderSource {
-public:
+class HLSLPatchShaderSource
+{
+  public:
     /// \brief Returns shader source which can be used to evaluate
     /// position and first and second derivatives on piecewise parametric
     /// patches resulting from subdivision refinement.
@@ -68,11 +71,11 @@ public:
     /// @}
 };
 
-}  // end namespace Osd
+} // end namespace Osd
 
-}  // end namespace OPENSUBDIV_VERSION
+} // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;
 
 } // end namespace OpenSubdiv
 
-#endif  // OPENSUBDIV3_OSD_HLSL_PATCH_SHADER_SOURCE_H
+#endif // OPENSUBDIV3_OSD_HLSL_PATCH_SHADER_SOURCE_H

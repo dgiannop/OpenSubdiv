@@ -25,8 +25,8 @@
 #ifndef OPENSUBDIV3_OSD_CL_D3D11_VERTEX_BUFFER_H
 #define OPENSUBDIV3_OSD_CL_D3D11_VERTEX_BUFFER_H
 
-#include "../version.h"
 #include "../osd/opencl.h"
+#include "../version.h"
 
 struct ID3D11VertexShader;
 struct ID3D11HullShader;
@@ -39,10 +39,13 @@ struct ID3D11ShaderResourceView;
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Osd {
+namespace Osd
+{
 
 ///
 /// \brief Concrete vertex buffer class for OpenCL subdivision and DirectX
@@ -53,37 +56,24 @@ namespace Osd {
 ///
 /// An instance of this buffer class can be passed to D3D11ComputeEvaluator.
 ///
-class CLD3D11VertexBuffer {
-public:
+class CLD3D11VertexBuffer
+{
+  public:
     /// Creator. Returns NULL if error.
-    static CLD3D11VertexBuffer * Create(int numElements, int numVertices,
-                                        cl_context clContext,
-                                        ID3D11DeviceContext *deviceContext);
+    static CLD3D11VertexBuffer *Create(int numElements, int numVertices, cl_context clContext, ID3D11DeviceContext *deviceContext);
 
     /// template version for custom context (OpenCL) used by OsdMesh
-    template<typename DEVICE_CONTEXT>
-    static CLD3D11VertexBuffer * Create(int numElements, int numVertices,
-                                        DEVICE_CONTEXT context) {
-        return Create(numElements, numVertices,
-                      context->GetContext(),
-                      context->GetDeviceContext());
-    }
-
+    template <typename DEVICE_CONTEXT> static CLD3D11VertexBuffer *Create(int numElements, int numVertices, DEVICE_CONTEXT context) { return Create(numElements, numVertices, context->GetContext(), context->GetDeviceContext()); }
 
     /// Destructor.
     virtual ~CLD3D11VertexBuffer();
 
     /// This method is meant to be used in client code in order to provide coarse
     /// vertices data to Osd.
-    void UpdateData(const float *src, int startVertex, int numVertices,
-                    cl_command_queue clQueue);
+    void UpdateData(const float *src, int startVertex, int numVertices, cl_command_queue clQueue);
 
     /// template version for custom context (OpenCL) used by OsdMesh
-    template<typename DEVICE_CONTEXT>
-    void UpdateData(const float *src, int startVertex, int numVertices,
-                    DEVICE_CONTEXT context) {
-        UpdateData(src, startVertex, numVertices, context->GetCommandQueue());
-    }
+    template <typename DEVICE_CONTEXT> void UpdateData(const float *src, int startVertex, int numVertices, DEVICE_CONTEXT context) { UpdateData(src, startVertex, numVertices, context->GetCommandQueue()); }
 
     /// Returns how many elements defined in this vertex buffer.
     int GetNumElements() const;
@@ -98,17 +88,12 @@ public:
     ID3D11Buffer *BindD3D11Buffer(ID3D11DeviceContext *deviceContext);
 
     /// Returns the D3D11 buffer object (for Osd::Mesh interface)
-    ID3D11Buffer *BindVBO(ID3D11DeviceContext *deviceContext) {
-        return BindD3D11Buffer(deviceContext);
-    }
+    ID3D11Buffer *BindVBO(ID3D11DeviceContext *deviceContext) { return BindD3D11Buffer(deviceContext); }
 
     /// template version for custom context (OpenCL) used by OsdMesh
-    template<typename DEVICE_CONTEXT>
-    ID3D11Buffer *BindVBO(DEVICE_CONTEXT context) {
-        return BindD3D11Buffer(context->GetDeviceContext());
-    }
+    template <typename DEVICE_CONTEXT> ID3D11Buffer *BindVBO(DEVICE_CONTEXT context) { return BindD3D11Buffer(context->GetDeviceContext()); }
 
-protected:
+  protected:
     /// Constructor.
     CLD3D11VertexBuffer(int numElements, int numVertices);
 
@@ -122,22 +107,21 @@ protected:
     /// Releases a resource to DirectX.
     void unmap();
 
-private:
-    int _numElements;
-    int _numVertices;
-    ID3D11Buffer *_d3d11Buffer;
+  private:
+    int              _numElements;
+    int              _numVertices;
+    ID3D11Buffer *   _d3d11Buffer;
     cl_command_queue _clQueue;
-    cl_mem _clMemory;
+    cl_mem           _clMemory;
 
     bool _clMapped;
-
 };
 
-}  // end namespace Osd
+} // end namespace Osd
 
-}  // end namespace OPENSUBDIV_VERSION
+} // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;
 
-}  // end namespace OpenSubdiv
+} // end namespace OpenSubdiv
 
-#endif  // OPENSUBDIV3_OSD_CL_D3D11_VERTEX_BUFFER_H
+#endif // OPENSUBDIV3_OSD_CL_D3D11_VERTEX_BUFFER_H

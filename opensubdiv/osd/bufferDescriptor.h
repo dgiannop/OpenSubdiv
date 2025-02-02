@@ -25,13 +25,17 @@
 #ifndef OPENSUBDIV3_OSD_BUFFER_DESCRIPTOR_H
 #define OPENSUBDIV3_OSD_BUFFER_DESCRIPTOR_H
 
-#include "../version.h"
 #include <string.h>
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+#include "../version.h"
 
-namespace Osd {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
+
+namespace Osd
+{
 
 /// \brief BufferDescriptor is a struct which describes buffer elements in
 ///        interleaved data buffers. Almost all Osd Evaluator APIs take
@@ -58,41 +62,28 @@ namespace Osd {
 //     - uTangent (offset = n+7,  length = 3, stride = 13)
 //     - vTangent (offset = n+10, length = 3, stride = 13)
 //
-struct BufferDescriptor {
-
+struct BufferDescriptor
+{
     /// Default Constructor
-    BufferDescriptor() : offset(0), length(0), stride(0) { }
+    BufferDescriptor() : offset(0), length(0), stride(0) {}
 
     /// Constructor
-    BufferDescriptor(int o, int l, int s) : offset(o), length(l), stride(s) { }
+    BufferDescriptor(int o, int l, int s) : offset(o), length(l), stride(s) {}
 
     /// Returns the relative offset within a stride
-    int GetLocalOffset() const {
-        return stride > 0 ? offset % stride : 0;
-    }
+    int GetLocalOffset() const { return stride > 0 ? offset % stride : 0; }
 
     /// True if the descriptor values are internally consistent
-    bool IsValid() const {
-        return ((length > 0) &&
-                (length <= stride - GetLocalOffset()));
-    }
+    bool IsValid() const { return ((length > 0) && (length <= stride - GetLocalOffset())); }
 
     /// Resets the descriptor to default
-    void Reset() {
-        offset = length = stride = 0;
-    }
+    void Reset() { offset = length = stride = 0; }
 
     /// True if the descriptors are identical
-    bool operator == (BufferDescriptor const &other) const {
-        return (offset == other.offset &&
-                length == other.length &&
-                stride == other.stride);
-    }
+    bool operator==(BufferDescriptor const &other) const { return (offset == other.offset && length == other.length && stride == other.stride); }
 
     /// True if the descriptors are not identical
-    bool operator != (BufferDescriptor const &other) const {
-        return !(this->operator==(other));
-    }
+    bool operator!=(BufferDescriptor const &other) const { return !(this->operator==(other)); }
 
     /// offset to desired element data
     int offset;
@@ -109,4 +100,4 @@ using namespace OPENSUBDIV_VERSION;
 
 } // end namespace OpenSubdiv
 
-#endif  // OPENSUBDIV3_OSD_BUFFER_DESCRIPTOR_H
+#endif // OPENSUBDIV3_OSD_BUFFER_DESCRIPTOR_H

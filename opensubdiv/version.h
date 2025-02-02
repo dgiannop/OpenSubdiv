@@ -33,10 +33,10 @@
 #define OPENSUBDIV_VERSION_MINOR 6
 #define OPENSUBDIV_VERSION_PATCH 0
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 } // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;
 

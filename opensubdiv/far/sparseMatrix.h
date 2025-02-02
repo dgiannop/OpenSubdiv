@@ -25,17 +25,18 @@
 #ifndef OPENSUBDIV3_FAR_SPARSE_MATRIX_H
 #define OPENSUBDIV3_FAR_SPARSE_MATRIX_H
 
-#include "../version.h"
-
-#include "../vtr/array.h"
-
 #include <algorithm>
 
+#include "../version.h"
+#include "../vtr/array.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Far {
+namespace Far
+{
 
 //
 //  SparseMatrix
@@ -54,65 +55,47 @@ namespace Far {
 //  static buffers as members here -- allowing common matrices to be set
 //  directly rather than repeatedly replicated.
 //
-template <typename REAL>
-class SparseMatrix {
-public:
+template <typename REAL> class SparseMatrix
+{
+  public:
     typedef int  column_type;
     typedef REAL element_type;
 
-public:
+  public:
     //  Declaration and access methods:
-    SparseMatrix() : _numRows(0), _numColumns(0), _numElements(0) { }
+    SparseMatrix() : _numRows(0), _numColumns(0), _numElements(0) {}
 
     int GetNumRows() const { return _numRows; }
     int GetNumColumns() const { return _numColumns; }
     int GetNumElements() const { return _numElements; }
     int GetCapacity() const;
 
-    int GetRowSize(int rowIndex) const {
-        return _rowOffsets[rowIndex + 1] - _rowOffsets[rowIndex];
-    }
+    int GetRowSize(int rowIndex) const { return _rowOffsets[rowIndex + 1] - _rowOffsets[rowIndex]; }
 
-    Vtr::ConstArray<column_type>  GetRowColumns( int rowIndex) const {
-        return Vtr::ConstArray<column_type>(&_columns[_rowOffsets[rowIndex]],
-                                            GetRowSize(rowIndex));
-    }
-    Vtr::ConstArray<element_type> GetRowElements(int rowIndex) const {
-        return Vtr::ConstArray<element_type>(&_elements[_rowOffsets[rowIndex]],
-                                             GetRowSize(rowIndex));
-    }
+    Vtr::ConstArray<column_type>  GetRowColumns(int rowIndex) const { return Vtr::ConstArray<column_type>(&_columns[_rowOffsets[rowIndex]], GetRowSize(rowIndex)); }
+    Vtr::ConstArray<element_type> GetRowElements(int rowIndex) const { return Vtr::ConstArray<element_type>(&_elements[_rowOffsets[rowIndex]], GetRowSize(rowIndex)); }
 
-    Vtr::ConstArray<column_type>  GetColumns() const {
-        return Vtr::ConstArray<column_type>(&_columns[0], GetNumElements());
-    }
-    Vtr::ConstArray<element_type> GetElements() const {
-        return Vtr::ConstArray<element_type>(&_elements[0], GetNumElements());
-    }
+    Vtr::ConstArray<column_type>  GetColumns() const { return Vtr::ConstArray<column_type>(&_columns[0], GetNumElements()); }
+    Vtr::ConstArray<element_type> GetElements() const { return Vtr::ConstArray<element_type>(&_elements[0], GetNumElements()); }
 
-public:
+  public:
     //  Modification methods
     void Resize(int numRows, int numColumns, int numNonZeroEntriesToReserve);
-    void Copy(SparseMatrix const & srcMatrix);
-    void Swap(SparseMatrix & otherMatrix);
+    void Copy(SparseMatrix const &srcMatrix);
+    void Swap(SparseMatrix &otherMatrix);
 
     void SetRowSize(int rowIndex, int size);
 
-    Vtr::Array<column_type>  SetRowColumns( int rowIndex) {
-        return Vtr::Array<column_type>(&_columns[_rowOffsets[rowIndex]],
-                                       GetRowSize(rowIndex));
-    }
-    Vtr::Array<element_type> SetRowElements(int rowIndex) {
-        return Vtr::Array<element_type>(&_elements[_rowOffsets[rowIndex]],
-                                        GetRowSize(rowIndex));
-    }
+    Vtr::Array<column_type>  SetRowColumns(int rowIndex) { return Vtr::Array<column_type>(&_columns[_rowOffsets[rowIndex]], GetRowSize(rowIndex)); }
+    Vtr::Array<element_type> SetRowElements(int rowIndex) { return Vtr::Array<element_type>(&_elements[_rowOffsets[rowIndex]], GetRowSize(rowIndex)); }
 
-private:
+  private:
     //  Simple dimensions:
     int _numRows;
     int _numColumns;
     int _numElements;
 
-    std::vector<int> _rowOffsets;  // remember one more entry here than rows
+    std::vector<int> _rowOffsets; // remember one more entry here than rows
 
     //  XXXX (barfowl) - Note that the use of std::vector for the columns and
     //  element arrays was causing performance issues in the incremental
@@ -121,17 +104,10 @@ private:
     std::vector<element_type> _elements;
 };
 
-template <typename REAL>
-inline int
-SparseMatrix<REAL>::GetCapacity() const {
+template <typename REAL> inline int SparseMatrix<REAL>::GetCapacity() const { return (int)_elements.size(); }
 
-    return (int) _elements.size();
-}
-
-template <typename REAL>
-inline void
-SparseMatrix<REAL>::Resize(int numRows, int numCols, int numElementsToReserve) {
-
+template <typename REAL> inline void SparseMatrix<REAL>::Resize(int numRows, int numCols, int numElementsToReserve)
+{
     _numRows     = numRows;
     _numColumns  = numCols;
     _numElements = 0;
@@ -140,31 +116,29 @@ SparseMatrix<REAL>::Resize(int numRows, int numCols, int numElementsToReserve) {
     _rowOffsets.resize(_numRows + 1, -1);
     _rowOffsets[0] = 0;
 
-    if (numElementsToReserve > GetCapacity()) {
+    if (numElementsToReserve > GetCapacity())
+    {
         _columns.resize(numElementsToReserve);
         _elements.resize(numElementsToReserve);
     }
 }
-template <typename REAL>
-inline void
-SparseMatrix<REAL>::SetRowSize(int rowIndex, int rowSize) {
-
+template <typename REAL> inline void SparseMatrix<REAL>::SetRowSize(int rowIndex, int rowSize)
+{
     assert(_rowOffsets[rowIndex] == _numElements);
 
-    int & newVectorSize = _rowOffsets[rowIndex + 1];
-    newVectorSize = _rowOffsets[rowIndex] + rowSize;
+    int &newVectorSize = _rowOffsets[rowIndex + 1];
+    newVectorSize      = _rowOffsets[rowIndex] + rowSize;
 
     _numElements = newVectorSize;
-    if (newVectorSize > GetCapacity()) {
+    if (newVectorSize > GetCapacity())
+    {
         _columns.resize(newVectorSize);
         _elements.resize(newVectorSize);
     }
 }
 
-template <typename REAL>
-inline void
-SparseMatrix<REAL>::Copy(SparseMatrix const & src) {
-
+template <typename REAL> inline void SparseMatrix<REAL>::Copy(SparseMatrix const &src)
+{
     _numRows    = src._numRows;
     _numColumns = src._numColumns;
 
@@ -176,10 +150,8 @@ SparseMatrix<REAL>::Copy(SparseMatrix const & src) {
     _elements = src._elements;
 }
 
-template <typename REAL>
-inline void
-SparseMatrix<REAL>::Swap(SparseMatrix & other) {
-
+template <typename REAL> inline void SparseMatrix<REAL>::Swap(SparseMatrix &other)
+{
     std::swap(_numRows, other._numRows);
     std::swap(_numColumns, other._numColumns);
     std::swap(_numElements, other._numElements);

@@ -24,18 +24,21 @@
 #ifndef OPENSUBDIV3_VTR_SPARSE_SELECTOR_H
 #define OPENSUBDIV3_VTR_SPARSE_SELECTOR_H
 
-#include "../version.h"
-
-#include "../vtr/types.h"
-#include "../vtr/refinement.h"
-
 #include <vector>
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+#include "../version.h"
+#include "../vtr/refinement.h"
+#include "../vtr/types.h"
 
-namespace Vtr {
-namespace internal {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
+
+namespace Vtr
+{
+namespace internal
+{
 
 //
 //  SparseSelector:
@@ -54,14 +57,14 @@ namespace internal {
 //  only selection of faces is currently used and actively supported as part of the
 //  feature-adaptive refinement.
 //
-class SparseSelector {
+class SparseSelector
+{
+  public:
+    SparseSelector(Refinement &refine) : _refine(&refine), _selected(false) {}
+    ~SparseSelector() {}
 
-public:
-    SparseSelector(Refinement& refine) : _refine(&refine), _selected(false) { }
-    ~SparseSelector() { }
-
-    void        setRefinement(Refinement& refine) { _refine = &refine; }
-    Refinement& getRefinement() const             { return *_refine; }
+    void        setRefinement(Refinement &refine) { _refine = &refine; }
+    Refinement &getRefinement() const { return *_refine; }
 
     bool isSelectionEmpty() const { return !_selected; }
 
@@ -70,24 +73,24 @@ public:
     //  refer to components in the parent:
     //
     void selectVertex(Index pVertex);
-    void selectEdge(  Index pEdge);
-    void selectFace(  Index pFace);
+    void selectEdge(Index pEdge);
+    void selectFace(Index pFace);
 
-private:
-    SparseSelector() : _refine(0), _selected(false) { }
+  private:
+    SparseSelector() : _refine(0), _selected(false) {}
 
     bool wasVertexSelected(Index pVertex) const { return _refine->getParentVertexSparseTag(pVertex)._selected; }
-    bool wasEdgeSelected(  Index pEdge) const   { return _refine->getParentEdgeSparseTag(pEdge)._selected; }
-    bool wasFaceSelected(  Index pFace) const   { return _refine->getParentFaceSparseTag(pFace)._selected; }
+    bool wasEdgeSelected(Index pEdge) const { return _refine->getParentEdgeSparseTag(pEdge)._selected; }
+    bool wasFaceSelected(Index pFace) const { return _refine->getParentFaceSparseTag(pFace)._selected; }
 
     void markVertexSelected(Index pVertex) const { _refine->getParentVertexSparseTag(pVertex)._selected = true; }
-    void markEdgeSelected(  Index pEdge) const   { _refine->getParentEdgeSparseTag(pEdge)._selected = true; }
-    void markFaceSelected(  Index pFace) const   { _refine->getParentFaceSparseTag(pFace)._selected = true; }
+    void markEdgeSelected(Index pEdge) const { _refine->getParentEdgeSparseTag(pEdge)._selected = true; }
+    void markFaceSelected(Index pFace) const { _refine->getParentFaceSparseTag(pFace)._selected = true; }
 
     void initializeSelection();
 
-private:
-    Refinement* _refine;
+  private:
+    Refinement *_refine;
     bool        _selected;
 };
 

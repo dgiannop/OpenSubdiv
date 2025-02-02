@@ -25,16 +25,18 @@
 #ifndef OPENSUBDIV3_BFR_PATCH_TREE_BUILDER_H
 #define OPENSUBDIV3_BFR_PATCH_TREE_BUILDER_H
 
-#include "../version.h"
-
 #include "../bfr/patchTree.h"
-#include "../far/topologyRefiner.h"
 #include "../far/patchBuilder.h"
 #include "../far/sparseMatrix.h"
+#include "../far/topologyRefiner.h"
+#include "../version.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-namespace Bfr {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
+namespace Bfr
+{
 
 //
 //  The PatchTreeBuilder class assemble a PatchTree from one or more
@@ -50,8 +52,9 @@ namespace Bfr {
 //  now prevents such unsupported flexibility, but internal support
 //  remains.
 //
-class PatchTreeBuilder {
-public:
+class PatchTreeBuilder
+{
+  public:
     //
     //  Minimize the number of shape approximating Options here (compared
     //  to the Far classes):
@@ -60,39 +63,41 @@ public:
     //  used in Bfr and so is never enabled. It is left available as a
     //  reminder of that ability for future use.
     //
-    struct Options {
-        enum BasisType { REGULAR, GREGORY, LINEAR };
+    struct Options
+    {
+        enum BasisType
+        {
+            REGULAR,
+            GREGORY,
+            LINEAR
+        };
 
-        Options(int depth = 4) : irregularBasis((unsigned char) GREGORY),
-                                 maxPatchDepthSharp((unsigned char) depth),
-                                 maxPatchDepthSmooth(15),
-                                 includeInteriorPatches(false),
-                                 useDoublePrecision(false) { }
+        Options(int depth = 4) : irregularBasis((unsigned char)GREGORY), maxPatchDepthSharp((unsigned char)depth), maxPatchDepthSmooth(15), includeInteriorPatches(false), useDoublePrecision(false) {}
 
         unsigned char irregularBasis;
         unsigned char maxPatchDepthSharp;
         unsigned char maxPatchDepthSmooth;
         unsigned char includeInteriorPatches : 1;
-        unsigned char useDoublePrecision     : 1;
+        unsigned char useDoublePrecision : 1;
     };
 
-public:
+  public:
     //
     //  Public interface intended for use by other builders requiring
     //  PatchTrees -- now reduced essentially to a single method:
     //
-    PatchTreeBuilder(Far::TopologyRefiner & refiner, Options const & options);
+    PatchTreeBuilder(Far::TopologyRefiner &refiner, Options const &options);
     ~PatchTreeBuilder();
 
-    const PatchTree * Build();
+    const PatchTree *Build();
 
-    PatchTree * GetPatchTree() const { return _patchTree; }
+    PatchTree *GetPatchTree() const { return _patchTree; }
 
-private:
+  private:
     //  Internal struct for a patch in the refinement hierarchy:
-    struct PatchFace {
-        PatchFace(int levelArg, int faceArg, bool isReg = true) :
-                face(faceArg), level((short)levelArg), isRegular(isReg) { }
+    struct PatchFace
+    {
+        PatchFace(int levelArg, int faceArg, bool isReg = true) : face(faceArg), level((short)levelArg), isRegular(isReg) {}
 
         int   face;
         short level;
@@ -110,29 +115,22 @@ private:
 
     //  Internal methods to assemble the matrix of stencils converting
     //  points of irregular patches from points in the refined levels:
-    template <typename REAL>
-    void initializeStencilMatrix();
+    template <typename REAL> void initializeStencilMatrix();
 
-    template <typename REAL>
-    void getIrregularPatchConversion(PatchFace const & patchFace,
-                                     Far::SparseMatrix<REAL> & convMatrix,
-                                     std::vector<Far::Index> & srcPoints);
+    template <typename REAL> void getIrregularPatchConversion(PatchFace const &patchFace, Far::SparseMatrix<REAL> &convMatrix, std::vector<Far::Index> &srcPoints);
 
-    template <typename REAL>
-    void appendConversionStencilsToMatrix(int stencilIndexBase,
-                                     Far::SparseMatrix<REAL> const & convMatrix,
-                                     std::vector<Far::Index> const & srcPoints);
+    template <typename REAL> void appendConversionStencilsToMatrix(int stencilIndexBase, Far::SparseMatrix<REAL> const &convMatrix, std::vector<Far::Index> const &srcPoints);
 
-private:
+  private:
     //  The PatchTree instance being assembled:
-    PatchTree * _patchTree;
+    PatchTree *_patchTree;
 
     //  Member variables supporting its assembly:
-    Far::TopologyRefiner &    _faceRefiner;
-    Far::Index                _faceAtRoot;
-    std::vector<int>          _levelOffsets;
-    std::vector<PatchFace>    _patchFaces;
-    Far::PatchBuilder *       _patchBuilder;
+    Far::TopologyRefiner & _faceRefiner;
+    Far::Index             _faceAtRoot;
+    std::vector<int>       _levelOffsets;
+    std::vector<PatchFace> _patchFaces;
+    Far::PatchBuilder *    _patchBuilder;
 };
 
 } // end namespace Bfr

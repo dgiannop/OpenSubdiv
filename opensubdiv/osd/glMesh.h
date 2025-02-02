@@ -25,24 +25,25 @@
 #ifndef OPENSUBDIV3_OSD_GL_MESH_H
 #define OPENSUBDIV3_OSD_GL_MESH_H
 
+#include "../osd/glPatchTable.h"
+#include "../osd/mesh.h"
 #include "../version.h"
 
-#include "../osd/mesh.h"
-#include "../osd/glPatchTable.h"
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Osd {
+namespace Osd
+{
 
 typedef MeshInterface<GLPatchTable> GLMeshInterface;
-
 
 } // end namespace Osd
 
 } // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;
 
-}  // end namespace OpenSubdiv
+} // end namespace OpenSubdiv
 
-#endif  // OPENSUBDIV3_OSD_GL_MESH_H
+#endif // OPENSUBDIV3_OSD_GL_MESH_H

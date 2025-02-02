@@ -44,16 +44,16 @@
 //      fixed number may be a reasonable compromise.
 //
 
-#include <opensubdiv/far/topologyRefiner.h>
 #include <opensubdiv/bfr/refinerSurfaceFactory.h>
 #include <opensubdiv/bfr/surface.h>
 #include <opensubdiv/bfr/tessellation.h>
+#include <opensubdiv/far/topologyRefiner.h>
 
-#include <vector>
+#include <cstdio>
+#include <cstring>
 #include <memory>
 #include <string>
-#include <cstring>
-#include <cstdio>
+#include <vector>
 
 //  Local headers with support for this tutorial in "namespace tutorial"
 #include "./meshLoader.h"
@@ -64,51 +64,67 @@ using namespace OpenSubdiv;
 //
 //  Simple command line arguments to provide input and run-time options:
 //
-class Args {
-public:
+class Args
+{
+  public:
     std::string     inputObjFile;
     std::string     outputObjFile;
     Sdc::SchemeType schemeType;
     int             tessUniformRate;
     bool            tessQuadsFlag;
 
-public:
-    Args(int argc, char * argv[]) :
-        inputObjFile(),
-        outputObjFile(),
-        schemeType(Sdc::SCHEME_CATMARK),
-        tessUniformRate(5),
-        tessQuadsFlag(false) {
+  public:
+    Args(int argc, char *argv[]) : inputObjFile(), outputObjFile(), schemeType(Sdc::SCHEME_CATMARK), tessUniformRate(5), tessQuadsFlag(false)
+    {
 
-        for (int i = 1; i < argc; ++i) {
-            if (strstr(argv[i], ".obj")) {
-                if (inputObjFile.empty()) {
+        for (int i = 1; i < argc; ++i)
+        {
+            if (strstr(argv[i], ".obj"))
+            {
+                if (inputObjFile.empty())
+                {
                     inputObjFile = std::string(argv[i]);
-                } else {
-                    fprintf(stderr,
-                        "Warning: Extra Obj file '%s' ignored\n", argv[i]);
                 }
-            } else if (!strcmp(argv[i], "-o")) {
-                if (++i < argc) outputObjFile = std::string(argv[i]);
-            } else if (!strcmp(argv[i], "-bilinear")) {
+                else
+                {
+                    fprintf(stderr, "Warning: Extra Obj file '%s' ignored\n", argv[i]);
+                }
+            }
+            else if (!strcmp(argv[i], "-o"))
+            {
+                if (++i < argc)
+                    outputObjFile = std::string(argv[i]);
+            }
+            else if (!strcmp(argv[i], "-bilinear"))
+            {
                 schemeType = Sdc::SCHEME_BILINEAR;
-            } else if (!strcmp(argv[i], "-catmark")) {
+            }
+            else if (!strcmp(argv[i], "-catmark"))
+            {
                 schemeType = Sdc::SCHEME_CATMARK;
-            } else if (!strcmp(argv[i], "-loop")) {
+            }
+            else if (!strcmp(argv[i], "-loop"))
+            {
                 schemeType = Sdc::SCHEME_LOOP;
-            } else if (!strcmp(argv[i], "-res")) {
-                if (++i < argc) tessUniformRate = atoi(argv[i]);
-            } else if (!strcmp(argv[i], "-quads")) {
+            }
+            else if (!strcmp(argv[i], "-res"))
+            {
+                if (++i < argc)
+                    tessUniformRate = atoi(argv[i]);
+            }
+            else if (!strcmp(argv[i], "-quads"))
+            {
                 tessQuadsFlag = true;
-            } else {
-                fprintf(stderr,
-                    "Warning: Unrecognized argument '%s' ignored\n", argv[i]);
+            }
+            else
+            {
+                fprintf(stderr, "Warning: Unrecognized argument '%s' ignored\n", argv[i]);
             }
         }
     }
 
-private:
-    Args() { }
+  private:
+    Args() {}
 };
 
 //
@@ -149,17 +165,15 @@ private:
 //  with the permutations of additional work that is necessary when the
 //  Surfaces or their patch points are not cached.
 //
-class SurfaceCache {
-public:
+class SurfaceCache
+{
+  public:
     typedef Bfr::Surface<float>          Surface;
     typedef Bfr::RefinerSurfaceFactory<> SurfaceFactory;
 
-public:
-    SurfaceCache(SurfaceFactory     const & surfaceFactory,
-                 std::vector<float> const & meshPoints,
-                 bool                       cachePatchPoints = true,
-                 bool                       cacheAllSurfaces = true);
-    SurfaceCache() = delete;
+  public:
+    SurfaceCache(SurfaceFactory const &surfaceFactory, std::vector<float> const &meshPoints, bool cachePatchPoints = true, bool cacheAllSurfaces = true);
+    SurfaceCache()  = delete;
     ~SurfaceCache() = default;
 
     //
@@ -168,65 +182,68 @@ public:
     //
     bool FaceHasLimitSurface(int face) { return _entries[face].hasLimit; }
 
-    Surface const * GetSurface(int face) { return _entries[face].surface.get();}
+    Surface const *GetSurface(int face) { return _entries[face].surface.get(); }
 
-    float const * GetPatchPoints(int face) { return getPatchPoints(face); }
+    float const *GetPatchPoints(int face) { return getPatchPoints(face); }
 
-private:
+  private:
     //  Simple struct to keep track of Surface and more for each face:
-    struct FaceEntry {
-        FaceEntry() : surface(), hasLimit(false), pointOffset(-1) { }
+    struct FaceEntry
+    {
+        FaceEntry() : surface(), hasLimit(false), pointOffset(-1) {}
 
         std::unique_ptr<Surface const> surface;
-        bool hasLimit;
-        int  pointOffset;
+        bool                           hasLimit;
+        int                            pointOffset;
     };
 
     //  Non-const version to be used internally to aide assignment:
-    float * getPatchPoints(int face) {
-        return (_entries[face].surface && !_points.empty()) ?
-               (_points.data() + _entries[face].pointOffset * 3) : 0;
-    }
+    float *getPatchPoints(int face) { return (_entries[face].surface && !_points.empty()) ? (_points.data() + _entries[face].pointOffset * 3) : 0; }
 
-private:
+  private:
     std::vector<FaceEntry> _entries;
     std::vector<float>     _points;
 };
 
-SurfaceCache::SurfaceCache(SurfaceFactory     const & surfaceFactory,
-                           std::vector<float> const & meshPoints,
-                           bool                       cachePatchPoints,
-                           bool                       cacheAllSurfaces) {
+SurfaceCache::SurfaceCache(SurfaceFactory const &surfaceFactory, std::vector<float> const &meshPoints, bool cachePatchPoints, bool cacheAllSurfaces)
+{
 
     int numFaces = surfaceFactory.GetNumFaces();
 
     _entries.resize(numFaces);
 
     int numPointsInCache = 0;
-    for (int face = 0; face < numFaces; ++face) {
-        Surface * s = surfaceFactory.CreateVertexSurface<float>(face);
-        if (s) {
-            FaceEntry & entry = _entries[face];
-            entry.hasLimit = true;
+    for (int face = 0; face < numFaces; ++face)
+    {
+        Surface *s = surfaceFactory.CreateVertexSurface<float>(face);
+        if (s)
+        {
+            FaceEntry &entry = _entries[face];
+            entry.hasLimit   = true;
 
-            if (cacheAllSurfaces || (!s->IsRegular() && !s->IsLinear())) {
+            if (cacheAllSurfaces || (!s->IsRegular() && !s->IsLinear()))
+            {
                 entry.surface.reset(s);
                 entry.pointOffset = numPointsInCache;
 
                 numPointsInCache += s->GetNumPatchPoints();
-            } else {
+            }
+            else
+            {
                 delete s;
             }
         }
     }
 
-    if (cachePatchPoints) {
+    if (cachePatchPoints)
+    {
         _points.resize(numPointsInCache * 3);
-        for (int face = 0; face < numFaces; ++face) {
-            float * patchPoints = getPatchPoints(face);
-            if (patchPoints) {
-                GetSurface(face)->PreparePatchPoints(meshPoints.data(), 3,
-                                                     patchPoints, 3);
+        for (int face = 0; face < numFaces; ++face)
+        {
+            float *patchPoints = getPatchPoints(face);
+            if (patchPoints)
+            {
+                GetSurface(face)->PreparePatchPoints(meshPoints.data(), 3, patchPoints, 3);
             }
         }
     }
@@ -236,10 +253,8 @@ SurfaceCache::SurfaceCache(SurfaceFactory     const & surfaceFactory,
 //  The main tessellation function:  given a mesh and vertex positions,
 //  tessellate each face -- writing results in Obj format.
 //
-void
-tessellateToObj(Far::TopologyRefiner const & meshTopology,
-                std::vector<float>   const & meshVertexPositions,
-                Args                 const & options) {
+void tessellateToObj(Far::TopologyRefiner const &meshTopology, std::vector<float> const &meshVertexPositions, Args const &options)
+{
 
     //
     //  Use simpler local type names for the Surface and its factory:
@@ -271,10 +286,9 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
     //  access Surfaces. Note also that usage below is specific to the
     //  options used to initialize the SurfaceCache:
     //
-    bool cachePatchPoints = true;
-    bool cacheAllSurfaces = true;
-    SurfaceCache surfaceCache(meshSurfaceFactory, meshVertexPositions,
-                              cachePatchPoints, cacheAllSurfaces);
+    bool         cachePatchPoints = true;
+    bool         cacheAllSurfaces = true;
+    SurfaceCache surfaceCache(meshSurfaceFactory, meshVertexPositions, cachePatchPoints, cacheAllSurfaces);
 
     //
     //  As with previous tutorials, output data associated with the face
@@ -303,20 +317,21 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
     tutorial::ObjWriter objWriter(options.outputObjFile);
 
     int numFaces = meshSurfaceFactory.GetNumFaces();
-    for (int faceIndex = 0; faceIndex < numFaces; ++faceIndex) {
+    for (int faceIndex = 0; faceIndex < numFaces; ++faceIndex)
+    {
         //
         //  Retrieve the Surface for this face when present:
         //
-        if (!surfaceCache.FaceHasLimitSurface(faceIndex)) continue;
+        if (!surfaceCache.FaceHasLimitSurface(faceIndex))
+            continue;
 
-        Surface const & faceSurface = * surfaceCache.GetSurface(faceIndex);
+        Surface const &faceSurface = *surfaceCache.GetSurface(faceIndex);
 
         //
         //  Declare a simple uniform Tessellation for the Parameterization
         //  of this face and identify coordinates of the points to evaluate:
         //
-        Bfr::Tessellation tessPattern(faceSurface.GetParameterization(),
-                                      options.tessUniformRate, tessOptions);
+        Bfr::Tessellation tessPattern(faceSurface.GetParameterization(), options.tessUniformRate, tessOptions);
 
         int numOutCoords = tessPattern.GetNumCoords();
 
@@ -328,7 +343,7 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
         //  Retrieve the patch points for the Surface, then use them to
         //  evaluate output points for all identified coordinates:
         //
-        float const * facePatchPoints = surfaceCache.GetPatchPoints(faceIndex);
+        float const *facePatchPoints = surfaceCache.GetPatchPoints(faceIndex);
 
         int pointSize = 3;
 
@@ -336,10 +351,9 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
         outDu.resize(numOutCoords * pointSize);
         outDv.resize(numOutCoords * pointSize);
 
-        for (int i = 0, j = 0; i < numOutCoords; ++i, j += pointSize) {
-            faceSurface.Evaluate(&outCoords[i*2],
-                                 facePatchPoints, pointSize,
-                                 &outPos[j], &outDu[j], &outDv[j]);
+        for (int i = 0, j = 0; i < numOutCoords; ++i, j += pointSize)
+        {
+            faceSurface.Evaluate(&outCoords[i * 2], facePatchPoints, pointSize, &outPos[j], &outDu[j], &outDv[j]);
         }
 
         //
@@ -356,8 +370,7 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
         outFacets.resize(numFacets * tessFacetSize);
         tessPattern.GetFacets(outFacets.data());
 
-        tessPattern.TransformFacetCoordIndices(outFacets.data(),
-                                               objVertexIndexOffset);
+        tessPattern.TransformFacetCoordIndices(outFacets.data(), objVertexIndexOffset);
 
         //
         //  Write the evaluated points and faces connecting them as Obj:
@@ -374,18 +387,18 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
 //
 //  Load command line arguments, specified or default geometry and process:
 //
-int
-main(int argc, char * argv[]) {
+int main(int argc, char *argv[])
+{
 
     Args args(argc, argv);
 
-    Far::TopologyRefiner * meshTopology = 0;
-    std::vector<float>     meshVtxPositions;
-    std::vector<float>     meshFVarUVs;
+    Far::TopologyRefiner *meshTopology = 0;
+    std::vector<float>    meshVtxPositions;
+    std::vector<float>    meshFVarUVs;
 
-    meshTopology = tutorial::createTopologyRefiner(
-            args.inputObjFile, args.schemeType, meshVtxPositions, meshFVarUVs);
-    if (meshTopology == 0) {
+    meshTopology = tutorial::createTopologyRefiner(args.inputObjFile, args.schemeType, meshVtxPositions, meshFVarUVs);
+    if (meshTopology == 0)
+    {
         return EXIT_FAILURE;
     }
 

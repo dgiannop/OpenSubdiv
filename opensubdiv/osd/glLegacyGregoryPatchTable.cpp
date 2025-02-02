@@ -22,25 +22,28 @@
 //   language governing permissions and limitations under the Apache License.
 //
 
-#include "glLoader.h"
-
 #include "../osd/glLegacyGregoryPatchTable.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+#include "glLoader.h"
 
-namespace Osd {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-GLLegacyGregoryPatchTable::GLLegacyGregoryPatchTable() :
-    _vertexTextureBuffer(0), _vertexValenceTextureBuffer(0),
-    _quadOffsetsTextureBuffer(0) {
+namespace Osd
+{
+
+GLLegacyGregoryPatchTable::GLLegacyGregoryPatchTable() : _vertexTextureBuffer(0), _vertexValenceTextureBuffer(0), _quadOffsetsTextureBuffer(0)
+{
     _quadOffsetsBase[0] = _quadOffsetsBase[1] = 0;
 
     // Initialize internal OpenGL loader library if necessary
     OpenSubdiv::internal::GLLoader::libraryInitializeGL();
 }
 
-GLLegacyGregoryPatchTable::~GLLegacyGregoryPatchTable() {
+GLLegacyGregoryPatchTable::~GLLegacyGregoryPatchTable()
+{
     if (_vertexTextureBuffer)
         glDeleteTextures(1, &_vertexTextureBuffer);
     if (_vertexValenceTextureBuffer)
@@ -49,25 +52,22 @@ GLLegacyGregoryPatchTable::~GLLegacyGregoryPatchTable() {
         glDeleteTextures(1, &_quadOffsetsTextureBuffer);
 }
 
-GLLegacyGregoryPatchTable *
-GLLegacyGregoryPatchTable::Create(Far::PatchTable const *farPatchTable) {
-
+GLLegacyGregoryPatchTable *GLLegacyGregoryPatchTable::Create(Far::PatchTable const *farPatchTable)
+{
     GLLegacyGregoryPatchTable *result = new GLLegacyGregoryPatchTable();
     glGenTextures(1, &result->_vertexTextureBuffer);
     glGenTextures(1, &result->_vertexValenceTextureBuffer);
     glGenTextures(1, &result->_quadOffsetsTextureBuffer);
 
-    Far::PatchTable::VertexValenceTable const &
-        valenceTable = farPatchTable->GetVertexValenceTable();
-    Far::PatchTable::QuadOffsetsTable const &
-        quadOffsetsTable = farPatchTable->GetQuadOffsetsTable();
+    Far::PatchTable::VertexValenceTable const &valenceTable     = farPatchTable->GetVertexValenceTable();
+    Far::PatchTable::QuadOffsetsTable const &  quadOffsetsTable = farPatchTable->GetQuadOffsetsTable();
 
-    if (! valenceTable.empty()) {
+    if (!valenceTable.empty())
+    {
         GLuint buffer;
         glGenBuffers(1, &buffer);
         glBindBuffer(GL_ARRAY_BUFFER, buffer);
-        glBufferData(GL_ARRAY_BUFFER, valenceTable.size() * sizeof(int),
-                     &valenceTable[0], GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, valenceTable.size() * sizeof(int), &valenceTable[0], GL_STATIC_DRAW);
 
         glBindTexture(GL_TEXTURE_BUFFER, result->_vertexValenceTextureBuffer);
         glTexBuffer(GL_TEXTURE_BUFFER, GL_R32I, buffer);
@@ -76,12 +76,12 @@ GLLegacyGregoryPatchTable::Create(Far::PatchTable const *farPatchTable) {
         glDeleteBuffers(1, &buffer);
     }
 
-    if (! quadOffsetsTable.empty()) {
+    if (!quadOffsetsTable.empty())
+    {
         GLuint buffer;
         glGenBuffers(1, &buffer);
         glBindBuffer(GL_ARRAY_BUFFER, buffer);
-        glBufferData(GL_ARRAY_BUFFER, quadOffsetsTable.size() * sizeof(int),
-                     &quadOffsetsTable[0], GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, quadOffsetsTable.size() * sizeof(int), &quadOffsetsTable[0], GL_STATIC_DRAW);
 
         glBindTexture(GL_TEXTURE_BUFFER, result->_quadOffsetsTextureBuffer);
         glTexBuffer(GL_TEXTURE_BUFFER, GL_R32I, buffer);
@@ -93,10 +93,11 @@ GLLegacyGregoryPatchTable::Create(Far::PatchTable const *farPatchTable) {
     result->_quadOffsetsBase[0] = 0;
     result->_quadOffsetsBase[1] = 0;
     // scan patchtable to find quadOffsetsBase.
-    for (int i = 0; i < farPatchTable->GetNumPatchArrays(); ++i) {
+    for (int i = 0; i < farPatchTable->GetNumPatchArrays(); ++i)
+    {
         // GREGORY_BOUNDARY's quadoffsets come after GREGORY's.
-        if (farPatchTable->GetPatchArrayDescriptor(i) ==
-            Far::PatchDescriptor::GREGORY) {
+        if (farPatchTable->GetPatchArrayDescriptor(i) == Far::PatchDescriptor::GREGORY)
+        {
             result->_quadOffsetsBase[1] = farPatchTable->GetNumPatches(i) * 4;
             break;
         }
@@ -104,14 +105,14 @@ GLLegacyGregoryPatchTable::Create(Far::PatchTable const *farPatchTable) {
     return result;
 }
 
-void
-GLLegacyGregoryPatchTable::UpdateVertexBuffer(GLuint vbo) {
+void GLLegacyGregoryPatchTable::UpdateVertexBuffer(GLuint vbo)
+{
     glBindTexture(GL_TEXTURE_BUFFER, _vertexTextureBuffer);
     glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, vbo);
     glBindTexture(GL_TEXTURE_BUFFER, 0);
 }
 
-}  // end namespace Osd
+} // end namespace Osd
 
-}  // end namespace OPENSUBDIV_VERSION
-}  // end namespace OpenSubdiv
+} // end namespace OPENSUBDIV_VERSION
+} // end namespace OpenSubdiv

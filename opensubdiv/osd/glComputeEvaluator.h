@@ -25,22 +25,25 @@
 #ifndef OPENSUBDIV3_OSD_GL_COMPUTE_EVALUATOR_H
 #define OPENSUBDIV3_OSD_GL_COMPUTE_EVALUATOR_H
 
-#include "../version.h"
-
+#include "../osd/bufferDescriptor.h"
 #include "../osd/opengl.h"
 #include "../osd/types.h"
-#include "../osd/bufferDescriptor.h"
+#include "../version.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Far {
-    class PatchTable;
-    class StencilTable;
-    class LimitStencilTable;
-}
+namespace Far
+{
+class PatchTable;
+class StencilTable;
+class LimitStencilTable;
+} // namespace Far
 
-namespace Osd {
+namespace Osd
+{
 
 /// \brief GL stencil table (Shader Storage buffer)
 ///
@@ -48,17 +51,17 @@ namespace Osd {
 ///
 /// GLSLComputeKernel consumes this table to apply stencils
 ///
-class GLStencilTableSSBO {
-public:
-    static GLStencilTableSSBO *Create(Far::StencilTable const *stencilTable,
-                                       void *deviceContext = NULL) {
-        (void)deviceContext;  // unused
+class GLStencilTableSSBO
+{
+  public:
+    static GLStencilTableSSBO *Create(Far::StencilTable const *stencilTable, void *deviceContext = NULL)
+    {
+        (void)deviceContext; // unused
         return new GLStencilTableSSBO(stencilTable);
     }
-    static GLStencilTableSSBO *Create(
-        Far::LimitStencilTable const *limitStencilTable,
-        void *deviceContext = NULL) {
-        (void)deviceContext;  // unused
+    static GLStencilTableSSBO *Create(Far::LimitStencilTable const *limitStencilTable, void *deviceContext = NULL)
+    {
+        (void)deviceContext; // unused
         return new GLStencilTableSSBO(limitStencilTable);
     }
 
@@ -76,9 +79,9 @@ public:
     GLuint GetDuuWeightsBuffer() const { return _duuWeights; }
     GLuint GetDuvWeightsBuffer() const { return _duvWeights; }
     GLuint GetDvvWeightsBuffer() const { return _dvvWeights; }
-    int GetNumStencils() const { return _numStencils; }
+    int    GetNumStencils() const { return _numStencils; }
 
-private:
+  private:
     GLuint _sizes;
     GLuint _offsets;
     GLuint _indices;
@@ -88,38 +91,26 @@ private:
     GLuint _duuWeights;
     GLuint _duvWeights;
     GLuint _dvvWeights;
-    int _numStencils;
+    int    _numStencils;
 };
 
 // ---------------------------------------------------------------------------
 
-class GLComputeEvaluator {
-public:
-    typedef bool Instantiatable;
-    static GLComputeEvaluator * Create(BufferDescriptor const &srcDesc,
-                                       BufferDescriptor const &dstDesc,
-                                       BufferDescriptor const &duDesc,
-                                       BufferDescriptor const &dvDesc,
-                                       void * deviceContext = NULL) {
-        return Create(srcDesc, dstDesc, duDesc, dvDesc,
-                      BufferDescriptor(),
-                      BufferDescriptor(),
-                      BufferDescriptor(),
-                      deviceContext);
+class GLComputeEvaluator
+{
+  public:
+    typedef bool               Instantiatable;
+    static GLComputeEvaluator *Create(BufferDescriptor const &srcDesc, BufferDescriptor const &dstDesc, BufferDescriptor const &duDesc, BufferDescriptor const &dvDesc, void *deviceContext = NULL)
+    {
+        return Create(srcDesc, dstDesc, duDesc, dvDesc, BufferDescriptor(), BufferDescriptor(), BufferDescriptor(), deviceContext);
     }
 
-    static GLComputeEvaluator * Create(BufferDescriptor const &srcDesc,
-                                       BufferDescriptor const &dstDesc,
-                                       BufferDescriptor const &duDesc,
-                                       BufferDescriptor const &dvDesc,
-                                       BufferDescriptor const &duuDesc,
-                                       BufferDescriptor const &duvDesc,
-                                       BufferDescriptor const &dvvDesc,
-                                       void * deviceContext = NULL) {
-        (void)deviceContext;  // not used
+    static GLComputeEvaluator *Create(BufferDescriptor const &srcDesc, BufferDescriptor const &dstDesc, BufferDescriptor const &duDesc, BufferDescriptor const &dvDesc, BufferDescriptor const &duuDesc, BufferDescriptor const &duvDesc,
+                                      BufferDescriptor const &dvvDesc, void *deviceContext = NULL)
+    {
+        (void)deviceContext; // not used
         GLComputeEvaluator *instance = new GLComputeEvaluator();
-        if (instance->Compile(srcDesc, dstDesc, duDesc, dvDesc,
-                              duuDesc, duvDesc, dvvDesc))
+        if (instance->Compile(srcDesc, dstDesc, duDesc, dvDesc, duuDesc, duvDesc, dvvDesc))
             return instance;
         delete instance;
         return NULL;
@@ -165,27 +156,20 @@ public:
     /// @param deviceContext  not used in the GLSL kernel
     ///
     template <typename SRC_BUFFER, typename DST_BUFFER, typename STENCIL_TABLE>
-    static bool EvalStencils(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        STENCIL_TABLE const *stencilTable,
-        GLComputeEvaluator const *instance,
-        void * deviceContext = NULL) {
-
-        if (instance) {
-            return instance->EvalStencils(srcBuffer, srcDesc,
-                                          dstBuffer, dstDesc,
-                                          stencilTable);
-        } else {
+    static bool EvalStencils(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, STENCIL_TABLE const *stencilTable, GLComputeEvaluator const *instance, void *deviceContext = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalStencils(srcBuffer, srcDesc, dstBuffer, dstDesc, stencilTable);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
-            instance = Create(srcDesc, dstDesc,
-                              BufferDescriptor(),
-                              BufferDescriptor());
-            if (instance) {
-                bool r = instance->EvalStencils(srcBuffer, srcDesc,
-                                                dstBuffer, dstDesc,
-                                                stencilTable);
+            (void)deviceContext; // unused
+            instance = Create(srcDesc, dstDesc, BufferDescriptor(), BufferDescriptor());
+            if (instance)
+            {
+                bool r = instance->EvalStencils(srcBuffer, srcDesc, dstBuffer, dstDesc, stencilTable);
                 delete instance;
                 return r;
             }
@@ -233,31 +217,21 @@ public:
     /// @param deviceContext  not used in the GLSL kernel
     ///
     template <typename SRC_BUFFER, typename DST_BUFFER, typename STENCIL_TABLE>
-    static bool EvalStencils(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        STENCIL_TABLE const *stencilTable,
-        GLComputeEvaluator const *instance,
-        void * deviceContext = NULL) {
-
-        if (instance) {
-            return instance->EvalStencils(srcBuffer, srcDesc,
-                                          dstBuffer, dstDesc,
-                                          duBuffer,  duDesc,
-                                          dvBuffer,  dvDesc,
-                                          stencilTable);
-        } else {
+    static bool EvalStencils(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                             STENCIL_TABLE const *stencilTable, GLComputeEvaluator const *instance, void *deviceContext = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalStencils(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, stencilTable);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
+            (void)deviceContext; // unused
             instance = Create(srcDesc, dstDesc, duDesc, dvDesc);
-            if (instance) {
-                bool r = instance->EvalStencils(srcBuffer, srcDesc,
-                                                dstBuffer, dstDesc,
-                                                duBuffer,  duDesc,
-                                                dvBuffer,  dvDesc,
-                                                stencilTable);
+            if (instance)
+            {
+                bool r = instance->EvalStencils(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, stencilTable);
                 delete instance;
                 return r;
             }
@@ -323,41 +297,22 @@ public:
     /// @param deviceContext  not used in the GLSL kernel
     ///
     template <typename SRC_BUFFER, typename DST_BUFFER, typename STENCIL_TABLE>
-    static bool EvalStencils(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        STENCIL_TABLE const *stencilTable,
-        GLComputeEvaluator const *instance,
-        void * deviceContext = NULL) {
-
-        if (instance) {
-            return instance->EvalStencils(srcBuffer, srcDesc,
-                                          dstBuffer, dstDesc,
-                                          duBuffer,  duDesc,
-                                          dvBuffer,  dvDesc,
-                                          duuBuffer, duuDesc,
-                                          duvBuffer, duvDesc,
-                                          dvvBuffer, dvvDesc,
-                                          stencilTable);
-        } else {
+    static bool EvalStencils(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                             DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, STENCIL_TABLE const *stencilTable,
+                             GLComputeEvaluator const *instance, void *deviceContext = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalStencils(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, duuBuffer, duuDesc, duvBuffer, duvDesc, dvvBuffer, dvvDesc, stencilTable);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
-            instance = Create(srcDesc, dstDesc, duDesc, dvDesc,
-                              duuDesc, duvDesc, dvvDesc);
-            if (instance) {
-                bool r = instance->EvalStencils(srcBuffer, srcDesc,
-                                                dstBuffer, dstDesc,
-                                                duBuffer,  duDesc,
-                                                dvBuffer,  dvDesc,
-                                                duuBuffer, duuDesc,
-                                                duvBuffer, duvDesc,
-                                                dvvBuffer, dvvDesc,
-                                                stencilTable);
+            (void)deviceContext; // unused
+            instance = Create(srcDesc, dstDesc, duDesc, dvDesc, duuDesc, duvDesc, dvvDesc);
+            if (instance)
+            {
+                bool r = instance->EvalStencils(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, duuBuffer, duuDesc, duvBuffer, duvDesc, dvvBuffer, dvvDesc, stencilTable);
                 delete instance;
                 return r;
             }
@@ -382,21 +337,10 @@ public:
     /// @param stencilTable   stencil table to be applied. The table must have
     ///                       SSBO interfaces.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER, typename STENCIL_TABLE>
-    bool EvalStencils(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        STENCIL_TABLE const *stencilTable) const {
-        return EvalStencils(srcBuffer->BindVBO(), srcDesc,
-                            dstBuffer->BindVBO(), dstDesc,
-                            0, BufferDescriptor(),
-                            0, BufferDescriptor(),
-                            stencilTable->GetSizesBuffer(),
-                            stencilTable->GetOffsetsBuffer(),
-                            stencilTable->GetIndicesBuffer(),
-                            stencilTable->GetWeightsBuffer(),
-                            0,
-                            0,
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename STENCIL_TABLE> bool EvalStencils(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, STENCIL_TABLE const *stencilTable) const
+    {
+        return EvalStencils(srcBuffer->BindVBO(), srcDesc, dstBuffer->BindVBO(), dstDesc, 0, BufferDescriptor(), 0, BufferDescriptor(), stencilTable->GetSizesBuffer(), stencilTable->GetOffsetsBuffer(), stencilTable->GetIndicesBuffer(),
+                            stencilTable->GetWeightsBuffer(), 0, 0,
                             /* start = */ 0,
                             /* end   = */ stencilTable->GetNumStencils());
     }
@@ -431,22 +375,11 @@ public:
     ///                       SSBO interfaces.
     ///
     template <typename SRC_BUFFER, typename DST_BUFFER, typename STENCIL_TABLE>
-    bool EvalStencils(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        STENCIL_TABLE const *stencilTable) const {
-        return EvalStencils(srcBuffer->BindVBO(), srcDesc,
-                            dstBuffer->BindVBO(), dstDesc,
-                            duBuffer->BindVBO(),  duDesc,
-                            dvBuffer->BindVBO(),  dvDesc,
-                            stencilTable->GetSizesBuffer(),
-                            stencilTable->GetOffsetsBuffer(),
-                            stencilTable->GetIndicesBuffer(),
-                            stencilTable->GetWeightsBuffer(),
-                            stencilTable->GetDuWeightsBuffer(),
-                            stencilTable->GetDvWeightsBuffer(),
+    bool EvalStencils(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                      STENCIL_TABLE const *stencilTable) const
+    {
+        return EvalStencils(srcBuffer->BindVBO(), srcDesc, dstBuffer->BindVBO(), dstDesc, duBuffer->BindVBO(), duDesc, dvBuffer->BindVBO(), dvDesc, stencilTable->GetSizesBuffer(), stencilTable->GetOffsetsBuffer(), stencilTable->GetIndicesBuffer(),
+                            stencilTable->GetWeightsBuffer(), stencilTable->GetDuWeightsBuffer(), stencilTable->GetDvWeightsBuffer(),
                             /* start = */ 0,
                             /* end   = */ stencilTable->GetNumStencils());
     }
@@ -499,31 +432,12 @@ public:
     ///                       SSBO interfaces.
     ///
     template <typename SRC_BUFFER, typename DST_BUFFER, typename STENCIL_TABLE>
-    bool EvalStencils(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        STENCIL_TABLE const *stencilTable) const {
-        return EvalStencils(srcBuffer->BindVBO(), srcDesc,
-                            dstBuffer->BindVBO(), dstDesc,
-                            duBuffer->BindVBO(),  duDesc,
-                            dvBuffer->BindVBO(),  dvDesc,
-                            duuBuffer->BindVBO(), duuDesc,
-                            duvBuffer->BindVBO(), duvDesc,
-                            dvvBuffer->BindVBO(), dvvDesc,
-                            stencilTable->GetSizesBuffer(),
-                            stencilTable->GetOffsetsBuffer(),
-                            stencilTable->GetIndicesBuffer(),
-                            stencilTable->GetWeightsBuffer(),
-                            stencilTable->GetDuWeightsBuffer(),
-                            stencilTable->GetDvWeightsBuffer(),
-                            stencilTable->GetDuuWeightsBuffer(),
-                            stencilTable->GetDuvWeightsBuffer(),
-                            stencilTable->GetDvvWeightsBuffer(),
+    bool EvalStencils(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                      DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, STENCIL_TABLE const *stencilTable) const
+    {
+        return EvalStencils(srcBuffer->BindVBO(), srcDesc, dstBuffer->BindVBO(), dstDesc, duBuffer->BindVBO(), duDesc, dvBuffer->BindVBO(), dvDesc, duuBuffer->BindVBO(), duuDesc, duvBuffer->BindVBO(), duvDesc, dvvBuffer->BindVBO(), dvvDesc,
+                            stencilTable->GetSizesBuffer(), stencilTable->GetOffsetsBuffer(), stencilTable->GetIndicesBuffer(), stencilTable->GetWeightsBuffer(), stencilTable->GetDuWeightsBuffer(), stencilTable->GetDvWeightsBuffer(),
+                            stencilTable->GetDuuWeightsBuffer(), stencilTable->GetDuvWeightsBuffer(), stencilTable->GetDvvWeightsBuffer(),
                             /* start = */ 0,
                             /* end   = */ stencilTable->GetNumStencils());
     }
@@ -563,18 +477,8 @@ public:
     ///
     /// @param end              end index of stencil table
     ///
-    bool EvalStencils(GLuint srcBuffer, BufferDescriptor const &srcDesc,
-                      GLuint dstBuffer, BufferDescriptor const &dstDesc,
-                      GLuint duBuffer,  BufferDescriptor const &duDesc,
-                      GLuint dvBuffer,  BufferDescriptor const &dvDesc,
-                      GLuint sizesBuffer,
-                      GLuint offsetsBuffer,
-                      GLuint indicesBuffer,
-                      GLuint weightsBuffer,
-                      GLuint duWeightsBuffer,
-                      GLuint dvWeightsBuffer,
-                      int start,
-                      int end) const;
+    bool EvalStencils(GLuint srcBuffer, BufferDescriptor const &srcDesc, GLuint dstBuffer, BufferDescriptor const &dstDesc, GLuint duBuffer, BufferDescriptor const &duDesc, GLuint dvBuffer, BufferDescriptor const &dvDesc, GLuint sizesBuffer,
+                      GLuint offsetsBuffer, GLuint indicesBuffer, GLuint weightsBuffer, GLuint duWeightsBuffer, GLuint dvWeightsBuffer, int start, int end) const;
 
     /// \brief Dispatch the GLSL compute kernel on GPU asynchronously
     /// returns false if the kernel hasn't been compiled yet.
@@ -629,24 +533,9 @@ public:
     ///
     /// @param end              end index of stencil table
     ///
-    bool EvalStencils(GLuint srcBuffer, BufferDescriptor const &srcDesc,
-                      GLuint dstBuffer, BufferDescriptor const &dstDesc,
-                      GLuint duBuffer,  BufferDescriptor const &duDesc,
-                      GLuint dvBuffer,  BufferDescriptor const &dvDesc,
-                      GLuint duuBuffer, BufferDescriptor const &duuDesc,
-                      GLuint duvBuffer, BufferDescriptor const &duvDesc,
-                      GLuint dvvBuffer, BufferDescriptor const &dvvDesc,
-                      GLuint sizesBuffer,
-                      GLuint offsetsBuffer,
-                      GLuint indicesBuffer,
-                      GLuint weightsBuffer,
-                      GLuint duWeightsBuffer,
-                      GLuint dvWeightsBuffer,
-                      GLuint duuWeightsBuffer,
-                      GLuint duvWeightsBuffer,
-                      GLuint dvvWeightsBuffer,
-                      int start,
-                      int end) const;
+    bool EvalStencils(GLuint srcBuffer, BufferDescriptor const &srcDesc, GLuint dstBuffer, BufferDescriptor const &dstDesc, GLuint duBuffer, BufferDescriptor const &duDesc, GLuint dvBuffer, BufferDescriptor const &dvDesc, GLuint duuBuffer,
+                      BufferDescriptor const &duuDesc, GLuint duvBuffer, BufferDescriptor const &duvDesc, GLuint dvvBuffer, BufferDescriptor const &dvvDesc, GLuint sizesBuffer, GLuint offsetsBuffer, GLuint indicesBuffer, GLuint weightsBuffer,
+                      GLuint duWeightsBuffer, GLuint dvWeightsBuffer, GLuint duuWeightsBuffer, GLuint duvWeightsBuffer, GLuint dvvWeightsBuffer, int start, int end) const;
 
     /// ----------------------------------------------------------------------
     ///
@@ -686,33 +575,22 @@ public:
     ///
     /// @param deviceContext  not used in the GLXFB evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatches(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        GLComputeEvaluator const *instance,
-        void * deviceContext = NULL) {
-
-        if (instance) {
-            return instance->EvalPatches(srcBuffer, srcDesc,
-                                         dstBuffer, dstDesc,
-                                         numPatchCoords, patchCoords,
-                                         patchTable);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatches(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, GLComputeEvaluator const *instance,
+                            void *deviceContext = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalPatches(srcBuffer, srcDesc, dstBuffer, dstDesc, numPatchCoords, patchCoords, patchTable);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
-            instance = Create(srcDesc, dstDesc,
-                              BufferDescriptor(),
-                              BufferDescriptor());
-            if (instance) {
-                bool r = instance->EvalPatches(srcBuffer, srcDesc,
-                                               dstBuffer, dstDesc,
-                                               numPatchCoords, patchCoords,
-                                               patchTable);
+            (void)deviceContext; // unused
+            instance = Create(srcDesc, dstDesc, BufferDescriptor(), BufferDescriptor());
+            if (instance)
+            {
+                bool r = instance->EvalPatches(srcBuffer, srcDesc, dstBuffer, dstDesc, numPatchCoords, patchCoords, patchTable);
                 delete instance;
                 return r;
             }
@@ -764,38 +642,22 @@ public:
     ///
     /// @param deviceContext  not used in the GLXFB evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatches(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        GLComputeEvaluator const *instance,
-        void * deviceContext = NULL) {
-
-        if (instance) {
-            return instance->EvalPatches(srcBuffer, srcDesc,
-                                         dstBuffer, dstDesc,
-                                         duBuffer, duDesc,
-                                         dvBuffer, dvDesc,
-                                         numPatchCoords, patchCoords,
-                                         patchTable);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatches(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                            int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, GLComputeEvaluator const *instance, void *deviceContext = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalPatches(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, numPatchCoords, patchCoords, patchTable);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
-            instance = Create(srcDesc, dstDesc,
-                              duDesc, dvDesc);
-            if (instance) {
-                bool r = instance->EvalPatches(srcBuffer, srcDesc,
-                                               dstBuffer, dstDesc,
-                                               duBuffer, duDesc,
-                                               dvBuffer, dvDesc,
-                                               numPatchCoords, patchCoords,
-                                               patchTable);
+            (void)deviceContext; // unused
+            instance = Create(srcDesc, dstDesc, duDesc, dvDesc);
+            if (instance)
+            {
+                bool r = instance->EvalPatches(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, numPatchCoords, patchCoords, patchTable);
                 delete instance;
                 return r;
             }
@@ -865,48 +727,23 @@ public:
     ///
     /// @param deviceContext  not used in the GLXFB evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatches(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        GLComputeEvaluator const *instance,
-        void * deviceContext = NULL) {
-
-        if (instance) {
-            return instance->EvalPatches(srcBuffer, srcDesc,
-                                         dstBuffer, dstDesc,
-                                         duBuffer, duDesc,
-                                         dvBuffer, dvDesc,
-                                         duuBuffer, duuDesc,
-                                         duvBuffer, duvDesc,
-                                         dvvBuffer, dvvDesc,
-                                         numPatchCoords, patchCoords,
-                                         patchTable);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatches(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                            DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords,
+                            PATCH_TABLE *patchTable, GLComputeEvaluator const *instance, void *deviceContext = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalPatches(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, duuBuffer, duuDesc, duvBuffer, duvDesc, dvvBuffer, dvvDesc, numPatchCoords, patchCoords, patchTable);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
-            instance = Create(srcDesc, dstDesc,
-                              duDesc, dvDesc,
-                              duuDesc, duvDesc, dvvDesc);
-            if (instance) {
-                bool r = instance->EvalPatches(srcBuffer, srcDesc,
-                                               dstBuffer, dstDesc,
-                                               duBuffer, duDesc,
-                                               dvBuffer, dvDesc,
-                                               duuBuffer, duuDesc,
-                                               duvBuffer, duvDesc,
-                                               dvvBuffer, dvvDesc,
-                                               numPatchCoords, patchCoords,
-                                               patchTable);
+            (void)deviceContext; // unused
+            instance = Create(srcDesc, dstDesc, duDesc, dvDesc, duuDesc, duvDesc, dvvDesc);
+            if (instance)
+            {
+                bool r = instance->EvalPatches(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, duuBuffer, duuDesc, duvBuffer, duvDesc, dvvBuffer, dvvDesc, numPatchCoords, patchCoords, patchTable);
                 delete instance;
                 return r;
             }
@@ -938,23 +775,10 @@ public:
     ///
     /// @param patchTable     GLPatchTable or equivalent
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    bool EvalPatches(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable) const {
-
-        return EvalPatches(srcBuffer->BindVBO(), srcDesc,
-                           dstBuffer->BindVBO(), dstDesc,
-                           0, BufferDescriptor(),
-                           0, BufferDescriptor(),
-                           numPatchCoords,
-                           patchCoords->BindVBO(),
-                           patchTable->GetPatchArrays(),
-                           patchTable->GetPatchIndexBuffer(),
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    bool EvalPatches(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable) const
+    {
+        return EvalPatches(srcBuffer->BindVBO(), srcDesc, dstBuffer->BindVBO(), dstDesc, 0, BufferDescriptor(), 0, BufferDescriptor(), numPatchCoords, patchCoords->BindVBO(), patchTable->GetPatchArrays(), patchTable->GetPatchIndexBuffer(),
                            patchTable->GetPatchParamBuffer());
     }
 
@@ -992,25 +816,11 @@ public:
     ///
     /// @param patchTable       GLPatchTable or equivalent
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    bool EvalPatches(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable) const {
-
-        return EvalPatches(srcBuffer->BindVBO(), srcDesc,
-                           dstBuffer->BindVBO(), dstDesc,
-                           duBuffer->BindVBO(),  duDesc,
-                           dvBuffer->BindVBO(),  dvDesc,
-                           numPatchCoords,
-                           patchCoords->BindVBO(),
-                           patchTable->GetPatchArrays(),
-                           patchTable->GetPatchIndexBuffer(),
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    bool EvalPatches(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                     int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable) const
+    {
+        return EvalPatches(srcBuffer->BindVBO(), srcDesc, dstBuffer->BindVBO(), dstDesc, duBuffer->BindVBO(), duDesc, dvBuffer->BindVBO(), dvDesc, numPatchCoords, patchCoords->BindVBO(), patchTable->GetPatchArrays(), patchTable->GetPatchIndexBuffer(),
                            patchTable->GetPatchParamBuffer());
     }
 
@@ -1066,56 +876,21 @@ public:
     ///
     /// @param patchTable       GLPatchTable or equivalent
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    bool EvalPatches(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable) const {
-
-        return EvalPatches(srcBuffer->BindVBO(), srcDesc,
-                           dstBuffer->BindVBO(), dstDesc,
-                           duBuffer->BindVBO(),  duDesc,
-                           dvBuffer->BindVBO(),  dvDesc,
-                           duuBuffer->BindVBO(), duuDesc,
-                           duvBuffer->BindVBO(), duvDesc,
-                           dvvBuffer->BindVBO(), dvvDesc,
-                           numPatchCoords,
-                           patchCoords->BindVBO(),
-                           patchTable->GetPatchArrays(),
-                           patchTable->GetPatchIndexBuffer(),
-                           patchTable->GetPatchParamBuffer());
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    bool EvalPatches(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                     DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords,
+                     PATCH_TABLE *patchTable) const
+    {
+        return EvalPatches(srcBuffer->BindVBO(), srcDesc, dstBuffer->BindVBO(), dstDesc, duBuffer->BindVBO(), duDesc, dvBuffer->BindVBO(), dvDesc, duuBuffer->BindVBO(), duuDesc, duvBuffer->BindVBO(), duvDesc, dvvBuffer->BindVBO(), dvvDesc, numPatchCoords,
+                           patchCoords->BindVBO(), patchTable->GetPatchArrays(), patchTable->GetPatchIndexBuffer(), patchTable->GetPatchParamBuffer());
     }
 
-    bool EvalPatches(GLuint srcBuffer, BufferDescriptor const &srcDesc,
-                     GLuint dstBuffer, BufferDescriptor const &dstDesc,
-                     GLuint duBuffer,  BufferDescriptor const &duDesc,
-                     GLuint dvBuffer,  BufferDescriptor const &dvDesc,
-                     int numPatchCoords,
-                     GLuint patchCoordsBuffer,
-                     const PatchArrayVector &patchArrays,
-                     GLuint patchIndexBuffer,
-                     GLuint patchParamsBuffer) const;
+    bool EvalPatches(GLuint srcBuffer, BufferDescriptor const &srcDesc, GLuint dstBuffer, BufferDescriptor const &dstDesc, GLuint duBuffer, BufferDescriptor const &duDesc, GLuint dvBuffer, BufferDescriptor const &dvDesc, int numPatchCoords,
+                     GLuint patchCoordsBuffer, const PatchArrayVector &patchArrays, GLuint patchIndexBuffer, GLuint patchParamsBuffer) const;
 
-    bool EvalPatches(GLuint srcBuffer, BufferDescriptor const &srcDesc,
-                     GLuint dstBuffer, BufferDescriptor const &dstDesc,
-                     GLuint duBuffer,  BufferDescriptor const &duDesc,
-                     GLuint dvBuffer,  BufferDescriptor const &dvDesc,
-                     GLuint duuBuffer, BufferDescriptor const &duuDesc,
-                     GLuint duvBuffer, BufferDescriptor const &duvDesc,
-                     GLuint dvvBuffer, BufferDescriptor const &dvvDesc,
-                     int numPatchCoords,
-                     GLuint patchCoordsBuffer,
-                     const PatchArrayVector &patchArrays,
-                     GLuint patchIndexBuffer,
-                     GLuint patchParamsBuffer) const;
+    bool EvalPatches(GLuint srcBuffer, BufferDescriptor const &srcDesc, GLuint dstBuffer, BufferDescriptor const &dstDesc, GLuint duBuffer, BufferDescriptor const &duDesc, GLuint dvBuffer, BufferDescriptor const &dvDesc, GLuint duuBuffer,
+                     BufferDescriptor const &duuDesc, GLuint duvBuffer, BufferDescriptor const &duvDesc, GLuint dvvBuffer, BufferDescriptor const &dvvDesc, int numPatchCoords, GLuint patchCoordsBuffer, const PatchArrayVector &patchArrays,
+                     GLuint patchIndexBuffer, GLuint patchParamsBuffer) const;
 
     /// \brief Generic limit eval function. This function has a same
     ///        signature as other device kernels have so that it can be called
@@ -1149,35 +924,22 @@ public:
     ///
     /// @param deviceContext  not used in the GLXFB evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatchesVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        GLComputeEvaluator const *instance,
-        void * deviceContext = NULL) {
-
-        if (instance) {
-            return instance->EvalPatchesVarying(
-                                         srcBuffer, srcDesc,
-                                         dstBuffer, dstDesc,
-                                         numPatchCoords, patchCoords,
-                                         patchTable);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatchesVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable,
+                                   GLComputeEvaluator const *instance, void *deviceContext = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalPatchesVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, numPatchCoords, patchCoords, patchTable);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
-            instance = Create(srcDesc, dstDesc,
-                              BufferDescriptor(),
-                              BufferDescriptor());
-            if (instance) {
-                bool r = instance->EvalPatchesVarying(
-                                               srcBuffer, srcDesc,
-                                               dstBuffer, dstDesc,
-                                               numPatchCoords, patchCoords,
-                                               patchTable);
+            (void)deviceContext; // unused
+            instance = Create(srcDesc, dstDesc, BufferDescriptor(), BufferDescriptor());
+            if (instance)
+            {
+                bool r = instance->EvalPatchesVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, numPatchCoords, patchCoords, patchTable);
                 delete instance;
                 return r;
             }
@@ -1209,23 +971,10 @@ public:
     ///
     /// @param patchTable     GLPatchTable or equivalent
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    bool EvalPatchesVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable) const {
-
-        return EvalPatches(srcBuffer->BindVBO(), srcDesc,
-                           dstBuffer->BindVBO(), dstDesc,
-                           0, BufferDescriptor(),
-                           0, BufferDescriptor(),
-                           numPatchCoords,
-                           patchCoords->BindVBO(),
-                           patchTable->GetVaryingPatchArrays(),
-                           patchTable->GetVaryingPatchIndexBuffer(),
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    bool EvalPatchesVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable) const
+    {
+        return EvalPatches(srcBuffer->BindVBO(), srcDesc, dstBuffer->BindVBO(), dstDesc, 0, BufferDescriptor(), 0, BufferDescriptor(), numPatchCoords, patchCoords->BindVBO(), patchTable->GetVaryingPatchArrays(), patchTable->GetVaryingPatchIndexBuffer(),
                            patchTable->GetPatchParamBuffer());
     }
 
@@ -1273,40 +1022,22 @@ public:
     ///
     /// @param deviceContext  not used in the GLXFB evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatchesVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        GLComputeEvaluator const *instance,
-        void * deviceContext = NULL) {
-
-        if (instance) {
-            return instance->EvalPatchesVarying(
-                                         srcBuffer, srcDesc,
-                                         dstBuffer, dstDesc,
-                                         duBuffer, duDesc,
-                                         dvBuffer, dvDesc,
-                                         numPatchCoords, patchCoords,
-                                         patchTable);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatchesVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                                   int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, GLComputeEvaluator const *instance, void *deviceContext = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalPatchesVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, numPatchCoords, patchCoords, patchTable);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
-            instance = Create(srcDesc, dstDesc,
-                              duDesc, dvDesc);
-            if (instance) {
-                bool r = instance->EvalPatchesVarying(
-                                               srcBuffer, srcDesc,
-                                               dstBuffer, dstDesc,
-                                               duBuffer, duDesc,
-                                               dvBuffer, dvDesc,
-                                               numPatchCoords, patchCoords,
-                                               patchTable);
+            (void)deviceContext; // unused
+            instance = Create(srcDesc, dstDesc, duDesc, dvDesc);
+            if (instance)
+            {
+                bool r = instance->EvalPatchesVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, numPatchCoords, patchCoords, patchTable);
                 delete instance;
                 return r;
             }
@@ -1350,26 +1081,12 @@ public:
     ///
     /// @param patchTable     GLPatchTable or equivalent
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    bool EvalPatchesVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable) const {
-
-        return EvalPatches(srcBuffer->BindVBO(), srcDesc,
-                           dstBuffer->BindVBO(), dstDesc,
-                           duBuffer->BindVBO(),  duDesc,
-                           dvBuffer->BindVBO(),  dvDesc,
-                           numPatchCoords,
-                           patchCoords->BindVBO(),
-                           patchTable->GetVaryingPatchArrays(),
-                           patchTable->GetVaryingPatchIndexBuffer(),
-                           patchTable->GetPatchParamBuffer());
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    bool EvalPatchesVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                            int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable) const
+    {
+        return EvalPatches(srcBuffer->BindVBO(), srcDesc, dstBuffer->BindVBO(), dstDesc, duBuffer->BindVBO(), duDesc, dvBuffer->BindVBO(), dvDesc, numPatchCoords, patchCoords->BindVBO(), patchTable->GetVaryingPatchArrays(),
+                           patchTable->GetVaryingPatchIndexBuffer(), patchTable->GetPatchParamBuffer());
     }
 
     /// \brief Generic limit eval function. This function has a same
@@ -1434,50 +1151,23 @@ public:
     ///
     /// @param deviceContext  not used in the GLXFB evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatchesVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        GLComputeEvaluator const *instance,
-        void * deviceContext = NULL) {
-
-        if (instance) {
-            return instance->EvalPatchesVarying(
-                                         srcBuffer, srcDesc,
-                                         dstBuffer, dstDesc,
-                                         duBuffer, duDesc,
-                                         dvBuffer, dvDesc,
-                                         duuBuffer, duuDesc,
-                                         duvBuffer, duvDesc,
-                                         dvvBuffer, dvvDesc,
-                                         numPatchCoords, patchCoords,
-                                         patchTable);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatchesVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                                   DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords,
+                                   PATCH_TABLE *patchTable, GLComputeEvaluator const *instance, void *deviceContext = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalPatchesVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, duuBuffer, duuDesc, duvBuffer, duvDesc, dvvBuffer, dvvDesc, numPatchCoords, patchCoords, patchTable);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
-            instance = Create(srcDesc, dstDesc,
-                              duDesc, dvDesc,
-                              duuDesc, duvDesc, dvvDesc);
-            if (instance) {
-                bool r = instance->EvalPatchesVarying(
-                                               srcBuffer, srcDesc,
-                                               dstBuffer, dstDesc,
-                                               duBuffer, duDesc,
-                                               dvBuffer, dvDesc,
-                                               duuBuffer, duuDesc,
-                                               duvBuffer, duvDesc,
-                                               dvvBuffer, dvvDesc,
-                                               numPatchCoords, patchCoords,
-                                               patchTable);
+            (void)deviceContext; // unused
+            instance = Create(srcDesc, dstDesc, duDesc, dvDesc, duuDesc, duvDesc, dvvDesc);
+            if (instance)
+            {
+                bool r = instance->EvalPatchesVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, duuBuffer, duuDesc, duvBuffer, duvDesc, dvvBuffer, dvvDesc, numPatchCoords, patchCoords, patchTable);
                 delete instance;
                 return r;
             }
@@ -1539,32 +1229,13 @@ public:
     ///
     /// @param patchTable     GLPatchTable or equivalent
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    bool EvalPatchesVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable) const {
-
-        return EvalPatches(srcBuffer->BindVBO(), srcDesc,
-                           dstBuffer->BindVBO(), dstDesc,
-                           duBuffer->BindVBO(), duDesc,
-                           dvBuffer->BindVBO(), dvDesc,
-                           duuBuffer->BindVBO(), duuDesc,
-                           duvBuffer->BindVBO(), duvDesc,
-                           dvvBuffer->BindVBO(), dvvDesc,
-                           numPatchCoords,
-                           patchCoords->BindVBO(),
-                           patchTable->GetVaryingPatchArrays(),
-                           patchTable->GetVaryingPatchIndexBuffer(),
-                           patchTable->GetPatchParamBuffer());
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    bool EvalPatchesVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                            DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords,
+                            PATCH_TABLE *patchTable) const
+    {
+        return EvalPatches(srcBuffer->BindVBO(), srcDesc, dstBuffer->BindVBO(), dstDesc, duBuffer->BindVBO(), duDesc, dvBuffer->BindVBO(), dvDesc, duuBuffer->BindVBO(), duuDesc, duvBuffer->BindVBO(), duvDesc, dvvBuffer->BindVBO(), dvvDesc, numPatchCoords,
+                           patchCoords->BindVBO(), patchTable->GetVaryingPatchArrays(), patchTable->GetVaryingPatchIndexBuffer(), patchTable->GetPatchParamBuffer());
     }
 
     /// \brief Generic limit eval function. This function has a same
@@ -1601,36 +1272,22 @@ public:
     ///
     /// @param deviceContext  not used in the GLXFB evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatchesFaceVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        int fvarChannel,
-        GLComputeEvaluator const *instance,
-        void * deviceContext = NULL) {
-
-        if (instance) {
-            return instance->EvalPatchesFaceVarying(
-                                         srcBuffer, srcDesc,
-                                         dstBuffer, dstDesc,
-                                         numPatchCoords, patchCoords,
-                                         patchTable, fvarChannel);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatchesFaceVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, int fvarChannel,
+                                       GLComputeEvaluator const *instance, void *deviceContext = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalPatchesFaceVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, numPatchCoords, patchCoords, patchTable, fvarChannel);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
-            instance = Create(srcDesc, dstDesc,
-                              BufferDescriptor(),
-                              BufferDescriptor());
-            if (instance) {
-                bool r = instance->EvalPatchesFaceVarying(
-                                               srcBuffer, srcDesc,
-                                               dstBuffer, dstDesc,
-                                               numPatchCoords, patchCoords,
-                                               patchTable, fvarChannel);
+            (void)deviceContext; // unused
+            instance = Create(srcDesc, dstDesc, BufferDescriptor(), BufferDescriptor());
+            if (instance)
+            {
+                bool r = instance->EvalPatchesFaceVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, numPatchCoords, patchCoords, patchTable, fvarChannel);
                 delete instance;
                 return r;
             }
@@ -1664,25 +1321,11 @@ public:
     ///
     /// @param fvarChannel    face-varying channel
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    bool EvalPatchesFaceVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        int fvarChannel = 0) const {
-
-        return EvalPatches(srcBuffer->BindVBO(), srcDesc,
-                           dstBuffer->BindVBO(), dstDesc,
-                           0, BufferDescriptor(),
-                           0, BufferDescriptor(),
-                           numPatchCoords,
-                           patchCoords->BindVBO(),
-                           patchTable->GetFVarPatchArrays(fvarChannel),
-                           patchTable->GetFVarPatchIndexBuffer(fvarChannel),
-                           patchTable->GetFVarPatchParamBuffer(fvarChannel));
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    bool EvalPatchesFaceVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, int fvarChannel = 0) const
+    {
+        return EvalPatches(srcBuffer->BindVBO(), srcDesc, dstBuffer->BindVBO(), dstDesc, 0, BufferDescriptor(), 0, BufferDescriptor(), numPatchCoords, patchCoords->BindVBO(), patchTable->GetFVarPatchArrays(fvarChannel),
+                           patchTable->GetFVarPatchIndexBuffer(fvarChannel), patchTable->GetFVarPatchParamBuffer(fvarChannel));
     }
 
     /// \brief Generic limit eval function. This function has a same
@@ -1731,41 +1374,22 @@ public:
     ///
     /// @param deviceContext  not used in the GLXFB evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatchesFaceVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        int fvarChannel,
-        GLComputeEvaluator const *instance,
-        void * deviceContext = NULL) {
-
-        if (instance) {
-            return instance->EvalPatchesFaceVarying(
-                                         srcBuffer, srcDesc,
-                                         dstBuffer, dstDesc,
-                                         duBuffer, duDesc,
-                                         dvBuffer, dvDesc,
-                                         numPatchCoords, patchCoords,
-                                         patchTable, fvarChannel);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatchesFaceVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer,
+                                       BufferDescriptor const &dvDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, int fvarChannel, GLComputeEvaluator const *instance, void *deviceContext = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalPatchesFaceVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, numPatchCoords, patchCoords, patchTable, fvarChannel);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
-            instance = Create(srcDesc, dstDesc,
-                              duDesc, dvDesc);
-            if (instance) {
-                bool r = instance->EvalPatchesFaceVarying(
-                                               srcBuffer, srcDesc,
-                                               dstBuffer, dstDesc,
-                                               duBuffer, duDesc,
-                                               dvBuffer, dvDesc,
-                                               numPatchCoords, patchCoords,
-                                               patchTable, fvarChannel);
+            (void)deviceContext; // unused
+            instance = Create(srcDesc, dstDesc, duDesc, dvDesc);
+            if (instance)
+            {
+                bool r = instance->EvalPatchesFaceVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, numPatchCoords, patchCoords, patchTable, fvarChannel);
                 delete instance;
                 return r;
             }
@@ -1811,27 +1435,12 @@ public:
     ///
     /// @param fvarChannel    face-varying channel
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    bool EvalPatchesFaceVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        int fvarChannel = 0) const {
-
-        return EvalPatches(srcBuffer->BindVBO(), srcDesc,
-                           dstBuffer->BindVBO(), dstDesc,
-                           duBuffer->BindVBO(), duDesc,
-                           dvBuffer->BindVBO(), dvDesc,
-                           numPatchCoords,
-                           patchCoords->BindVBO(),
-                           patchTable->GetFVarPatchArrays(fvarChannel),
-                           patchTable->GetFVarPatchIndexBuffer(fvarChannel),
-                           patchTable->GetFVarPatchParamBuffer(fvarChannel));
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    bool EvalPatchesFaceVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                                int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, int fvarChannel = 0) const
+    {
+        return EvalPatches(srcBuffer->BindVBO(), srcDesc, dstBuffer->BindVBO(), dstDesc, duBuffer->BindVBO(), duDesc, dvBuffer->BindVBO(), dvDesc, numPatchCoords, patchCoords->BindVBO(), patchTable->GetFVarPatchArrays(fvarChannel),
+                           patchTable->GetFVarPatchIndexBuffer(fvarChannel), patchTable->GetFVarPatchParamBuffer(fvarChannel));
     }
 
     /// \brief Generic limit eval function. This function has a same
@@ -1898,51 +1507,23 @@ public:
     ///
     /// @param deviceContext  not used in the GLXFB evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatchesFaceVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        int fvarChannel,
-        GLComputeEvaluator const *instance,
-        void * deviceContext = NULL) {
-
-        if (instance) {
-            return instance->EvalPatchesFaceVarying(
-                                         srcBuffer, srcDesc,
-                                         dstBuffer, dstDesc,
-                                         duBuffer, duDesc,
-                                         dvBuffer, dvDesc,
-                                         duuBuffer, duuDesc,
-                                         duvBuffer, duvDesc,
-                                         dvvBuffer, dvvDesc,
-                                         numPatchCoords, patchCoords,
-                                         patchTable, fvarChannel);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatchesFaceVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer,
+                                       BufferDescriptor const &dvDesc, DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
+                                       int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, int fvarChannel, GLComputeEvaluator const *instance, void *deviceContext = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalPatchesFaceVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, duuBuffer, duuDesc, duvBuffer, duvDesc, dvvBuffer, dvvDesc, numPatchCoords, patchCoords, patchTable, fvarChannel);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
-            instance = Create(srcDesc, dstDesc,
-                              duDesc, dvDesc,
-                              duuDesc, duvDesc, dvvDesc);
-            if (instance) {
-                bool r = instance->EvalPatchesFaceVarying(
-                                               srcBuffer, srcDesc,
-                                               dstBuffer, dstDesc,
-                                               duBuffer, duDesc,
-                                               dvBuffer, dvDesc,
-                                               duuBuffer, duuDesc,
-                                               duvBuffer, duvDesc,
-                                               dvvBuffer, dvvDesc,
-                                               numPatchCoords, patchCoords,
-                                               patchTable, fvarChannel);
+            (void)deviceContext; // unused
+            instance = Create(srcDesc, dstDesc, duDesc, dvDesc, duuDesc, duvDesc, dvvDesc);
+            if (instance)
+            {
+                bool r = instance->EvalPatchesFaceVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, duuBuffer, duuDesc, duvBuffer, duvDesc, dvvBuffer, dvvDesc, numPatchCoords, patchCoords, patchTable, fvarChannel);
                 delete instance;
                 return r;
             }
@@ -2006,33 +1587,13 @@ public:
     ///
     /// @param fvarChannel    face-varying channel
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    bool EvalPatchesFaceVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        int fvarChannel = 0) const {
-
-        return EvalPatches(srcBuffer->BindVBO(), srcDesc,
-                           dstBuffer->BindVBO(), dstDesc,
-                           duBuffer->BindVBO(), duDesc,
-                           dvBuffer->BindVBO(), dvDesc,
-                           duuBuffer->BindVBO(), duuDesc,
-                           duvBuffer->BindVBO(), duvDesc,
-                           dvvBuffer->BindVBO(), dvvDesc,
-                           numPatchCoords,
-                           patchCoords->BindVBO(),
-                           patchTable->GetFVarPatchArrays(fvarChannel),
-                           patchTable->GetFVarPatchIndexBuffer(fvarChannel),
-                           patchTable->GetFVarPatchParamBuffer(fvarChannel));
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    bool EvalPatchesFaceVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                                DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords,
+                                PATCH_TABLE *patchTable, int fvarChannel = 0) const
+    {
+        return EvalPatches(srcBuffer->BindVBO(), srcDesc, dstBuffer->BindVBO(), dstDesc, duBuffer->BindVBO(), duDesc, dvBuffer->BindVBO(), dvDesc, duuBuffer->BindVBO(), duuDesc, duvBuffer->BindVBO(), duvDesc, dvvBuffer->BindVBO(), dvvDesc, numPatchCoords,
+                           patchCoords->BindVBO(), patchTable->GetFVarPatchArrays(fvarChannel), patchTable->GetFVarPatchIndexBuffer(fvarChannel), patchTable->GetFVarPatchParamBuffer(fvarChannel));
     }
 
     /// ----------------------------------------------------------------------
@@ -2043,29 +1604,19 @@ public:
 
     /// Configure GLSL kernel. A valid GL context must be made current before
     /// calling this function. Returns false if it fails to compile the kernel.
-    bool Compile(BufferDescriptor const &srcDesc,
-                 BufferDescriptor const &dstDesc,
-                 BufferDescriptor const &duDesc = BufferDescriptor(),
-                 BufferDescriptor const &dvDesc = BufferDescriptor(),
-                 BufferDescriptor const &duuDesc = BufferDescriptor(),
-                 BufferDescriptor const &duvDesc = BufferDescriptor(),
-                 BufferDescriptor const &dvvDesc = BufferDescriptor());
+    bool Compile(BufferDescriptor const &srcDesc, BufferDescriptor const &dstDesc, BufferDescriptor const &duDesc = BufferDescriptor(), BufferDescriptor const &dvDesc = BufferDescriptor(), BufferDescriptor const &duuDesc = BufferDescriptor(),
+                 BufferDescriptor const &duvDesc = BufferDescriptor(), BufferDescriptor const &dvvDesc = BufferDescriptor());
 
     /// Wait the dispatched kernel finishes.
     static void Synchronize(void *deviceContext);
 
-private:
-    struct _StencilKernel {
+  private:
+    struct _StencilKernel
+    {
         _StencilKernel();
         ~_StencilKernel();
-        bool Compile(BufferDescriptor const &srcDesc,
-                     BufferDescriptor const &dstDesc,
-                     BufferDescriptor const &duDesc,
-                     BufferDescriptor const &dvDesc,
-                     BufferDescriptor const &duuDesc,
-                     BufferDescriptor const &duvDesc,
-                     BufferDescriptor const &dvvDesc,
-                     int workGroupSize);
+        bool   Compile(BufferDescriptor const &srcDesc, BufferDescriptor const &dstDesc, BufferDescriptor const &duDesc, BufferDescriptor const &dvDesc, BufferDescriptor const &duuDesc, BufferDescriptor const &duvDesc, BufferDescriptor const &dvvDesc,
+                       int workGroupSize);
         GLuint program;
         GLuint uniformStart;
         GLuint uniformEnd;
@@ -2078,17 +1629,12 @@ private:
         GLuint uniformDvvDesc;
     } _stencilKernel;
 
-    struct _PatchKernel {
+    struct _PatchKernel
+    {
         _PatchKernel();
         ~_PatchKernel();
-        bool Compile(BufferDescriptor const &srcDesc,
-                     BufferDescriptor const &dstDesc,
-                     BufferDescriptor const &duDesc,
-                     BufferDescriptor const &dvDesc,
-                     BufferDescriptor const &duuDesc,
-                     BufferDescriptor const &duvDesc,
-                     BufferDescriptor const &dvvDesc,
-                     int workGroupSize);
+        bool   Compile(BufferDescriptor const &srcDesc, BufferDescriptor const &dstDesc, BufferDescriptor const &duDesc, BufferDescriptor const &dvDesc, BufferDescriptor const &duuDesc, BufferDescriptor const &duvDesc, BufferDescriptor const &dvvDesc,
+                       int workGroupSize);
         GLuint program;
         GLuint uniformSrcOffset;
         GLuint uniformDstOffset;
@@ -2100,16 +1646,15 @@ private:
         GLuint uniformDvvDesc;
     } _patchKernel;
 
-    int _workGroupSize;
+    int    _workGroupSize;
     GLuint _patchArraysSSBO;
 };
 
-}  // end namespace Osd
+} // end namespace Osd
 
-}  // end namespace OPENSUBDIV_VERSION
+} // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;
 
-}  // end namespace OpenSubdiv
+} // end namespace OpenSubdiv
 
-
-#endif  // OPENSUBDIV3_OSD_GL_COMPUTE_EVALUATOR_H
+#endif // OPENSUBDIV3_OSD_GL_COMPUTE_EVALUATOR_H

@@ -25,17 +25,19 @@
 #ifndef OPENSUBDIV3_BFR_SURFACE_FACTORY_CACHE_H
 #define OPENSUBDIV3_BFR_SURFACE_FACTORY_CACHE_H
 
-#include "../version.h"
+#include <cstdint>
+#include <map>
 
 #include "../bfr/irregularPatchType.h"
+#include "../version.h"
 
-#include <map>
-#include <cstdint>
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Bfr {
+namespace Bfr
+{
 
 ///
 /// @brief Container used internally by SurfaceFactory to store reusable
@@ -56,15 +58,16 @@ namespace Bfr {
 //  factories, additional options and/or public methods may be warranted
 //  to limit what is cached or to prune the cache if it gets too large.
 //
-class SurfaceFactoryCache {
-public:
+class SurfaceFactoryCache
+{
+  public:
     SurfaceFactoryCache();
     virtual ~SurfaceFactoryCache();
 
     SurfaceFactoryCache(SurfaceFactoryCache const &) = delete;
-    SurfaceFactoryCache & operator=(SurfaceFactoryCache const &) = delete;
+    SurfaceFactoryCache &operator=(SurfaceFactoryCache const &) = delete;
 
-protected:
+  protected:
     /// @cond PROTECTED
     //  Access restricted to the Factory, its Builders, etc.
     friend class SurfaceFactory;
@@ -73,24 +76,24 @@ protected:
     typedef internal::IrregularPatchSharedPtr DataType;
     /// @endcond PROTECTED
 
-protected:
+  protected:
     /// @cond PROTECTED
     size_t Size() const { return _map.size(); }
 
     //
     //  Potential overrides by subclasses for thread-safety:
     //
-    virtual DataType Find(KeyType const & key) const;
-    virtual DataType Add(KeyType const & key, DataType const & data);
+    virtual DataType Find(KeyType const &key) const;
+    virtual DataType Add(KeyType const &key, DataType const &data);
 
     //
     //  Common implementation used by all subclasses:
     //
-    DataType find(KeyType const & key) const;
-    DataType add(KeyType const & key, DataType const & data);
+    DataType find(KeyType const &key) const;
+    DataType add(KeyType const &key, DataType const &data);
     /// @endcond PROTECTED
 
-private:
+  private:
     typedef std::map<KeyType, DataType> MapType;
 
     MapType _map;
@@ -112,31 +115,32 @@ private:
 ///
 //  Separate read and write locks are provided to support mutex types
 //  allowing shared (read) or exclusive (write) access.
-// 
-template <class MUTEX_TYPE, class READ_LOCK_GUARD_TYPE,
-                            class WRITE_LOCK_GUARD_TYPE>
-class SurfaceFactoryCacheThreaded : public SurfaceFactoryCache {
-public:
-    SurfaceFactoryCacheThreaded() : SurfaceFactoryCache() { }
+//
+template <class MUTEX_TYPE, class READ_LOCK_GUARD_TYPE, class WRITE_LOCK_GUARD_TYPE> class SurfaceFactoryCacheThreaded : public SurfaceFactoryCache
+{
+  public:
+    SurfaceFactoryCacheThreaded() : SurfaceFactoryCache() {}
     ~SurfaceFactoryCacheThreaded() override = default;
 
-protected:
+  protected:
     /// @cond PROTECTED
     //
     //  Virtual overrides from base:
     //
-    DataType Find(KeyType const & key) const override {
+    DataType Find(KeyType const &key) const override
+    {
         READ_LOCK_GUARD_TYPE lockGuard(_mutex);
         return find(key);
     }
 
-    DataType Add(KeyType const & key, DataType const & data) override {
+    DataType Add(KeyType const &key, DataType const &data) override
+    {
         WRITE_LOCK_GUARD_TYPE lockGuard(_mutex);
         return add(key, data);
     }
     /// @endcond PROTECTED
 
-private:
+  private:
     MUTEX_TYPE mutable _mutex;
 };
 

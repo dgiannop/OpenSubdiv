@@ -26,10 +26,13 @@
 
 #include "../version.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Sdc {
+namespace Sdc
+{
 
 ///
 ///  \brief All supported options applying to subdivision scheme.
@@ -48,68 +51,69 @@ namespace Sdc {
 ///  remains light weight and easily passed around by value.
 ///
 
-class Options {
-public:
-    enum VtxBoundaryInterpolation {
-        VTX_BOUNDARY_NONE = 0,        ///< no boundary interpolation, except where
-                                      ///< boundary edges were explicitly sharpened
-        VTX_BOUNDARY_EDGE_ONLY,       ///< all boundary edges sharpened and interpolated
-        VTX_BOUNDARY_EDGE_AND_CORNER  ///< all boundary edges and corner vertices
-                                      ///< sharpened and interpolated
+class Options
+{
+  public:
+    enum VtxBoundaryInterpolation
+    {
+        VTX_BOUNDARY_NONE = 0,       ///< no boundary interpolation, except where
+                                     ///< boundary edges were explicitly sharpened
+        VTX_BOUNDARY_EDGE_ONLY,      ///< all boundary edges sharpened and interpolated
+        VTX_BOUNDARY_EDGE_AND_CORNER ///< all boundary edges and corner vertices
+                                     ///< sharpened and interpolated
     };
-    enum FVarLinearInterpolation {
-        FVAR_LINEAR_NONE = 0,         ///< smooth everywhere ("edge only")
-        FVAR_LINEAR_CORNERS_ONLY,     ///< sharpen corners only
-        FVAR_LINEAR_CORNERS_PLUS1,    ///< ("edge corner")
-        FVAR_LINEAR_CORNERS_PLUS2,    ///< ("edge and corner + propagate corner")
-        FVAR_LINEAR_BOUNDARIES,       ///< sharpen all boundaries ("always sharp")
-        FVAR_LINEAR_ALL               ///< bilinear interpolation ("bilinear")
+    enum FVarLinearInterpolation
+    {
+        FVAR_LINEAR_NONE = 0,      ///< smooth everywhere ("edge only")
+        FVAR_LINEAR_CORNERS_ONLY,  ///< sharpen corners only
+        FVAR_LINEAR_CORNERS_PLUS1, ///< ("edge corner")
+        FVAR_LINEAR_CORNERS_PLUS2, ///< ("edge and corner + propagate corner")
+        FVAR_LINEAR_BOUNDARIES,    ///< sharpen all boundaries ("always sharp")
+        FVAR_LINEAR_ALL            ///< bilinear interpolation ("bilinear")
     };
-    enum CreasingMethod {
-        CREASE_UNIFORM = 0,           ///< Catmark rule
-        CREASE_CHAIKIN                ///< Chaikin rule
+    enum CreasingMethod
+    {
+        CREASE_UNIFORM = 0, ///< Catmark rule
+        CREASE_CHAIKIN      ///< Chaikin rule
     };
-    enum TriangleSubdivision {
-        TRI_SUB_CATMARK = 0,          ///< Catmark weights (Catmark scheme only)
-        TRI_SUB_SMOOTH                ///< "smooth triangle" weights (Catmark scheme only)
+    enum TriangleSubdivision
+    {
+        TRI_SUB_CATMARK = 0, ///< Catmark weights (Catmark scheme only)
+        TRI_SUB_SMOOTH       ///< "smooth triangle" weights (Catmark scheme only)
     };
 
-public:
-
-    Options() : _vtxBoundInterp(VTX_BOUNDARY_NONE),
-                _fvarLinInterp(FVAR_LINEAR_ALL),
-                _creasingMethod(CREASE_UNIFORM),
-                _triangleSub(TRI_SUB_CATMARK) { }
+  public:
+    Options() : _vtxBoundInterp(VTX_BOUNDARY_NONE), _fvarLinInterp(FVAR_LINEAR_ALL), _creasingMethod(CREASE_UNIFORM), _triangleSub(TRI_SUB_CATMARK) {}
 
     //
     //  Trivial get/set methods:
     //
 
     /// \brief Get vertex boundary interpolation rule
-    VtxBoundaryInterpolation GetVtxBoundaryInterpolation() const { return (VtxBoundaryInterpolation) _vtxBoundInterp; }
+    VtxBoundaryInterpolation GetVtxBoundaryInterpolation() const { return (VtxBoundaryInterpolation)_vtxBoundInterp; }
 
     /// \brief Set vertex boundary interpolation rule
-    void SetVtxBoundaryInterpolation(VtxBoundaryInterpolation b) { _vtxBoundInterp = (EnumIntType) b; }
+    void SetVtxBoundaryInterpolation(VtxBoundaryInterpolation b) { _vtxBoundInterp = (EnumIntType)b; }
 
     /// \brief Get face-varying interpolation rule
-    FVarLinearInterpolation GetFVarLinearInterpolation() const { return (FVarLinearInterpolation) _fvarLinInterp; }
+    FVarLinearInterpolation GetFVarLinearInterpolation() const { return (FVarLinearInterpolation)_fvarLinInterp; }
 
     /// \brief Set face-varying interpolation rule
-    void SetFVarLinearInterpolation(FVarLinearInterpolation b) { _fvarLinInterp = (EnumIntType) b; }
+    void SetFVarLinearInterpolation(FVarLinearInterpolation b) { _fvarLinInterp = (EnumIntType)b; }
 
     /// \brief Get edge crease rule
-    CreasingMethod GetCreasingMethod() const { return (CreasingMethod) _creasingMethod; }
+    CreasingMethod GetCreasingMethod() const { return (CreasingMethod)_creasingMethod; }
 
     /// \brief Set edge crease rule
-    void SetCreasingMethod(CreasingMethod c) { _creasingMethod = (EnumIntType) c; }
+    void SetCreasingMethod(CreasingMethod c) { _creasingMethod = (EnumIntType)c; }
 
     /// \brief Get triangle subdivision weights rule (Catmark scheme only !)
-    TriangleSubdivision GetTriangleSubdivision() const { return (TriangleSubdivision) _triangleSub; }
+    TriangleSubdivision GetTriangleSubdivision() const { return (TriangleSubdivision)_triangleSub; }
 
     /// \brief Set triangle subdivision weights rule (Catmark scheme only !)
-    void SetTriangleSubdivision(TriangleSubdivision t) { _triangleSub = (EnumIntType) t; }
+    void SetTriangleSubdivision(TriangleSubdivision t) { _triangleSub = (EnumIntType)t; }
 
-private:
+  private:
     //  Use a small integer type to pack these rather than bitfields:
     typedef unsigned char EnumIntType;
 
@@ -119,7 +123,7 @@ private:
     EnumIntType _triangleSub;
 };
 
-} // end namespace sdc
+} // namespace Sdc
 
 } // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;

@@ -28,18 +28,19 @@
 #include "glLoader.h"
 
 #include <cstdio>
-#include <string>
 #include <iostream>
+#include <string>
 
-namespace GLUtils {
+namespace GLUtils
+{
 
 void InitializeGL();
 
-void SetMinimumGLVersion(int argc=0, char **argv=NULL);
+void SetMinimumGLVersion(int argc = 0, char **argv = NULL);
 
 void PrintGLVersion();
 
-void CheckGLErrors(std::string const & where = "");
+void CheckGLErrors(std::string const &where = "");
 
 GLuint CompileShader(GLenum shaderType, const char *source);
 
@@ -51,7 +52,7 @@ bool SupportsAdaptiveTessellation();
 // major and minor version from it.
 void GetMajorMinorVersion(int *major, int *minor);
 
-// Gets the shader version based on the current opengl version and returns 
+// Gets the shader version based on the current opengl version and returns
 // it in a string form.
 std::string GetShaderVersion();
 
@@ -61,8 +62,6 @@ bool GL_ARBSeparateShaderObjectsOrGL_VERSION_4_1();
 
 bool GL_ARBComputeShaderOrGL_VERSION_4_3();
 
-};
+}; // namespace GLUtils
 
-#endif  // OPENSUBDIV_EXAMPLES_GL_UTILS_H
-
-
+#endif // OPENSUBDIV_EXAMPLES_GL_UTILS_H

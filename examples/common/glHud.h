@@ -29,30 +29,28 @@
 
 #include "hud.h"
 
-class GLhud : public Hud {
+class GLhud : public Hud
+{
 
-public:
+  public:
     GLhud();
     ~GLhud();
 
     virtual void Init(int width, int height, int framebufferWidth, int framebufferHeight);
 
-    virtual void Rebuild(int width, int height,
-                         int framebufferWidth, int framebufferHeight);
+    virtual void Rebuild(int width, int height, int framebufferWidth, int framebufferHeight);
 
     virtual bool Flush();
 
-    GLuint GetFontTexture() const {
-        return _fontTexture;
-    }
+    GLuint GetFontTexture() const { return _fontTexture; }
 
     void FillBackground();
 
-private:
+  private:
     GLuint _fontTexture;
     GLuint _vbo, _staticVbo;
     GLuint _vao, _staticVao, _bgVao;
-    int _staticVboSize;
+    int    _staticVboSize;
 
     GLint _program;
     GLint _mvpMatrix;
@@ -60,4 +58,4 @@ private:
     GLint _bgProgram;
 };
 
-#endif  // OPENSUBDIV_EXAMPLES_GL_HUD_H
+#endif // OPENSUBDIV_EXAMPLES_GL_HUD_H

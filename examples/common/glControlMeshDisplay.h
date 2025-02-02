@@ -29,13 +29,13 @@
 
 #include <opensubdiv/far/topologyLevel.h>
 
-class GLControlMeshDisplay {
-public:
+class GLControlMeshDisplay
+{
+  public:
     GLControlMeshDisplay();
     ~GLControlMeshDisplay();
 
-    void Draw(GLuint pointsVBO, GLint stride,
-              const float *modelViewProjectionMatrix);
+    void Draw(GLuint pointsVBO, GLint stride, const float *modelViewProjectionMatrix);
 
     void SetTopology(OpenSubdiv::Far::TopologyLevel const &level);
 
@@ -44,7 +44,7 @@ public:
     bool GetVerticesDisplay() const { return _displayVertices; }
     void SetVerticesDisplay(bool display) { _displayVertices = display; }
 
-private:
+  private:
     bool createProgram();
 
     bool _displayEdges;
@@ -65,4 +65,4 @@ private:
     int _numEdges, _numPoints;
 };
 
-#endif  // OPENSUBDIV_EXAMPLES_GL_CONTROL_MESH_DISPLAY_H
+#endif // OPENSUBDIV_EXAMPLES_GL_CONTROL_MESH_DISPLAY_H

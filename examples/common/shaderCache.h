@@ -27,33 +27,37 @@
 
 #include <map>
 
-template <typename DESC_TYPE, typename CONFIG_TYPE>
-class ShaderCacheT {
-public:
-    typedef DESC_TYPE DescType;
-    typedef CONFIG_TYPE ConfigType;
+template <typename DESC_TYPE, typename CONFIG_TYPE> class ShaderCacheT
+{
+  public:
+    typedef DESC_TYPE                        DescType;
+    typedef CONFIG_TYPE                      ConfigType;
     typedef std::map<DescType, ConfigType *> ConfigMap;
 
-    virtual ~ShaderCacheT() {
-        Reset();
-    }
+    virtual ~ShaderCacheT() { Reset(); }
 
-    void Reset() {
-        for (typename ConfigMap::iterator it = _configMap.begin();
-             it != _configMap.end(); ++it) {
+    void Reset()
+    {
+        for (typename ConfigMap::iterator it = _configMap.begin(); it != _configMap.end(); ++it)
+        {
             delete it->second;
         }
         _configMap.clear();
     }
 
     // fetch shader config
-    ConfigType * GetDrawConfig(DescType const & desc) {
+    ConfigType *GetDrawConfig(DescType const &desc)
+    {
         typename ConfigMap::iterator it = _configMap.find(desc);
-        if (it != _configMap.end()) {
+        if (it != _configMap.end())
+        {
             return it->second;
-        } else {
-            ConfigType * config = CreateDrawConfig(desc);
-            if (config) {
+        }
+        else
+        {
+            ConfigType *config = CreateDrawConfig(desc);
+            if (config)
+            {
                 _configMap[desc] = config;
             }
             return config;
@@ -62,9 +66,8 @@ public:
 
     virtual ConfigType *CreateDrawConfig(DescType const &desc) = 0;
 
-private:
+  private:
     ConfigMap _configMap;
 };
 
-
-#endif  // OPENSUBDIV_EXAMPLES_SHADER_CACHE_H
+#endif // OPENSUBDIV_EXAMPLES_SHADER_CACHE_H

@@ -25,22 +25,26 @@
 #ifndef OPENSUBDIV3_BFR_POINT_OPERATIONS_H
 #define OPENSUBDIV3_BFR_POINT_OPERATIONS_H
 
-#include "../version.h"
-
-#include <cstring>
 #include <cassert>
 #include <cstdio>
+#include <cstring>
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+#include "../version.h"
 
-namespace Bfr {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
+
+namespace Bfr
+{
 
 //
 //  Internal utilities for efficiently dealing with single and multiple
 //  floating point tuples, i.e. "points":
 //
-namespace points {
+namespace points
+{
 
 //
 //  Simple classes for primitive point operations -- to be specialized for
@@ -52,82 +56,88 @@ namespace points {
 //  Combining the two can lead to undesired ambiguities with the desired
 //  partial specializations.
 //
-template <typename REAL, int SIZE>
-struct PointBuilder {
-    static void Set(REAL pDst[], REAL w, REAL const pSrc[], int size) {
-        for (int i = 0; i < size; ++i) {
+template <typename REAL, int SIZE> struct PointBuilder
+{
+    static void Set(REAL pDst[], REAL w, REAL const pSrc[], int size)
+    {
+        for (int i = 0; i < size; ++i)
+        {
             pDst[i] = w * pSrc[i];
         }
     }
-    static void Add(REAL pDst[], REAL w, REAL const pSrc[], int size) {
-        for (int i = 0; i < size; ++i) {
+    static void Add(REAL pDst[], REAL w, REAL const pSrc[], int size)
+    {
+        for (int i = 0; i < size; ++i)
+        {
             pDst[i] += w * pSrc[i];
         }
     }
 };
-template <typename REAL_DST, typename REAL_SRC, int SIZE = 0>
-struct PointCopier {
-    static void Copy(REAL_DST * pDst, REAL_SRC const * pSrc, int size) {
-        for (int i = 0; i < size; ++i) {
-            pDst[i] = (REAL_DST) pSrc[i];
+template <typename REAL_DST, typename REAL_SRC, int SIZE = 0> struct PointCopier
+{
+    static void Copy(REAL_DST *pDst, REAL_SRC const *pSrc, int size)
+    {
+        for (int i = 0; i < size; ++i)
+        {
+            pDst[i] = (REAL_DST)pSrc[i];
         }
     }
 };
 
 //  Specialization for SIZE = 1:
-template <typename REAL>
-struct PointBuilder<REAL, 1> {
-    static void Set(REAL * pDst, REAL w, REAL const * pSrc, int) {
-        pDst[0] = w * pSrc[0];
-    }
-    static void Add(REAL * pDst, REAL w, REAL const * pSrc, int) {
-        pDst[0] += w * pSrc[0];
-    }
+template <typename REAL> struct PointBuilder<REAL, 1>
+{
+    static void Set(REAL *pDst, REAL w, REAL const *pSrc, int) { pDst[0] = w * pSrc[0]; }
+    static void Add(REAL *pDst, REAL w, REAL const *pSrc, int) { pDst[0] += w * pSrc[0]; }
 };
-template <typename REAL>
-struct PointCopier<REAL, REAL, 1> {
-    static void Copy(REAL * pDst, REAL const * pSrc, int) {
-        pDst[0] = pSrc[0];
-    }
+template <typename REAL> struct PointCopier<REAL, REAL, 1>
+{
+    static void Copy(REAL *pDst, REAL const *pSrc, int) { pDst[0] = pSrc[0]; }
 };
 
 //  Specialization for SIZE = 2:
-template <typename REAL>
-struct PointBuilder<REAL, 2> {
-    static void Set(REAL * pDst, REAL w, REAL const * pSrc, int) {
+template <typename REAL> struct PointBuilder<REAL, 2>
+{
+    static void Set(REAL *pDst, REAL w, REAL const *pSrc, int)
+    {
         pDst[0] = w * pSrc[0];
         pDst[1] = w * pSrc[1];
     }
-    static void Add(REAL * pDst, REAL w, REAL const * pSrc, int) {
+    static void Add(REAL *pDst, REAL w, REAL const *pSrc, int)
+    {
         pDst[0] += w * pSrc[0];
         pDst[1] += w * pSrc[1];
     }
 };
-template <typename REAL>
-struct PointCopier<REAL, REAL, 2> {
-    static void Copy(REAL * pDst, REAL const * pSrc, int) {
+template <typename REAL> struct PointCopier<REAL, REAL, 2>
+{
+    static void Copy(REAL *pDst, REAL const *pSrc, int)
+    {
         pDst[0] = pSrc[0];
         pDst[1] = pSrc[1];
     }
 };
 
 //  Specialization for SIZE = 3:
-template <typename REAL>
-struct PointBuilder<REAL, 3> {
-    static void Set(REAL * pDst, REAL w, REAL const * pSrc, int) {
+template <typename REAL> struct PointBuilder<REAL, 3>
+{
+    static void Set(REAL *pDst, REAL w, REAL const *pSrc, int)
+    {
         pDst[0] = w * pSrc[0];
         pDst[1] = w * pSrc[1];
         pDst[2] = w * pSrc[2];
     }
-    static void Add(REAL * pDst, REAL w, REAL const * pSrc, int) {
+    static void Add(REAL *pDst, REAL w, REAL const *pSrc, int)
+    {
         pDst[0] += w * pSrc[0];
         pDst[1] += w * pSrc[1];
         pDst[2] += w * pSrc[2];
     }
 };
-template <typename REAL>
-struct PointCopier<REAL, REAL, 3> {
-    static void Copy(REAL * pDst, REAL const * pSrc, int) {
+template <typename REAL> struct PointCopier<REAL, REAL, 3>
+{
+    static void Copy(REAL *pDst, REAL const *pSrc, int)
+    {
         pDst[0] = pSrc[0];
         pDst[1] = pSrc[1];
         pDst[2] = pSrc[2];
@@ -135,24 +145,27 @@ struct PointCopier<REAL, REAL, 3> {
 };
 
 //  Specialization for SIZE = 4:
-template <typename REAL>
-struct PointBuilder<REAL, 4> {
-    static void Set(REAL * pDst, REAL w, REAL const * pSrc, int) {
+template <typename REAL> struct PointBuilder<REAL, 4>
+{
+    static void Set(REAL *pDst, REAL w, REAL const *pSrc, int)
+    {
         pDst[0] = w * pSrc[0];
         pDst[1] = w * pSrc[1];
         pDst[2] = w * pSrc[2];
         pDst[3] = w * pSrc[3];
     }
-    static void Add(REAL * pDst, REAL w, REAL const * pSrc, int) {
+    static void Add(REAL *pDst, REAL w, REAL const *pSrc, int)
+    {
         pDst[0] += w * pSrc[0];
         pDst[1] += w * pSrc[1];
         pDst[2] += w * pSrc[2];
         pDst[3] += w * pSrc[3];
     }
 };
-template <typename REAL>
-struct PointCopier<REAL, REAL, 4> {
-    static void Copy(REAL * pDst, REAL const * pSrc, int) {
+template <typename REAL> struct PointCopier<REAL, REAL, 4>
+{
+    static void Copy(REAL *pDst, REAL const *pSrc, int)
+    {
         pDst[0] = pSrc[0];
         pDst[1] = pSrc[1];
         pDst[2] = pSrc[2];
@@ -161,13 +174,10 @@ struct PointCopier<REAL, REAL, 4> {
 };
 
 //  Additional specialization for copy when precision matches:
-template <typename REAL, int SIZE>
-struct PointCopier<REAL, REAL, SIZE> {
-    static void Copy(REAL * pDst, REAL const * pSrc, int size) {
-        std::memcpy(pDst, pSrc, size * sizeof(REAL));
-    }
+template <typename REAL, int SIZE> struct PointCopier<REAL, REAL, SIZE>
+{
+    static void Copy(REAL *pDst, REAL const *pSrc, int size) { std::memcpy(pDst, pSrc, size * sizeof(REAL)); }
 };
-
 
 //
 //  Each major operation is encapsulated in a separate class consisting of
@@ -203,67 +213,84 @@ struct PointCopier<REAL, REAL, SIZE> {
 //  even if it is simply a typedef for the set of common parameters.
 //
 //  Common set of parameters for operations combining points:
-template <typename REAL>
-struct CommonCombinationParameters {
-    REAL const * pointData;
-    int          pointSize;
-    int          pointStride;
+template <typename REAL> struct CommonCombinationParameters
+{
+    REAL const *pointData;
+    int         pointSize;
+    int         pointStride;
 
-    int const * srcIndices;
-    int         srcCount;
+    int const *srcIndices;
+    int        srcCount;
 
-    int                  resultCount;
-    REAL              ** resultArray;
-    REAL const * const * weightArray;
+    int                resultCount;
+    REAL **            resultArray;
+    REAL const *const *weightArray;
 };
 
 //
 //  Combination of source points into a single result (for use computing
 //  position only, applying single stencils, and other purposes):
 //
-template <typename REAL>
-class Combine1 {
-public:
+template <typename REAL> class Combine1
+{
+  public:
     typedef CommonCombinationParameters<REAL> Parameters;
 
-private:
-    template <int SIZE = 0>
-    static void apply(Parameters const & args) {
-        typedef struct PointBuilder<REAL,SIZE> Point;
+  private:
+    template <int SIZE = 0> static void apply(Parameters const &args)
+    {
+        typedef struct PointBuilder<REAL, SIZE> Point;
 
         int pSize   = args.pointSize;
         int pStride = args.pointStride;
 
-        REAL const * w = args.weightArray[0];
-        REAL       * p = args.resultArray[0];
+        REAL const *w = args.weightArray[0];
+        REAL *      p = args.resultArray[0];
 
-        if (args.srcIndices == 0) {
-            REAL const * pSrc = args.pointData;
+        if (args.srcIndices == 0)
+        {
+            REAL const *pSrc = args.pointData;
             Point::Set(p, w[0], pSrc, pSize);
 
-            for (int i = 1; i < args.srcCount; ++i) {
+            for (int i = 1; i < args.srcCount; ++i)
+            {
                 pSrc += pStride;
                 Point::Add(p, w[i], pSrc, pSize);
             }
-        } else {
-            REAL const * pSrc = args.pointData + pStride * args.srcIndices[0];
+        }
+        else
+        {
+            REAL const *pSrc = args.pointData + pStride * args.srcIndices[0];
             Point::Set(p, w[0], pSrc, pSize);
 
-            for (int i = 1; i < args.srcCount; ++i) {
+            for (int i = 1; i < args.srcCount; ++i)
+            {
                 pSrc = args.pointData + pStride * args.srcIndices[i];
                 Point::Add(p, w[i], pSrc, pSize);
             }
         }
     }
 
-public:
-    static void Apply(Parameters const & parameters) {
-        switch (parameters.pointSize) {
-        case 1:  apply<1>(parameters); break;
-        case 2:  apply<2>(parameters); break;
-        case 3:  apply<3>(parameters); break;
-        case 4:  apply<4>(parameters); break;
-        default: apply<>(parameters); break;
+  public:
+    static void Apply(Parameters const &parameters)
+    {
+        switch (parameters.pointSize)
+        {
+        case 1:
+            apply<1>(parameters);
+            break;
+        case 2:
+            apply<2>(parameters);
+            break;
+        case 3:
+            apply<3>(parameters);
+            break;
+        case 4:
+            apply<4>(parameters);
+            break;
+        default:
+            apply<>(parameters);
+            break;
         }
     }
 };
@@ -272,49 +299,60 @@ public:
 //  Combination of source points into three results (for use computing
 //  position and 1st derivatives):
 //
-template <typename REAL>
-class Combine3 {
-public:
+template <typename REAL> class Combine3
+{
+  public:
     typedef CommonCombinationParameters<REAL> Parameters;
 
- private:
-    template <int SIZE = 0>
-    static void apply(Parameters const & args) {
-        typedef struct PointBuilder<REAL,SIZE> Point;
+  private:
+    template <int SIZE = 0> static void apply(Parameters const &args)
+    {
+        typedef struct PointBuilder<REAL, SIZE> Point;
 
         int pSize   = args.pointSize;
         int pStride = args.pointStride;
 
-        REAL const * const * wArray = args.weightArray;
-        REAL              ** pArray = args.resultArray;
+        REAL const *const *wArray = args.weightArray;
+        REAL **            pArray = args.resultArray;
 
         //
         //  Apply each successive control point to all derivatives at once,
         //  rather than computing each derivate independently:
         //
-        REAL const * pSrc = (args.srcIndices == 0) ? args.pointData :
-                            (args.pointData + pStride * args.srcIndices[0]);
+        REAL const *pSrc = (args.srcIndices == 0) ? args.pointData : (args.pointData + pStride * args.srcIndices[0]);
         Point::Set(pArray[0], wArray[0][0], pSrc, pSize);
         Point::Set(pArray[1], wArray[1][0], pSrc, pSize);
         Point::Set(pArray[2], wArray[2][0], pSrc, pSize);
 
-        for (int i = 1; i < args.srcCount; ++i) {
-            pSrc = (args.srcIndices == 0) ? (pSrc + pStride) :
-                   (args.pointData + pStride * args.srcIndices[i]);
+        for (int i = 1; i < args.srcCount; ++i)
+        {
+            pSrc = (args.srcIndices == 0) ? (pSrc + pStride) : (args.pointData + pStride * args.srcIndices[i]);
             Point::Add(pArray[0], wArray[0][i], pSrc, pSize);
             Point::Add(pArray[1], wArray[1][i], pSrc, pSize);
             Point::Add(pArray[2], wArray[2][i], pSrc, pSize);
         }
     }
 
-public:
-    static void Apply(Parameters const & parameters) {
-        switch (parameters.pointSize) {
-        case 1:  apply<1>(parameters); break;
-        case 2:  apply<2>(parameters); break;
-        case 3:  apply<3>(parameters); break;
-        case 4:  apply<4>(parameters); break;
-        default: apply<>(parameters); break;
+  public:
+    static void Apply(Parameters const &parameters)
+    {
+        switch (parameters.pointSize)
+        {
+        case 1:
+            apply<1>(parameters);
+            break;
+        case 2:
+            apply<2>(parameters);
+            break;
+        case 3:
+            apply<3>(parameters);
+            break;
+        case 4:
+            apply<4>(parameters);
+            break;
+        default:
+            apply<>(parameters);
+            break;
         }
     }
 };
@@ -323,53 +361,64 @@ public:
 //  Combination of source points into an arbitrary array of results (for
 //  use computing position with all derivatives, i.e. 6 results):
 //
-template <typename REAL>
-class CombineMultiple {
-public:
+template <typename REAL> class CombineMultiple
+{
+  public:
     typedef CommonCombinationParameters<REAL> Parameters;
 
-private:
-    template <int SIZE = 0>
-    static void
-    apply(Parameters const & args) {
-        typedef struct PointBuilder<REAL,SIZE> Point;
+  private:
+    template <int SIZE = 0> static void apply(Parameters const &args)
+    {
+        typedef struct PointBuilder<REAL, SIZE> Point;
 
         int pSize   = args.pointSize;
         int pStride = args.pointStride;
 
-        REAL const * const * wArray = args.weightArray;
-        REAL              ** pArray = args.resultArray;
+        REAL const *const *wArray = args.weightArray;
+        REAL **            pArray = args.resultArray;
 
         //
         //  Apply each successive control point to all derivatives at once,
         //  rather than computing each derivate independently:
         //
-        REAL const * pSrc = (args.srcIndices == 0) ? args.pointData :
-                            (args.pointData + pStride * args.srcIndices[0]);
+        REAL const *pSrc = (args.srcIndices == 0) ? args.pointData : (args.pointData + pStride * args.srcIndices[0]);
 
-        for (int j = 0; j < args.resultCount; ++j) {
+        for (int j = 0; j < args.resultCount; ++j)
+        {
             Point::Set(pArray[j], wArray[j][0], pSrc, pSize);
         }
 
-        for (int i = 1; i < args.srcCount; ++i) {
-            pSrc = (args.srcIndices == 0) ? (pSrc + pStride) :
-                   (args.pointData + pStride * args.srcIndices[i]);
+        for (int i = 1; i < args.srcCount; ++i)
+        {
+            pSrc = (args.srcIndices == 0) ? (pSrc + pStride) : (args.pointData + pStride * args.srcIndices[i]);
 
-            for (int j = 0; j < args.resultCount; ++j) {
+            for (int j = 0; j < args.resultCount; ++j)
+            {
                 Point::Add(pArray[j], wArray[j][i], pSrc, pSize);
             }
         }
     }
 
-public:
-    static void
-    Apply(Parameters const & parameters) {
-        switch (parameters.pointSize) {
-        case 1:  apply<1>(parameters); break;
-        case 2:  apply<2>(parameters); break;
-        case 3:  apply<3>(parameters); break;
-        case 4:  apply<4>(parameters); break;
-        default: apply<>(parameters); break;
+  public:
+    static void Apply(Parameters const &parameters)
+    {
+        switch (parameters.pointSize)
+        {
+        case 1:
+            apply<1>(parameters);
+            break;
+        case 2:
+            apply<2>(parameters);
+            break;
+        case 3:
+            apply<3>(parameters);
+            break;
+        case 4:
+            apply<4>(parameters);
+            break;
+        default:
+            apply<>(parameters);
+            break;
         }
     }
 };
@@ -380,35 +429,37 @@ public:
 //  points (N for the input points contributing to each result) are
 //  also stored consecutively:
 //
-template <typename REAL>
-class CombineConsecutive {
-public:
-    struct Parameters {
-        REAL const * pointData;
-        int          pointSize;
-        int          pointStride;
+template <typename REAL> class CombineConsecutive
+{
+  public:
+    struct Parameters
+    {
+        REAL const *pointData;
+        int         pointSize;
+        int         pointStride;
 
         int srcCount;
 
-        int          resultCount;
-        REAL       * resultData;
-        REAL const * weightData;
+        int         resultCount;
+        REAL *      resultData;
+        REAL const *weightData;
     };
 
-private:
-    template <int SIZE = 0>
-    static void
-    apply(Parameters const & args) {
-        typedef struct PointBuilder<REAL,SIZE> Point;
+  private:
+    template <int SIZE = 0> static void apply(Parameters const &args)
+    {
+        typedef struct PointBuilder<REAL, SIZE> Point;
 
-        REAL const * w = args.weightData;
-        REAL       * p = args.resultData;
+        REAL const *w = args.weightData;
+        REAL *      p = args.resultData;
 
-        for (int i = 0; i < args.resultCount; ++i) {
-            REAL const * pSrc = args.pointData;
+        for (int i = 0; i < args.resultCount; ++i)
+        {
+            REAL const *pSrc = args.pointData;
             Point::Set(p, w[0], pSrc, args.pointSize);
 
-            for (int j = 1; j < args.srcCount; ++j) {
+            for (int j = 1; j < args.srcCount; ++j)
+            {
                 pSrc += args.pointStride;
                 Point::Add(p, w[j], pSrc, args.pointSize);
             }
@@ -418,15 +469,26 @@ private:
         }
     }
 
-public:
-    static void
-    Apply(Parameters const & parameters) {
-        switch (parameters.pointSize) {
-        case 1:  apply<1>(parameters); break;
-        case 2:  apply<2>(parameters); break;
-        case 3:  apply<3>(parameters); break;
-        case 4:  apply<4>(parameters); break;
-        default: apply<>(parameters); break;
+  public:
+    static void Apply(Parameters const &parameters)
+    {
+        switch (parameters.pointSize)
+        {
+        case 1:
+            apply<1>(parameters);
+            break;
+        case 2:
+            apply<2>(parameters);
+            break;
+        case 3:
+            apply<3>(parameters);
+            break;
+        case 4:
+            apply<4>(parameters);
+            break;
+        default:
+            apply<>(parameters);
+            break;
         }
     }
 };
@@ -436,53 +498,66 @@ public:
 //  compute the midpoint of the face and the midpoint of each edge --
 //  to be stored consecutively in the given location for results:
 //
-template <typename REAL>
-class SplitFace {
-public:
-    struct Parameters {
-        REAL const * pointData;
-        int          pointSize;
-        int          pointStride;
+template <typename REAL> class SplitFace
+{
+  public:
+    struct Parameters
+    {
+        REAL const *pointData;
+        int         pointSize;
+        int         pointStride;
 
         int srcCount;
 
-        REAL * resultData;
+        REAL *resultData;
     };
 
-private:
-    template <int SIZE = 0>
-    static void apply(Parameters const & args) {
-        typedef struct PointBuilder<REAL,SIZE> Point;
+  private:
+    template <int SIZE = 0> static void apply(Parameters const &args)
+    {
+        typedef struct PointBuilder<REAL, SIZE> Point;
 
-        int N = args.srcCount;
-        REAL invN = 1.0f / (REAL) N;
+        int  N    = args.srcCount;
+        REAL invN = 1.0f / (REAL)N;
 
-        REAL * facePoint = args.resultData;
+        REAL *facePoint = args.resultData;
         std::memset(facePoint, 0, args.pointSize * sizeof(REAL));
 
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < N; ++i)
+        {
             int j = (i < (N - 1)) ? (i + 1) : 0;
 
-            REAL const * pi = args.pointData + args.pointStride * i;
-            REAL const * pj = args.pointData + args.pointStride * j;
+            REAL const *pi = args.pointData + args.pointStride * i;
+            REAL const *pj = args.pointData + args.pointStride * j;
 
             Point::Add(facePoint, invN, pi, args.pointSize);
 
-            REAL * edgePoint = args.resultData + args.pointStride * (1 + i);
+            REAL *edgePoint = args.resultData + args.pointStride * (1 + i);
             Point::Set(edgePoint, 0.5f, pi, args.pointSize);
             Point::Add(edgePoint, 0.5f, pj, args.pointSize);
         }
     }
 
-public:
-    static void Apply(Parameters const & parameters) {
-
-        switch (parameters.pointSize) {
-        case 1:  apply<1>(parameters); break;
-        case 2:  apply<2>(parameters); break;
-        case 3:  apply<3>(parameters); break;
-        case 4:  apply<4>(parameters); break;
-        default: apply<>(parameters); break;
+  public:
+    static void Apply(Parameters const &parameters)
+    {
+        switch (parameters.pointSize)
+        {
+        case 1:
+            apply<1>(parameters);
+            break;
+        case 2:
+            apply<2>(parameters);
+            break;
+        case 3:
+            apply<3>(parameters);
+            break;
+        case 4:
+            apply<4>(parameters);
+            break;
+        default:
+            apply<>(parameters);
+            break;
         }
     }
 };
@@ -491,44 +566,56 @@ public:
 //  Copy a subset of N input points -- identified by the indices given for
 //  each -- to the resulting location specified:
 //
-template <typename REAL_DST, typename REAL_SRC>
-class CopyConsecutive {
-public:
-    struct Parameters {
-        REAL_SRC const * pointData;
-        int              pointSize;
-        int              pointStride;
+template <typename REAL_DST, typename REAL_SRC> class CopyConsecutive
+{
+  public:
+    struct Parameters
+    {
+        REAL_SRC const *pointData;
+        int             pointSize;
+        int             pointStride;
 
-        int const * srcIndices;
-        int         srcCount;
+        int const *srcIndices;
+        int        srcCount;
 
-        REAL_DST * resultData;
-        int        resultStride;
+        REAL_DST *resultData;
+        int       resultStride;
     };
 
-private:
-    template <int SIZE = 0>
-    static void apply(Parameters const & args) {
-        typedef struct PointCopier<REAL_DST,REAL_SRC,SIZE> Point;
+  private:
+    template <int SIZE = 0> static void apply(Parameters const &args)
+    {
+        typedef struct PointCopier<REAL_DST, REAL_SRC, SIZE> Point;
 
-        for (int i = 0; i < args.srcCount; ++i) {
-            REAL_DST       * pDst = args.resultData + args.resultStride * i;
-            REAL_SRC const * pSrc = args.pointData +
-                                    args.pointStride * args.srcIndices[i];
+        for (int i = 0; i < args.srcCount; ++i)
+        {
+            REAL_DST *      pDst = args.resultData + args.resultStride * i;
+            REAL_SRC const *pSrc = args.pointData + args.pointStride * args.srcIndices[i];
 
             Point::Copy(pDst, pSrc, args.pointSize);
         }
     }
 
-public:
-    static void Apply(Parameters const & parameters) {
-
-        switch (parameters.pointSize) {
-        case 1:  apply<1>(parameters); break;
-        case 2:  apply<2>(parameters); break;
-        case 3:  apply<3>(parameters); break;
-        case 4:  apply<4>(parameters); break;
-        default: apply<>(parameters); break;
+  public:
+    static void Apply(Parameters const &parameters)
+    {
+        switch (parameters.pointSize)
+        {
+        case 1:
+            apply<1>(parameters);
+            break;
+        case 2:
+            apply<2>(parameters);
+            break;
+        case 3:
+            apply<3>(parameters);
+            break;
+        case 4:
+            apply<4>(parameters);
+            break;
+        default:
+            apply<>(parameters);
+            break;
         }
     }
 };

@@ -25,14 +25,16 @@
 #ifndef OPENSUBDIV3_FAR_PATCH_PARAM_H
 #define OPENSUBDIV3_FAR_PATCH_PARAM_H
 
+#include "../far/types.h"
 #include "../version.h"
 
-#include "../far/types.h"
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Far {
+namespace Far
+{
 
 /// \brief Patch parameterization
 ///
@@ -149,7 +151,8 @@ namespace Far {
  \endverbatim
 */
 
-struct PatchParam {
+struct PatchParam
+{
     /// \brief Sets the values of the bit fields
     ///
     /// @param faceid face index
@@ -165,36 +168,33 @@ struct PatchParam {
     ///
     /// @param regular whether the patch is regular
     ///
-    void Set(Index faceid, short u, short v,
-             unsigned short depth, bool nonquad,
-             unsigned short boundary, unsigned short transition,
-             bool regular = false);
+    void Set(Index faceid, short u, short v, unsigned short depth, bool nonquad, unsigned short boundary, unsigned short transition, bool regular = false);
 
     /// \brief Resets everything to 0
     void Clear() { field0 = field1 = 0; }
 
     /// \brief Returns the faceid
-    Index GetFaceId() const { return Index(unpack(field0,28,0)); }
+    Index GetFaceId() const { return Index(unpack(field0, 28, 0)); }
 
     /// \brief Returns the log2 value of the u parameter at
     /// the first corner of the patch
-    unsigned short GetU() const { return (unsigned short)unpack(field1,10,22); }
+    unsigned short GetU() const { return (unsigned short)unpack(field1, 10, 22); }
 
     /// \brief Returns the log2 value of the v parameter at
     /// the first corner of the patch
-    unsigned short GetV() const { return (unsigned short)unpack(field1,10,12); }
+    unsigned short GetV() const { return (unsigned short)unpack(field1, 10, 12); }
 
     /// \brief Returns the transition edge encoding for the patch.
-    unsigned short GetTransition() const { return (unsigned short)unpack(field0,4,28); }
+    unsigned short GetTransition() const { return (unsigned short)unpack(field0, 4, 28); }
 
     /// \brief Returns the boundary edge encoding for the patch.
-    unsigned short GetBoundary() const { return (unsigned short)unpack(field1,5,7); }
+    unsigned short GetBoundary() const { return (unsigned short)unpack(field1, 5, 7); }
 
     /// \brief True if the parent base face is a non-quad
-    bool NonQuadRoot() const { return (unpack(field1,1,4) != 0); }
+    bool NonQuadRoot() const { return (unpack(field1, 1, 4) != 0); }
 
     /// \brief Returns the level of subdivision of the patch
-    unsigned short GetDepth() const { return (unsigned short)unpack(field1,4,0); }
+    unsigned short GetDepth() const { return (unsigned short)unpack(field1, 4, 0); }
 
     /// \brief Returns the fraction of unit parametric space covered by this face.
     float GetParamFraction() const;
@@ -205,10 +205,8 @@ struct PatchParam {
     /// @param u  u parameter
     /// @param v  v parameter
     ///
-    template <typename REAL>
-    void Normalize( REAL & u, REAL & v ) const;
-    template <typename REAL>
-    void NormalizeTriangle( REAL & u, REAL & v ) const;
+    template <typename REAL> void Normalize(REAL &u, REAL &v) const;
+    template <typename REAL> void NormalizeTriangle(REAL &u, REAL &v) const;
 
     /// \brief A (u,v) pair in a normalized parametric space is mapped back into the
     /// fraction of parametric space covered by this face.
@@ -216,108 +214,84 @@ struct PatchParam {
     /// @param u  u parameter
     /// @param v  v parameter
     ///
-    template <typename REAL>
-    void Unnormalize( REAL & u, REAL & v ) const;
-    template <typename REAL>
-    void UnnormalizeTriangle( REAL & u, REAL & v ) const;
+    template <typename REAL> void Unnormalize(REAL &u, REAL &v) const;
+    template <typename REAL> void UnnormalizeTriangle(REAL &u, REAL &v) const;
 
     /// \brief Returns if a triangular patch is parametrically rotated 180 degrees
     bool IsTriangleRotated() const;
 
     /// \brief Returns whether the patch is regular
-    bool IsRegular() const { return (unpack(field1,1,5) != 0); }
+    bool IsRegular() const { return (unpack(field1, 1, 5) != 0); }
 
-    unsigned int field0:32;
-    unsigned int field1:32;
+    unsigned int field0 : 32;
+    unsigned int field1 : 32;
 
-private:
-    unsigned int pack(unsigned int value, int width, int offset) const {
-        return (unsigned int)((value & ((1<<width)-1)) << offset);
-    }
+  private:
+    unsigned int pack(unsigned int value, int width, int offset) const { return (unsigned int)((value & ((1 << width) - 1)) << offset); }
 
-    unsigned int unpack(unsigned int value, int width, int offset) const {
-        return (unsigned int)((value >> offset) & ((1<<width)-1));
-    }
+    unsigned int unpack(unsigned int value, int width, int offset) const { return (unsigned int)((value >> offset) & ((1 << width) - 1)); }
 };
 
 typedef std::vector<PatchParam> PatchParamTable;
 
-typedef Vtr::Array<PatchParam> PatchParamArray;
+typedef Vtr::Array<PatchParam>      PatchParamArray;
 typedef Vtr::ConstArray<PatchParam> ConstPatchParamArray;
 
-inline void
-PatchParam::Set(Index faceid, short u, short v,
-                unsigned short depth, bool nonquad,
-                unsigned short boundary, unsigned short transition,
-                bool regular) {
-    field0 = pack(faceid,    28,  0) |
-             pack(transition, 4, 28);
+inline void PatchParam::Set(Index faceid, short u, short v, unsigned short depth, bool nonquad, unsigned short boundary, unsigned short transition, bool regular)
+{
+    field0 = pack(faceid, 28, 0) | pack(transition, 4, 28);
 
-    field1 = pack(u,         10, 22) |
-             pack(v,         10, 12) |
-             pack(boundary,   5,  7) |
-             pack(regular,    1,  5) |
-             pack(nonquad,    1,  4) |
-             pack(depth,      4,  0);
+    field1 = pack(u, 10, 22) | pack(v, 10, 12) | pack(boundary, 5, 7) | pack(regular, 1, 5) | pack(nonquad, 1, 4) | pack(depth, 4, 0);
 }
 
-inline float
-PatchParam::GetParamFraction( ) const {
-    return 1.0f / (float)(1 << (GetDepth() - NonQuadRoot()));
-}
+inline float PatchParam::GetParamFraction() const { return 1.0f / (float)(1 << (GetDepth() - NonQuadRoot())); }
 
-template <typename REAL>
-inline void
-PatchParam::Normalize( REAL & u, REAL & v ) const {
-
+template <typename REAL> inline void PatchParam::Normalize(REAL &u, REAL &v) const
+{
     REAL fracInv = (REAL)(1.0f / GetParamFraction());
 
     u = u * fracInv - (REAL)GetU();
     v = v * fracInv - (REAL)GetV();
 }
 
-template <typename REAL>
-inline void
-PatchParam::Unnormalize( REAL & u, REAL & v ) const {
-
+template <typename REAL> inline void PatchParam::Unnormalize(REAL &u, REAL &v) const
+{
     REAL frac = (REAL)GetParamFraction();
 
     u = (u + (REAL)GetU()) * frac;
     v = (v + (REAL)GetV()) * frac;
 }
 
-inline bool
-PatchParam::IsTriangleRotated() const {
+inline bool PatchParam::IsTriangleRotated() const { return (GetU() + GetV()) >= (1 << GetDepth()); }
 
-    return (GetU() + GetV()) >= (1 << GetDepth());
-}
-
-template <typename REAL>
-inline void
-PatchParam::NormalizeTriangle( REAL & u, REAL & v ) const {
-
-    if (IsTriangleRotated()) {
+template <typename REAL> inline void PatchParam::NormalizeTriangle(REAL &u, REAL &v) const
+{
+    if (IsTriangleRotated())
+    {
         REAL fracInv = (REAL)(1.0f / GetParamFraction());
 
         int depthFactor = 1 << GetDepth();
-        u = (REAL)(depthFactor - GetU()) - (u * fracInv);
-        v = (REAL)(depthFactor - GetV()) - (v * fracInv);
-    } else {
+        u               = (REAL)(depthFactor - GetU()) - (u * fracInv);
+        v               = (REAL)(depthFactor - GetV()) - (v * fracInv);
+    }
+    else
+    {
         Normalize(u, v);
     }
 }
 
-template <typename REAL>
-inline void
-PatchParam::UnnormalizeTriangle( REAL & u, REAL & v ) const {
-
-    if (IsTriangleRotated()) {
+template <typename REAL> inline void PatchParam::UnnormalizeTriangle(REAL &u, REAL &v) const
+{
+    if (IsTriangleRotated())
+    {
         REAL frac = GetParamFraction();
 
         int depthFactor = 1 << GetDepth();
-        u = ((REAL)(depthFactor - GetU()) - u) * frac;
-        v = ((REAL)(depthFactor - GetV()) - v) * frac;
-    } else {
+        u               = ((REAL)(depthFactor - GetU()) - u) * frac;
+        v               = ((REAL)(depthFactor - GetV()) - v) * frac;
+    }
+    else
+    {
         Unnormalize(u, v);
     }
 }

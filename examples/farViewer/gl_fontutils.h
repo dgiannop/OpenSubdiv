@@ -29,9 +29,9 @@
 
 #include <vector>
 
-class GLFont {
-public:
-
+class GLFont
+{
+  public:
     GLFont(GLuint fontTexture);
 
     ~GLFont();
@@ -40,39 +40,31 @@ public:
 
     void Clear();
 
-    void Print3D(float const pos[3], const char * str, int color=0);
-    
+    void Print3D(float const pos[3], const char *str, int color = 0);
+
     void SetFontScale(float scale);
 
-    struct Char {
+    struct Char
+    {
         float pos[3];
         float ofs[2];
         float alpha;
         float color;
     };
-    
-    std::vector<Char> & GetChars() {
-        _dirty=true;
+
+    std::vector<Char> &GetChars()
+    {
+        _dirty = true;
         return _chars;
     }
-    
-    
-private:
 
+  private:
     void bindProgram();
 
     std::vector<Char> _chars;
-    bool _dirty;
+    bool              _dirty;
 
-    GLuint _program,
-           _transformBinding,
-           _attrPosition,
-           _attrData,
-           _fontTexture,
-           _scale,
-           _VAO,
-           _EAO,
-           _VBO;
+    GLuint _program, _transformBinding, _attrPosition, _attrData, _fontTexture, _scale, _VAO, _EAO, _VBO;
 };
 
 #endif // GL_FONT_UTILS_H

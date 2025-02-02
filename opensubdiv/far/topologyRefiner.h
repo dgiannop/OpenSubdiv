@@ -24,23 +24,36 @@
 #ifndef OPENSUBDIV3_FAR_TOPOLOGY_REFINER_H
 #define OPENSUBDIV3_FAR_TOPOLOGY_REFINER_H
 
-#include "../version.h"
-
-#include "../sdc/types.h"
-#include "../sdc/options.h"
-#include "../far/types.h"
-#include "../far/topologyLevel.h"
-
 #include <vector>
 
+#include "../far/topologyLevel.h"
+#include "../far/types.h"
+#include "../sdc/options.h"
+#include "../sdc/types.h"
+#include "../version.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Vtr { namespace internal { class SparseSelector; } }
-namespace Far { namespace internal { class FeatureMask; } }
+namespace Vtr
+{
+namespace internal
+{
+class SparseSelector;
+}
+} // namespace Vtr
+namespace Far
+{
+namespace internal
+{
+class FeatureMask;
+}
+} // namespace Far
 
-namespace Far {
+namespace Far
+{
 
 template <typename REAL> class PrimvarRefinerReal;
 template <class MESH> class TopologyRefinerFactory;
@@ -48,10 +61,9 @@ template <class MESH> class TopologyRefinerFactory;
 ///
 ///  \brief Stores topology data for a specified set of refinement options.
 ///
-class TopologyRefiner {
-
-public:
-
+class TopologyRefiner
+{
+  public:
     /// \brief Constructor
     TopologyRefiner(Sdc::SchemeType type, Sdc::Options options = Sdc::Options());
 
@@ -59,22 +71,22 @@ public:
     ~TopologyRefiner();
 
     /// \brief Returns the subdivision scheme
-    Sdc::SchemeType GetSchemeType() const    { return _subdivType; }
+    Sdc::SchemeType GetSchemeType() const { return _subdivType; }
 
     /// \brief Returns the subdivision options
     Sdc::Options GetSchemeOptions() const { return _subdivOptions; }
 
     /// \brief Returns true if uniform refinement has been applied
-    bool IsUniform() const   { return _isUniform; }
+    bool IsUniform() const { return _isUniform; }
 
     /// \brief Returns the number of refinement levels
-    int  GetNumLevels() const { return (int)_farLevels.size(); }
+    int GetNumLevels() const { return (int)_farLevels.size(); }
 
     /// \brief Returns the highest level of refinement
-    int  GetMaxLevel() const { return _maxLevel; }
+    int GetMaxLevel() const { return _maxLevel; }
 
     /// \brief Returns the maximum vertex valence in all levels
-    int  GetMaxValence() const { return _maxValence; }
+    int GetMaxValence() const { return _maxValence; }
 
     /// \brief Returns true if faces have been tagged as holes
     bool HasHoles() const { return _hasHoles; }
@@ -92,7 +104,7 @@ public:
     int GetNumFaceVerticesTotal() const { return _totalFaceVertices; }
 
     /// \brief Returns a handle to access data specific to a particular level
-    TopologyLevel const & GetLevel(int level) const { return _farLevels[level]; }
+    TopologyLevel const &GetLevel(int level) const { return _farLevels[level]; }
 
     //@{
     ///  @name High-level refinement and related methods
@@ -115,22 +127,19 @@ public:
     /// faces of vertices, the option to generate full topology in the last
     /// level should be enabled.
     ///
-    struct UniformOptions {
-
-        UniformOptions(int level) :
-            refinementLevel(level & 0xf),
-            orderVerticesFromFacesFirst(false),
-            fullTopologyInLastLevel(false) { }
+    struct UniformOptions
+    {
+        UniformOptions(int level) : refinementLevel(level & 0xf), orderVerticesFromFacesFirst(false), fullTopologyInLastLevel(false) {}
 
         /// \brief Set uniform refinement level
         void SetRefinementLevel(int level) { refinementLevel = level & 0xf; }
 
-        unsigned int refinementLevel:4,             ///< Number of refinement iterations
-                     orderVerticesFromFacesFirst:1, ///< Order child vertices from faces first
-                                                    ///< instead of child vertices of vertices
-                     fullTopologyInLastLevel:1;     ///< Skip topological relationships in the last
-                                                    ///< level of refinement that are not needed for
-                                                    ///< interpolation (keep false if using limit).
+        unsigned int refinementLevel : 4,    ///< Number of refinement iterations
+            orderVerticesFromFacesFirst : 1, ///< Order child vertices from faces first
+                                             ///< instead of child vertices of vertices
+            fullTopologyInLastLevel : 1;     ///< Skip topological relationships in the last
+                                             ///< level of refinement that are not needed for
+                                             ///< interpolation (keep false if using limit).
     };
 
     /// \brief Refine the topology uniformly
@@ -153,15 +162,9 @@ public:
     //
 
     /// \brief Adaptive refinement options
-    struct AdaptiveOptions {
-
-        AdaptiveOptions(int level) :
-            isolationLevel(level & 0xf),
-            secondaryLevel(0xf),
-            useSingleCreasePatch(false),
-            useInfSharpPatch(false),
-            considerFVarChannels(false),
-            orderVerticesFromFacesFirst(false) { }
+    struct AdaptiveOptions
+    {
+        AdaptiveOptions(int level) : isolationLevel(level & 0xf), secondaryLevel(0xf), useSingleCreasePatch(false), useInfSharpPatch(false), considerFVarChannels(false), orderVerticesFromFacesFirst(false) {}
 
         /// \brief Set isolation level
         void SetIsolationLevel(int level) { isolationLevel = level & 0xf; }
@@ -169,18 +172,18 @@ public:
         /// \brief Set secondary isolation level
         void SetSecondaryLevel(int level) { secondaryLevel = level & 0xf; }
 
-        unsigned int isolationLevel:4;              ///< Number of iterations applied to isolate
-                                                    ///< extraordinary vertices and creases
-        unsigned int secondaryLevel:4;              ///< Shallower level to stop isolation of
-                                                    ///< smooth irregular features
-        unsigned int useSingleCreasePatch:1;        ///< Use 'single-crease' patch and stop
-                                                    ///< isolation where applicable
-        unsigned int useInfSharpPatch:1;            ///< Use infinitely sharp patches and stop
-                                                    ///< isolation where applicable
-        unsigned int considerFVarChannels:1;        ///< Inspect face-varying channels and
-                                                    ///< isolate when irregular features present
-        unsigned int orderVerticesFromFacesFirst:1; ///< Order child vertices from faces first
-                                                    ///< instead of child vertices of vertices
+        unsigned int isolationLevel : 4;              ///< Number of iterations applied to isolate
+                                                      ///< extraordinary vertices and creases
+        unsigned int secondaryLevel : 4;              ///< Shallower level to stop isolation of
+                                                      ///< smooth irregular features
+        unsigned int useSingleCreasePatch : 1;        ///< Use 'single-crease' patch and stop
+                                                      ///< isolation where applicable
+        unsigned int useInfSharpPatch : 1;            ///< Use infinitely sharp patches and stop
+                                                      ///< isolation where applicable
+        unsigned int considerFVarChannels : 1;        ///< Inspect face-varying channels and
+                                                      ///< isolate when irregular features present
+        unsigned int orderVerticesFromFacesFirst : 1; ///< Order child vertices from faces first
+                                                      ///< instead of child vertices of vertices
     };
 
     /// \brief Feature Adaptive topology refinement
@@ -189,15 +192,13 @@ public:
     ///
     /// @param selectedFaces   Limit adaptive refinement to the specified faces
     ///
-    void RefineAdaptive(AdaptiveOptions options,
-                        ConstIndexArray selectedFaces = ConstIndexArray());
+    void RefineAdaptive(AdaptiveOptions options, ConstIndexArray selectedFaces = ConstIndexArray());
 
     /// \brief Returns the options specified on refinement
     AdaptiveOptions GetAdaptiveOptions() const { return _adaptiveOptions; }
 
     /// \brief Unrefine the topology, keeping only the base level.
     void Unrefine();
-
 
     //@{
     /// @name Number and properties of face-varying channels:
@@ -214,59 +215,52 @@ public:
 
     //@}
 
-protected:
-
+  protected:
     //
     //  Lower level protected methods intended strictly for internal use:
     //
-    template <class MESH>
-    friend class TopologyRefinerFactory;
+    template <class MESH> friend class TopologyRefinerFactory;
     friend class TopologyRefinerFactoryBase;
     friend class PatchTableBuilder;
     friend class PatchBuilder;
     friend class PtexIndices;
-    template <typename REAL>
-    friend class PrimvarRefinerReal;
+    template <typename REAL> friend class PrimvarRefinerReal;
 
     //  Copy constructor exposed via the factory class:
-    TopologyRefiner(TopologyRefiner const & source);
+    TopologyRefiner(TopologyRefiner const &source);
 
-public:
+  public:
     //  Levels and Refinements available internally (avoids need for more friends)
-    Vtr::internal::Level & getLevel(int l) { return *_levels[l]; }
-    Vtr::internal::Level const & getLevel(int l) const { return *_levels[l]; }
+    Vtr::internal::Level &      getLevel(int l) { return *_levels[l]; }
+    Vtr::internal::Level const &getLevel(int l) const { return *_levels[l]; }
 
-    Vtr::internal::Refinement & getRefinement(int l) { return *_refinements[l]; }
-    Vtr::internal::Refinement const & getRefinement(int l) const { return *_refinements[l]; }
+    Vtr::internal::Refinement &      getRefinement(int l) { return *_refinements[l]; }
+    Vtr::internal::Refinement const &getRefinement(int l) const { return *_refinements[l]; }
 
-private:
+  private:
     //  Not default constructible or copyable:
-    TopologyRefiner() : _uniformOptions(0), _adaptiveOptions(0) { }
-    TopologyRefiner & operator=(TopologyRefiner const &) { return *this; }
+    TopologyRefiner() : _uniformOptions(0), _adaptiveOptions(0) {}
+    TopologyRefiner &operator=(TopologyRefiner const &) { return *this; }
 
-    void selectFeatureAdaptiveComponents(Vtr::internal::SparseSelector& selector,
-                                         internal::FeatureMask const & mask,
-                                         ConstIndexArray selectedFaces);
-    void selectLinearIrregularFaces(Vtr::internal::SparseSelector& selector,
-                                    ConstIndexArray selectedFaces);
+    void selectFeatureAdaptiveComponents(Vtr::internal::SparseSelector &selector, internal::FeatureMask const &mask, ConstIndexArray selectedFaces);
+    void selectLinearIrregularFaces(Vtr::internal::SparseSelector &selector, ConstIndexArray selectedFaces);
 
     void initializeInventory();
-    void updateInventory(Vtr::internal::Level const & newLevel);
+    void updateInventory(Vtr::internal::Level const &newLevel);
 
-    void appendLevel(Vtr::internal::Level & newLevel);
-    void appendRefinement(Vtr::internal::Refinement & newRefinement);
+    void appendLevel(Vtr::internal::Level &newLevel);
+    void appendRefinement(Vtr::internal::Refinement &newRefinement);
     void assembleFarLevels();
 
-private:
-
+  private:
     Sdc::SchemeType _subdivType;
     Sdc::Options    _subdivOptions;
 
-    unsigned int _isUniform     : 1;
-    unsigned int _hasHoles      : 1;
+    unsigned int _isUniform : 1;
+    unsigned int _hasHoles : 1;
     unsigned int _hasIrregFaces : 1;
-    unsigned int _regFaceSize   : 3;
-    unsigned int _maxLevel      : 4;
+    unsigned int _regFaceSize : 3;
+    unsigned int _maxLevel : 4;
 
     //  Options assigned on refinement:
     UniformOptions  _uniformOptions;
@@ -288,17 +282,8 @@ private:
     std::vector<TopologyLevel> _farLevels;
 };
 
-
-inline int
-TopologyRefiner::GetNumFVarChannels() const {
-
-    return _levels[0]->getNumFVarChannels();
-}
-inline Sdc::Options::FVarLinearInterpolation
-TopologyRefiner::GetFVarLinearInterpolation(int channel) const {
-
-    return _levels[0]->getFVarOptions(channel).GetFVarLinearInterpolation();
-}
+inline int                                   TopologyRefiner::GetNumFVarChannels() const { return _levels[0]->getNumFVarChannels(); }
+inline Sdc::Options::FVarLinearInterpolation TopologyRefiner::GetFVarLinearInterpolation(int channel) const { return _levels[0]->getFVarOptions(channel).GetFVarLinearInterpolation(); }
 
 } // end namespace Far
 

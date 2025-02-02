@@ -25,19 +25,22 @@
 #ifndef OPENSUBDIV3_BFR_REFINER_SURFACE_FACTORY_H
 #define OPENSUBDIV3_BFR_REFINER_SURFACE_FACTORY_H
 
-#include "../version.h"
-
 #include "../bfr/surfaceFactory.h"
 #include "../bfr/surfaceFactoryCache.h"
+#include "../version.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Far {
-    class TopologyRefiner;
+namespace Far
+{
+class TopologyRefiner;
 }
 
-namespace Bfr {
+namespace Bfr
+{
 
 ///
 /// @brief Intermediate subclass of SurfaceFactory with Far::TopologyRefiner
@@ -51,20 +54,20 @@ namespace Bfr {
 ///
 /// Additional caching expectations of SurfaceFactory are NOT specified
 /// here. These are deferred to subclasses to implement different behaviors
-/// of the factory's internal caching. A template for such subclasses is 
+/// of the factory's internal caching. A template for such subclasses is
 /// additionally provided -- allowing clients desiring a thread-safe cache
 /// to simply declare a subclass for a preferred thread-safe type.
 ///
-class RefinerSurfaceFactoryBase : public SurfaceFactory {
-public:
+class RefinerSurfaceFactoryBase : public SurfaceFactory
+{
+  public:
     //@{
     /// @name Construction and initialization
     ///
     /// Construction and initialization
     ///
 
-    RefinerSurfaceFactoryBase(Far::TopologyRefiner const & mesh,
-                              Options const & options);
+    RefinerSurfaceFactoryBase(Far::TopologyRefiner const &mesh, Options const &options);
 
     ~RefinerSurfaceFactoryBase() override = default;
     //@}
@@ -76,7 +79,7 @@ public:
     ///
 
     /// @brief Return the instance of the mesh
-    Far::TopologyRefiner const & GetMesh() const { return _mesh; }
+    Far::TopologyRefiner const &GetMesh() const { return _mesh; }
 
     /// @brief Return the number of faces
     int GetNumFaces() const { return _numFaces; }
@@ -85,59 +88,45 @@ public:
     int GetNumFVarChannels() const { return _numFVarChannels; }
     //@}
 
-protected:
+  protected:
     /// @cond PROTECTED
     //
     //  Virtual overrides to satisfy the SurfaceFactoryMeshAdapter interface:
     //
-    bool isFaceHole( Index faceIndex) const override;
+    bool isFaceHole(Index faceIndex) const override;
     int  getFaceSize(Index faceIndex) const override;
 
-    int getFaceVertexIndices(Index faceIndex,
-                        Index vertexIndices[]) const override;
-    int getFaceFVarValueIndices(Index faceIndex,
-                        FVarID fvarID, Index fvarValueIndices[]) const override;
+    int getFaceVertexIndices(Index faceIndex, Index vertexIndices[]) const override;
+    int getFaceFVarValueIndices(Index faceIndex, FVarID fvarID, Index fvarValueIndices[]) const override;
 
-    int populateFaceVertexDescriptor(Index faceIndex, int faceVertex,
-                        VertexDescriptor * vertexDescriptor) const override;
+    int populateFaceVertexDescriptor(Index faceIndex, int faceVertex, VertexDescriptor *vertexDescriptor) const override;
 
-    int getFaceVertexIncidentFaceVertexIndices(
-                        Index faceIndex, int faceVertex,
-                        Index vertexIndices[]) const override;
-    int getFaceVertexIncidentFaceFVarValueIndices(
-                        Index faceIndex, int faceVertex,
-                        FVarID fvarID, Index fvarValueIndices[]) const override;
+    int getFaceVertexIncidentFaceVertexIndices(Index faceIndex, int faceVertex, Index vertexIndices[]) const override;
+    int getFaceVertexIncidentFaceFVarValueIndices(Index faceIndex, int faceVertex, FVarID fvarID, Index fvarValueIndices[]) const override;
 
     //  Optional SurfaceFactoryMeshAdapter overrides for regular patches:
-    bool getFaceNeighborhoodVertexIndicesIfRegular(
-                        Index faceIndex,
-                        Index vertexIndices[]) const override;
+    bool getFaceNeighborhoodVertexIndicesIfRegular(Index faceIndex, Index vertexIndices[]) const override;
 
-    bool getFaceNeighborhoodFVarValueIndicesIfRegular(
-                        Index faceIndex,
-                        FVarID fvarID, Index fvarValueIndices[]) const override;
+    bool getFaceNeighborhoodFVarValueIndicesIfRegular(Index faceIndex, FVarID fvarID, Index fvarValueIndices[]) const override;
     /// @endcond
 
-private:
+  private:
     //
     //  Internal supporting methods:
     //
     int getFaceVaryingChannel(FVarID fvarID) const;
 
-    int getFaceVertexPointIndices(Index faceIndex, int faceVertex,
-                                  Index indices[], int vtxOrFVarChannel) const;
+    int getFaceVertexPointIndices(Index faceIndex, int faceVertex, Index indices[], int vtxOrFVarChannel) const;
 
-    int getFacePatchPointIndices(Index faceIndex,
-                                 Index indices[], int vtxOrFVarChannel) const;
+    int getFacePatchPointIndices(Index faceIndex, Index indices[], int vtxOrFVarChannel) const;
 
-private:
+  private:
     //  Additional members for the subclass:
-    Far::TopologyRefiner const & _mesh;
+    Far::TopologyRefiner const &_mesh;
 
     int _numFaces;
     int _numFVarChannels;
 };
-
 
 //
 /// @brief Template for concrete subclasses of RefinerSurfaceFactoryBase
@@ -153,19 +142,13 @@ private:
 /// Note a default template parameter uses the base SurfaceFactoryCache
 /// for convenience, but which is not thread-safe.
 ///
-template <class CACHE_TYPE = SurfaceFactoryCache>
-class RefinerSurfaceFactory : public RefinerSurfaceFactoryBase {
-public:
-    RefinerSurfaceFactory(Far::TopologyRefiner const & mesh,
-                          Options const & options = Options()) :
-            RefinerSurfaceFactoryBase(mesh, options),
-            _localCache() {
-
-        SurfaceFactory::setInternalCache(&_localCache);
-    }
+template <class CACHE_TYPE = SurfaceFactoryCache> class RefinerSurfaceFactory : public RefinerSurfaceFactoryBase
+{
+  public:
+    RefinerSurfaceFactory(Far::TopologyRefiner const &mesh, Options const &options = Options()) : RefinerSurfaceFactoryBase(mesh, options), _localCache() { SurfaceFactory::setInternalCache(&_localCache); }
     ~RefinerSurfaceFactory() override = default;
 
-private:
+  private:
     CACHE_TYPE _localCache;
 };
 

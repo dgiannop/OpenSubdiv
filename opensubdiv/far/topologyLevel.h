@@ -24,18 +24,20 @@
 #ifndef OPENSUBDIV3_FAR_TOPOLOGY_LEVEL_H
 #define OPENSUBDIV3_FAR_TOPOLOGY_LEVEL_H
 
-#include "../version.h"
-
-#include "../vtr/level.h"
-#include "../vtr/refinement.h"
-#include "../far/types.h"
-
 #include <vector>
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+#include "../far/types.h"
+#include "../version.h"
+#include "../vtr/level.h"
+#include "../vtr/refinement.h"
 
-namespace Far {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
+
+namespace Far
+{
 
 ///
 /// \brief An interface for accessing data in a specific level of a refined topology hierarchy.
@@ -46,9 +48,9 @@ namespace Far {
 /// lifetime of the TopologyRefiner that created and returned them, and only for a given refinement,
 /// i.e. if the TopologyRefiner is re-refined, any references to TopoologyLevels are invalidated.
 ///
-class TopologyLevel {
-
-public:
+class TopologyLevel
+{
+  public:
     //@{
     /// @name Methods to inspect the overall inventory of components:
     ///
@@ -59,13 +61,13 @@ public:
     ///
 
     /// \brief Return the number of vertices in this level
-    int GetNumVertices() const     { return _level->getNumVertices(); }
+    int GetNumVertices() const { return _level->getNumVertices(); }
 
     /// \brief Return the number of faces in this level
-    int GetNumFaces() const        { return _level->getNumFaces(); }
+    int GetNumFaces() const { return _level->getNumFaces(); }
 
     /// \brief Return the number of edges in this level
-    int GetNumEdges() const        { return _level->getNumEdges(); }
+    int GetNumEdges() const { return _level->getNumEdges(); }
 
     /// \brief Return the total number of face-vertices, i.e. the sum of all vertices for all faces
     int GetNumFaceVertices() const { return _level->getNumFaceVerticesTotal(); }
@@ -93,19 +95,19 @@ public:
     ConstIndexArray GetFaceVertices(Index f) const { return _level->getFaceVertices(f); }
 
     /// \brief Access the edges incident a given face
-    ConstIndexArray GetFaceEdges(Index f) const    { return _level->getFaceEdges(f); }
+    ConstIndexArray GetFaceEdges(Index f) const { return _level->getFaceEdges(f); }
 
     /// \brief Access the vertices incident a given edge
     ConstIndexArray GetEdgeVertices(Index e) const { return _level->getEdgeVertices(e); }
 
     /// \brief Access the faces incident a given edge
-    ConstIndexArray GetEdgeFaces(Index e) const    { return _level->getEdgeFaces(e); }
+    ConstIndexArray GetEdgeFaces(Index e) const { return _level->getEdgeFaces(e); }
 
     /// \brief Access the faces incident a given vertex
-    ConstIndexArray GetVertexFaces(Index v) const  { return _level->getVertexFaces(v); }
+    ConstIndexArray GetVertexFaces(Index v) const { return _level->getVertexFaces(v); }
 
     /// \brief Access the edges incident a given vertex
-    ConstIndexArray GetVertexEdges(Index v) const  { return _level->getVertexEdges(v); }
+    ConstIndexArray GetVertexEdges(Index v) const { return _level->getVertexEdges(v); }
 
     /// \brief Access the local indices of a vertex with respect to its incident faces
     ConstLocalIndexArray GetVertexFaceLocalIndices(Index v) const { return _level->getVertexFaceLocalIndices(v); }
@@ -114,7 +116,7 @@ public:
     ConstLocalIndexArray GetVertexEdgeLocalIndices(Index v) const { return _level->getVertexEdgeLocalIndices(v); }
 
     /// \brief Access the local indices of an edge with respect to its incident faces
-    ConstLocalIndexArray GetEdgeFaceLocalIndices(Index e) const   { return _level->getEdgeFaceLocalIndices(e); }
+    ConstLocalIndexArray GetEdgeFaceLocalIndices(Index e) const { return _level->getEdgeFaceLocalIndices(e); }
 
     /// \brief Identify the edge matching the given vertex pair
     Index FindEdge(Index v0, Index v1) const { return _level->findEdge(v0, v1); }
@@ -125,13 +127,13 @@ public:
     ///
 
     /// \brief Return if the edge is non-manifold
-    bool IsEdgeNonManifold(Index e) const   { return _level->isEdgeNonManifold(e); }
+    bool IsEdgeNonManifold(Index e) const { return _level->isEdgeNonManifold(e); }
 
     /// \brief Return if the vertex is non-manifold
     bool IsVertexNonManifold(Index v) const { return _level->isVertexNonManifold(v); }
 
     /// \brief Return if the edge is a boundary (only one incident face)
-    bool IsEdgeBoundary(Index e) const   { return _level->getEdgeTag(e)._boundary; }
+    bool IsEdgeBoundary(Index e) const { return _level->getEdgeTag(e)._boundary; }
 
     /// \brief Return if the vertex is on a boundary (at least one incident boundary edge)
     bool IsVertexBoundary(Index v) const { return _level->getVertexTag(v)._boundary; }
@@ -170,7 +172,7 @@ public:
     /// can be inspected.
 
     /// \brief Return the sharpness assigned a given edge
-    float GetEdgeSharpness(Index e) const   { return _level->getEdgeSharpness(e); }
+    float GetEdgeSharpness(Index e) const { return _level->getEdgeSharpness(e); }
 
     /// \brief Return the sharpness assigned a given vertex
     float GetVertexSharpness(Index v) const { return _level->getVertexSharpness(v); }
@@ -188,7 +190,7 @@ public:
     bool IsVertexSemiSharp(Index v) const { return _level->getVertexTag(v)._semiSharp; }
 
     /// \brief Return if a given face has been tagged as a hole
-    bool  IsFaceHole(Index f) const         { return _level->isFaceHole(f); }
+    bool IsFaceHole(Index f) const { return _level->isFaceHole(f); }
 
     /// \brief Return the subdivision rule assigned a given vertex specific to this level
     Sdc::Crease::Rule GetVertexRule(Index v) const { return _level->getVertexRule(v); }
@@ -234,24 +236,16 @@ public:
     int GetNumFVarValues(int channel = 0) const { return _level->getNumFVarValues(channel); }
 
     /// \brief Access the face-varying values associated with a particular face
-    ConstIndexArray GetFaceFVarValues(Index f, int channel = 0) const {
-        return _level->getFaceFVarValues(f, channel);
-    }
+    ConstIndexArray GetFaceFVarValues(Index f, int channel = 0) const { return _level->getFaceFVarValues(f, channel); }
 
     /// \brief Return if face-varying topology around a vertex matches
-    bool DoesVertexFVarTopologyMatch(Index v, int channel = 0) const {
-        return _level->doesVertexFVarTopologyMatch(v, channel);
-    }
+    bool DoesVertexFVarTopologyMatch(Index v, int channel = 0) const { return _level->doesVertexFVarTopologyMatch(v, channel); }
 
     /// \brief Return if face-varying topology across the edge only matches
-    bool DoesEdgeFVarTopologyMatch(Index e, int channel = 0) const {
-        return _level->doesEdgeFVarTopologyMatch(e, channel);
-    }
+    bool DoesEdgeFVarTopologyMatch(Index e, int channel = 0) const { return _level->doesEdgeFVarTopologyMatch(e, channel); }
 
     /// \brief Return if face-varying topology around a face matches
-    bool DoesFaceFVarTopologyMatch(Index f, int channel = 0) const {
-        return _level->doesFaceFVarTopologyMatch(f, channel);
-    }
+    bool DoesFaceFVarTopologyMatch(Index f, int channel = 0) const { return _level->doesFaceFVarTopologyMatch(f, channel); }
 
     //@}
 
@@ -268,10 +262,10 @@ public:
     ConstIndexArray GetEdgeChildEdges(Index e) const { return _refToChild->getEdgeChildEdges(e); }
 
     /// \brief Return the child vertex (in the next level) of a given face
-    Index GetFaceChildVertex(  Index f) const { return _refToChild->getFaceChildVertex(f); }
+    Index GetFaceChildVertex(Index f) const { return _refToChild->getFaceChildVertex(f); }
 
     /// \brief Return the child vertex (in the next level) of a given edge
-    Index GetEdgeChildVertex(  Index e) const { return _refToChild->getEdgeChildVertex(e); }
+    Index GetEdgeChildVertex(Index e) const { return _refToChild->getEdgeChildVertex(e); }
 
     /// \brief Return the child vertex (in the next level) of a given vertex
     Index GetVertexChildVertex(Index v) const { return _refToChild->getVertexChildVertex(v); }
@@ -287,18 +281,17 @@ public:
     void PrintTopology(bool children = true) const { _level->print((children && _refToChild) ? _refToChild : 0); }
     //@}
 
-
-private:
+  private:
     friend class TopologyRefiner;
 
-    Vtr::internal::Level const *      _level;
-    Vtr::internal::Refinement const * _refToParent;
-    Vtr::internal::Refinement const * _refToChild;
+    Vtr::internal::Level const *     _level;
+    Vtr::internal::Refinement const *_refToParent;
+    Vtr::internal::Refinement const *_refToChild;
 
-public:
+  public:
     //  Not intended for public use, but required by std::vector, etc...
-    TopologyLevel() { }
-    ~TopologyLevel() { }
+    TopologyLevel() {}
+    ~TopologyLevel() {}
 };
 
 } // end namespace Far

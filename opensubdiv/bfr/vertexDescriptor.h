@@ -26,13 +26,15 @@
 #define OPENSUBDIV3_BFR_VERTEX_DESCRIPTOR_H
 
 #include "../version.h"
-
 #include "../vtr/stackBuffer.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Bfr {
+namespace Bfr
+{
 
 ///
 /// @brief Simple class used by subclasses of SurfaceFactory to describe a
@@ -127,9 +129,10 @@ namespace Bfr {
 //  cases may be worth exploring in future, but face-varying indices and
 //  non-manifold (unordered) vertices will always require such a full set,
 //  so both methods will need to co-exist.
-//  
-class VertexDescriptor {
-public:
+//
+class VertexDescriptor
+{
+  public:
     //  The full declaration must be enclosed by calls to these methods:
     //
     //  Note that vertex valences or face sizes in excess of those defined
@@ -145,7 +148,7 @@ public:
     /// methods between calls to Initialize() and Finalize(). Both return
     /// false to indicate failure due to invalid input, or the instance
     /// can be inspected after each to determine if valid.
-    /// 
+    ///
 
     /// @brief Initialize specification with the number of incident faces
     bool Initialize(int numIncidentFaces);
@@ -181,7 +184,7 @@ public:
     //  to not declare manifold -- leaving the Factory to make sense of
     //  the set of incident faces from the face-vertex indices that are
     //  provided elsewhere.
-    //  
+    //
 
     //@{
     /// @name Methods to specify topology
@@ -235,8 +238,7 @@ public:
     ///                           of the incident face, i.e. the edge of the
     ///                           face preceding the vertex.
     ///
-    void SetIncidentFaceEdgeSharpness(int faceIndex, float leadingEdgeSharp,
-                                                     float trailingEdgeSharp);
+    void SetIncidentFaceEdgeSharpness(int faceIndex, float leadingEdgeSharp, float trailingEdgeSharp);
 
     /// @brief Remove any sharpness assigned to the incident edges
     void ClearEdgeSharpness();
@@ -274,35 +276,34 @@ public:
     float GetManifoldEdgeSharpness(int edgeIndex) const;
 
     /// @brief Return the sharpness assigned to edges of an incident face
-    void GetIncidentFaceEdgeSharpness(int faceIndex,
-            float * leadingEdgeSharp, float * trailingEdgeSharp) const;
+    void GetIncidentFaceEdgeSharpness(int faceIndex, float *leadingEdgeSharp, float *trailingEdgeSharp) const;
     //@}
 
-protected:
+  protected:
     /// @cond PROTECTED
     friend class FaceVertex;
 
-    VertexDescriptor() { }
-    ~VertexDescriptor() { }
+    VertexDescriptor() {}
+    ~VertexDescriptor() {}
 
-    typedef Vtr::internal::StackBuffer<int,8,true>    IntBuffer;
-    typedef Vtr::internal::StackBuffer<float,16,true> FloatBuffer;
+    typedef Vtr::internal::StackBuffer<int, 8, true>    IntBuffer;
+    typedef Vtr::internal::StackBuffer<float, 16, true> FloatBuffer;
 
     void initFaceSizes();
     void initEdgeSharpness();
     /// @endcond
 
-protected:
+  protected:
     /// @cond PROTECTED
     //  Member variables assigned through the above interface:
-    unsigned short _isValid       : 1;
+    unsigned short _isValid : 1;
     unsigned short _isInitialized : 1;
-    unsigned short _isFinalized   : 1;
+    unsigned short _isFinalized : 1;
 
     unsigned short _isManifold : 1;
     unsigned short _isBoundary : 1;
 
-    unsigned short _hasFaceSizes     : 1;
+    unsigned short _hasFaceSizes : 1;
     unsigned short _hasEdgeSharpness : 1;
 
     short _numFaces;
@@ -315,129 +316,84 @@ protected:
 
 //
 //  Public inline methods for simple assignment:
-//  
-inline bool
-VertexDescriptor::IsValid() const {
-    return _isValid;
-}
+//
+inline bool VertexDescriptor::IsValid() const { return _isValid; }
 
-inline void
-VertexDescriptor::SetManifold(bool isManifold) {
-    _isManifold = isManifold;
-}
-inline bool
-VertexDescriptor::IsManifold() const {
-    return _isManifold;
-}
+inline void VertexDescriptor::SetManifold(bool isManifold) { _isManifold = isManifold; }
+inline bool VertexDescriptor::IsManifold() const { return _isManifold; }
 
-inline void
-VertexDescriptor::SetBoundary(bool isBoundary) {
-    _isBoundary = isBoundary;
-}
-inline bool
-VertexDescriptor::IsBoundary() const {
-    return _isBoundary;
-}
+inline void VertexDescriptor::SetBoundary(bool isBoundary) { _isBoundary = isBoundary; }
+inline bool VertexDescriptor::IsBoundary() const { return _isBoundary; }
 
 //
 //  Public inline methods involving sizes of incident faces:
-//  
-inline bool
-VertexDescriptor::HasIncidentFaceSizes() const {
-    return _hasFaceSizes;
-}
-inline void
-VertexDescriptor::ClearIncidentFaceSizes() {
-    _hasFaceSizes = false;
-}
+//
+inline bool VertexDescriptor::HasIncidentFaceSizes() const { return _hasFaceSizes; }
+inline void VertexDescriptor::ClearIncidentFaceSizes() { _hasFaceSizes = false; }
 
-inline void
-VertexDescriptor::SetIncidentFaceSize(int incFaceIndex, int faceSize) {
-
-    if (!_hasFaceSizes) initFaceSizes();
+inline void VertexDescriptor::SetIncidentFaceSize(int incFaceIndex, int faceSize)
+{
+    if (!_hasFaceSizes)
+        initFaceSizes();
 
     _faceSizeOffsets[incFaceIndex] = faceSize;
 }
-inline int
-VertexDescriptor::GetIncidentFaceSize(int incFaceIndex) const {
-
-    return _isFinalized ?
-          (_faceSizeOffsets[incFaceIndex+1] - _faceSizeOffsets[incFaceIndex]) :
-           _faceSizeOffsets[incFaceIndex];
-}
+inline int VertexDescriptor::GetIncidentFaceSize(int incFaceIndex) const { return _isFinalized ? (_faceSizeOffsets[incFaceIndex + 1] - _faceSizeOffsets[incFaceIndex]) : _faceSizeOffsets[incFaceIndex]; }
 
 //
 //  Public inline methods involving vertex sharpness:
-//  
-inline bool
-VertexDescriptor::HasVertexSharpness() const {
-    return _vertSharpness > 0.0f;
-}
-inline void
-VertexDescriptor::ClearVertexSharpness() {
-    _vertSharpness = 0.0f;
-}
+//
+inline bool VertexDescriptor::HasVertexSharpness() const { return _vertSharpness > 0.0f; }
+inline void VertexDescriptor::ClearVertexSharpness() { _vertSharpness = 0.0f; }
 
-inline void
-VertexDescriptor::SetVertexSharpness(float vertSharpness) {
-    _vertSharpness = vertSharpness;
-}
-inline float
-VertexDescriptor::GetVertexSharpness() const {
-    return _vertSharpness;
-}
+inline void  VertexDescriptor::SetVertexSharpness(float vertSharpness) { _vertSharpness = vertSharpness; }
+inline float VertexDescriptor::GetVertexSharpness() const { return _vertSharpness; }
 
 //
 //  Public inline methods involving vertex sharpness:
-//  
-inline bool
-VertexDescriptor::HasEdgeSharpness() const {
-    return _hasEdgeSharpness;
-}
-inline void
-VertexDescriptor::ClearEdgeSharpness() {
-    _hasEdgeSharpness = false;
-}
+//
+inline bool VertexDescriptor::HasEdgeSharpness() const { return _hasEdgeSharpness; }
+inline void VertexDescriptor::ClearEdgeSharpness() { _hasEdgeSharpness = false; }
 
-inline void
-VertexDescriptor::SetManifoldEdgeSharpness(int edgeIndex, float sharpness) {
-
-    if (!_hasEdgeSharpness) initEdgeSharpness();
+inline void VertexDescriptor::SetManifoldEdgeSharpness(int edgeIndex, float sharpness)
+{
+    if (!_hasEdgeSharpness)
+        initEdgeSharpness();
 
     //  Assign the leading edge of the face after the edge (even index):
-    if (edgeIndex < _numFaces) {
-        _faceEdgeSharpness[2*edgeIndex] = sharpness;
+    if (edgeIndex < _numFaces)
+    {
+        _faceEdgeSharpness[2 * edgeIndex] = sharpness;
     }
 
     //  Assign the trailing edge of the face before the edge (odd index):
-    if (edgeIndex > 0) {
-        _faceEdgeSharpness[2*edgeIndex-1] = sharpness;
-    } else if (!IsBoundary()) {
-        _faceEdgeSharpness[2*_numFaces-1] = sharpness;
+    if (edgeIndex > 0)
+    {
+        _faceEdgeSharpness[2 * edgeIndex - 1] = sharpness;
+    }
+    else if (!IsBoundary())
+    {
+        _faceEdgeSharpness[2 * _numFaces - 1] = sharpness;
     }
 }
-inline float
-VertexDescriptor::GetManifoldEdgeSharpness(int edgeIndex) const {
-
+inline float VertexDescriptor::GetManifoldEdgeSharpness(int edgeIndex) const
+{
     //  All edges are first of the pair (even index) except last of boundary
-    return _faceEdgeSharpness[2*edgeIndex - (edgeIndex == _numFaces)];
+    return _faceEdgeSharpness[2 * edgeIndex - (edgeIndex == _numFaces)];
 }
 
-inline void
-VertexDescriptor::SetIncidentFaceEdgeSharpness(int faceIndex,
-        float leadingEdgeSharpness, float trailingEdgeSharpness) {
+inline void VertexDescriptor::SetIncidentFaceEdgeSharpness(int faceIndex, float leadingEdgeSharpness, float trailingEdgeSharpness)
+{
+    if (!_hasEdgeSharpness)
+        initEdgeSharpness();
 
-    if (!_hasEdgeSharpness) initEdgeSharpness();
-
-    _faceEdgeSharpness[2*faceIndex  ] = leadingEdgeSharpness;
-    _faceEdgeSharpness[2*faceIndex+1] = trailingEdgeSharpness;
+    _faceEdgeSharpness[2 * faceIndex]     = leadingEdgeSharpness;
+    _faceEdgeSharpness[2 * faceIndex + 1] = trailingEdgeSharpness;
 }
-inline void
-VertexDescriptor::GetIncidentFaceEdgeSharpness(int faceIndex,
-        float * leadingEdgeSharpness, float * trailingEdgeSharpness) const {
-
-    *leadingEdgeSharpness  = _faceEdgeSharpness[2*faceIndex];
-    *trailingEdgeSharpness = _faceEdgeSharpness[2*faceIndex+1];
+inline void VertexDescriptor::GetIncidentFaceEdgeSharpness(int faceIndex, float *leadingEdgeSharpness, float *trailingEdgeSharpness) const
+{
+    *leadingEdgeSharpness  = _faceEdgeSharpness[2 * faceIndex];
+    *trailingEdgeSharpness = _faceEdgeSharpness[2 * faceIndex + 1];
 }
 
 } // end namespace Bfr

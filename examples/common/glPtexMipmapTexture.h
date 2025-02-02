@@ -32,11 +32,10 @@
 #include <Ptexture.h>
 #include <stdlib.h>
 
-class GLPtexMipmapTexture : OpenSubdiv::Osd::NonCopyable<GLPtexMipmapTexture> {
-public:
-    static GLPtexMipmapTexture * Create(PtexTexture * reader,
-                                           int maxLevels=-1,
-                                           size_t targetMemory=0);
+class GLPtexMipmapTexture : OpenSubdiv::Osd::NonCopyable<GLPtexMipmapTexture>
+{
+  public:
+    static GLPtexMipmapTexture *Create(PtexTexture *reader, int maxLevels = -1, size_t targetMemory = 0);
 
     /// Returns GLSL shader snippet to fetch ptex
     static const char *GetShaderSource();
@@ -53,19 +52,18 @@ public:
 
     ~GLPtexMipmapTexture();
 
-private:
+  private:
     GLPtexMipmapTexture();
 
-    GLsizei _width,   // width / height / depth of the 3D texel buffer
-            _height,
-            _depth;
+    GLsizei _width, // width / height / depth of the 3D texel buffer
+        _height, _depth;
 
-    GLint   _format;  // texel color format
+    GLint _format; // texel color format
 
-    GLuint _layout,   // per-face lookup table
-           _texels;   // texel data
+    GLuint _layout, // per-face lookup table
+        _texels;    // texel data
 
-    size_t _memoryUsage;  // total amount of memory used (estimate)
+    size_t _memoryUsage; // total amount of memory used (estimate)
 };
 
-#endif  // OPENSUBDIV_EXAMPLES_GL_PTEX_MIPMAP_TEXTURE_H
+#endif // OPENSUBDIV_EXAMPLES_GL_PTEX_MIPMAP_TEXTURE_H

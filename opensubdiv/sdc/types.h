@@ -26,36 +26,40 @@
 
 #include "../version.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Sdc {
+namespace Sdc
+{
 
 ///
 ///  \brief Enumerated type for all subdivision schemes supported by OpenSubdiv
 ///
-enum SchemeType {
+enum SchemeType
+{
     SCHEME_BILINEAR,
     SCHEME_CATMARK,
     SCHEME_LOOP
 };
 
-
 ///
 ///  \brief Enumerated type for all face splitting schemes
 ///
-enum Split {
-    SPLIT_TO_QUADS,  ///< Used by Catmark and Bilinear
-    SPLIT_TO_TRIS,   ///< Used by Loop
-    SPLIT_HYBRID     ///< Not currently used (potential future extension)
+enum Split
+{
+    SPLIT_TO_QUADS, ///< Used by Catmark and Bilinear
+    SPLIT_TO_TRIS,  ///< Used by Loop
+    SPLIT_HYBRID    ///< Not currently used (potential future extension)
 };
 
 ///
 ///  \brief Traits associated with the types of all subdivision schemes -- parameterized by
 ///  the scheme type.  All traits are also defined in the scheme itself.
 ///
-struct SchemeTypeTraits {
-
+struct SchemeTypeTraits
+{
     static SchemeType GetType(SchemeType schemeType) { return schemeType; }
 
     static Split GetTopologicalSplitType(SchemeType schemeType);
@@ -63,11 +67,10 @@ struct SchemeTypeTraits {
     static int   GetRegularVertexValence(SchemeType schemeType);
     static int   GetLocalNeighborhoodSize(SchemeType schemeType);
 
-    static char const* GetName(SchemeType schemeType);
+    static char const *GetName(SchemeType schemeType);
 };
 
-
-} // end namespace sdc
+} // namespace Sdc
 
 } // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;

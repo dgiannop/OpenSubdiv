@@ -25,14 +25,17 @@
 #ifndef OPENSUBDIV3_BFR_SURFACE_FACTORY_ADAPTER_H
 #define OPENSUBDIV3_BFR_SURFACE_FACTORY_ADAPTER_H
 
-#include "../version.h"
-
 #include <cstdint>
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+#include "../version.h"
 
-namespace Bfr {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
+
+namespace Bfr
+{
 
 class VertexDescriptor;
 
@@ -62,8 +65,9 @@ class VertexDescriptor;
 //  topology -- sets of face-varying data are uniquely distinguished by an
 //  associated integer (a face-varying ID).
 //
-class SurfaceFactoryMeshAdapter {
-public:
+class SurfaceFactoryMeshAdapter
+{
+  public:
     /// @brief Integer type representing a mesh index
     typedef int Index;
 
@@ -79,13 +83,13 @@ public:
     ///
     typedef std::intptr_t FVarID;
 
-protected:
+  protected:
     /// @cond PROTECTED
-    SurfaceFactoryMeshAdapter() { }
-    virtual ~SurfaceFactoryMeshAdapter() { }
+    SurfaceFactoryMeshAdapter() {}
+    virtual ~SurfaceFactoryMeshAdapter() {}
     /// @endcond
 
-protected:
+  protected:
     //@{
     /// @name Methods to query simple face properties
     ///
@@ -110,15 +114,13 @@ protected:
     ///
 
     /// @brief Gather the indices of the face's vertices
-    virtual int getFaceVertexIndices(Index faceIndex,
-                    Index vertexIndices[]) const = 0;
+    virtual int getFaceVertexIndices(Index faceIndex, Index vertexIndices[]) const = 0;
 
     /// @brief Gather the face-varying indices of the face's vertices
-    virtual int getFaceFVarValueIndices(Index faceIndex,
-                    FVarID fvarID, Index fvarValueIndices[]) const = 0;
+    virtual int getFaceFVarValueIndices(Index faceIndex, FVarID fvarID, Index fvarValueIndices[]) const = 0;
     //@}
 
-protected:
+  protected:
     //@{
     /// @name Methods to identify the neighborhood of a face-vertex
     ///
@@ -156,25 +158,19 @@ protected:
     /// differs from the vertex topology, and both the face-varying and
     /// vertex indices are ordered this way for consistency.
     ///
- 
+
     /// @brief Describe the topology of incident faces around a face-vertex
-    virtual int populateFaceVertexDescriptor(
-                    Index faceIndex, int faceVertex,
-                    VertexDescriptor * vertexDescriptor) const = 0;
- 
+    virtual int populateFaceVertexDescriptor(Index faceIndex, int faceVertex, VertexDescriptor *vertexDescriptor) const = 0;
+
     /// @brief Gather vertex indices of incident faces around a face-vertex
-    virtual int getFaceVertexIncidentFaceVertexIndices(
-                    Index faceIndex, int faceVertex,
-                    Index vertexIndices[]) const = 0;
+    virtual int getFaceVertexIncidentFaceVertexIndices(Index faceIndex, int faceVertex, Index vertexIndices[]) const = 0;
 
     /// @brief Gather face-varying indices of incident faces around a
     ///        face-vertex
-    virtual int getFaceVertexIncidentFaceFVarValueIndices(
-                    Index faceIndex, int faceVertex,
-                    FVarID fvarID, Index fvarValueIndices[]) const = 0;
+    virtual int getFaceVertexIncidentFaceFVarValueIndices(Index faceIndex, int faceVertex, FVarID fvarID, Index fvarValueIndices[]) const = 0;
     //@}
 
-protected:
+  protected:
     //@{
     /// @name Optional methods for purely regular topology
     ///
@@ -200,31 +196,21 @@ protected:
     /// pass nullptr (0) for the index arrays -- in which case only the
     /// return value should be provided.
     ///
-    virtual bool getFaceNeighborhoodVertexIndicesIfRegular(
-            Index faceIndex, Index vertexIndices[]) const;
+    virtual bool getFaceNeighborhoodVertexIndicesIfRegular(Index faceIndex, Index vertexIndices[]) const;
 
-    virtual bool getFaceNeighborhoodFVarValueIndicesIfRegular(
-            Index faceIndex, FVarID fvarID, Index fvarValueIndices[]) const;
+    virtual bool getFaceNeighborhoodFVarValueIndicesIfRegular(Index faceIndex, FVarID fvarID, Index fvarValueIndices[]) const;
     //@}
 
-private:
+  private:
     //  No private members
 };
 
 //
 //  Inline defaults for optional methods:
 //
-inline bool
-SurfaceFactoryMeshAdapter::getFaceNeighborhoodVertexIndicesIfRegular(
-        Index, Index[]) const {
-    return false;
-}
+inline bool SurfaceFactoryMeshAdapter::getFaceNeighborhoodVertexIndicesIfRegular(Index, Index[]) const { return false; }
 
-inline bool
-SurfaceFactoryMeshAdapter::getFaceNeighborhoodFVarValueIndicesIfRegular(
-        Index, FVarID, Index[]) const {
-    return false;
-}
+inline bool SurfaceFactoryMeshAdapter::getFaceNeighborhoodFVarValueIndicesIfRegular(Index, FVarID, Index[]) const { return false; }
 
 } // end namespace Bfr
 

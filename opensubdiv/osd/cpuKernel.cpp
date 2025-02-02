@@ -23,63 +23,54 @@
 //
 
 #include "../osd/cpuKernel.h"
-#include "../osd/bufferDescriptor.h"
 
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
 #include <vector>
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+#include "../osd/bufferDescriptor.h"
 
-namespace Osd {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-template <class T> T *
-elementAtIndex(T * src, int index, BufferDescriptor const &desc) {
+namespace Osd
+{
 
-    return src + index * desc.stride;
-}
+template <class T> T *elementAtIndex(T *src, int index, BufferDescriptor const &desc) { return src + index * desc.stride; }
 
-static inline void
-clear(float *dst, BufferDescriptor const &desc) {
-
+static inline void clear(float *dst, BufferDescriptor const &desc)
+{
     assert(dst);
-    memset(dst, 0, desc.length*sizeof(float));
+    memset(dst, 0, desc.length * sizeof(float));
 }
 
-static inline void
-addWithWeight(float *dst, const float *src, int srcIndex, float weight,
-              BufferDescriptor const &desc) {
-
+static inline void addWithWeight(float *dst, const float *src, int srcIndex, float weight, BufferDescriptor const &desc)
+{
     assert(src && dst);
     src = elementAtIndex(src, srcIndex, desc);
-    for (int k = 0; k < desc.length; ++k) {
+    for (int k = 0; k < desc.length; ++k)
+    {
         dst[k] += src[k] * weight;
     }
 }
 
-static inline void
-copy(float *dst, int dstIndex, const float *src, BufferDescriptor const &desc) {
-
+static inline void copy(float *dst, int dstIndex, const float *src, BufferDescriptor const &desc)
+{
     assert(src && dst);
 
     dst = elementAtIndex(dst, dstIndex, desc);
-    memcpy(dst, src, desc.length*sizeof(float));
+    memcpy(dst, src, desc.length * sizeof(float));
 }
 
-void
-CpuEvalStencils(float const * src, BufferDescriptor const &srcDesc,
-                float * dst,       BufferDescriptor const &dstDesc,
-                int const * sizes,
-                int const * offsets,
-                int const * indices,
-                float const * weights,
-                int start, int end) {
+void CpuEvalStencils(float const *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, int const *sizes, int const *offsets, int const *indices, float const *weights, int start, int end)
+{
+    assert(start >= 0 && start < end);
 
-    assert(start>=0 && start<end);
-
-    if (start>0) {
+    if (start > 0)
+    {
         sizes += start;
         indices += offsets[start];
         weights += offsets[start];
@@ -88,31 +79,29 @@ CpuEvalStencils(float const * src, BufferDescriptor const &srcDesc,
     src += srcDesc.offset;
     dst += dstDesc.offset;
 
-    if (srcDesc.length == 4 && dstDesc.length == 4 &&
-        srcDesc.stride == 4 && dstDesc.stride == 4) {
-
+    if (srcDesc.length == 4 && dstDesc.length == 4 && srcDesc.stride == 4 && dstDesc.stride == 4)
+    {
         // SIMD fast path for aligned primvar data (4 floats)
-        ComputeStencilKernel<4>(src, dst,
-            sizes, indices, weights, start,  end);
-
-    } else if (srcDesc.length == 8 && dstDesc.length == 8 &&
-               srcDesc.stride == 8 && dstDesc.stride == 8) {
-
+        ComputeStencilKernel<4>(src, dst, sizes, indices, weights, start, end);
+    }
+    else if (srcDesc.length == 8 && dstDesc.length == 8 && srcDesc.stride == 8 && dstDesc.stride == 8)
+    {
         // SIMD fast path for aligned primvar data (8 floats)
-        ComputeStencilKernel<8>(src, dst,
-            sizes, indices, weights, start,  end);
-    } else {
-
+        ComputeStencilKernel<8>(src, dst, sizes, indices, weights, start, end);
+    }
+    else
+    {
         // Slow path for non-aligned data
 
-        float * result = (float*)alloca(srcDesc.length * sizeof(float));
+        float *result = (float *)alloca(srcDesc.length * sizeof(float));
 
-        int nstencils = end-start;
-        for (int i=0; i<nstencils; ++i, ++sizes) {
-
+        int nstencils = end - start;
+        for (int i = 0; i < nstencils; ++i, ++sizes)
+        {
             clear(result, srcDesc);
 
-            for (int j=0; j<*sizes; ++j) {
+            for (int j = 0; j < *sizes; ++j)
+            {
                 addWithWeight(result, src, *indices++, *weights++, srcDesc);
             }
 
@@ -121,19 +110,11 @@ CpuEvalStencils(float const * src, BufferDescriptor const &srcDesc,
     }
 }
 
-void
-CpuEvalStencils(float const * src, BufferDescriptor const &srcDesc,
-                float * dst,       BufferDescriptor const &dstDesc,
-                float * dstDu,     BufferDescriptor const &dstDuDesc,
-                float * dstDv,     BufferDescriptor const &dstDvDesc,
-                int const * sizes,
-                int const * offsets,
-                int const * indices,
-                float const * weights,
-                float const * duWeights,
-                float const * dvWeights,
-                int start, int end) {
-    if (start > 0) {
+void CpuEvalStencils(float const *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, float *dstDu, BufferDescriptor const &dstDuDesc, float *dstDv, BufferDescriptor const &dstDvDesc, int const *sizes, int const *offsets,
+                     int const *indices, float const *weights, float const *duWeights, float const *dvWeights, int start, int end)
+{
+    if (start > 0)
+    {
         sizes += start;
         indices += offsets[start];
         weights += offsets[start];
@@ -146,48 +127,36 @@ CpuEvalStencils(float const * src, BufferDescriptor const &srcDesc,
     dstDu += dstDuDesc.offset;
     dstDv += dstDvDesc.offset;
 
-    int nOutLength = dstDesc.length + dstDuDesc.length + dstDvDesc.length;
-    float * result   = (float*)alloca(nOutLength * sizeof(float));
-    float * resultDu = result + dstDesc.length;
-    float * resultDv = resultDu + dstDuDesc.length;
+    int    nOutLength = dstDesc.length + dstDuDesc.length + dstDvDesc.length;
+    float *result     = (float *)alloca(nOutLength * sizeof(float));
+    float *resultDu   = result + dstDesc.length;
+    float *resultDv   = resultDu + dstDuDesc.length;
 
     int nStencils = end - start;
-    for (int i = 0; i < nStencils; ++i, ++sizes) {
-
+    for (int i = 0; i < nStencils; ++i, ++sizes)
+    {
         // clear
         memset(result, 0, nOutLength * sizeof(float));
 
-        for (int j=0; j<*sizes; ++j) {
-            addWithWeight(result,   src, *indices, *weights++,   srcDesc);
+        for (int j = 0; j < *sizes; ++j)
+        {
+            addWithWeight(result, src, *indices, *weights++, srcDesc);
             addWithWeight(resultDu, src, *indices, *duWeights++, srcDesc);
             addWithWeight(resultDv, src, *indices, *dvWeights++, srcDesc);
             ++indices;
         }
-        copy(dst,   i, result, dstDesc);
+        copy(dst, i, result, dstDesc);
         copy(dstDu, i, resultDu, dstDuDesc);
         copy(dstDv, i, resultDv, dstDvDesc);
     }
 }
 
-void
-CpuEvalStencils(float const * src, BufferDescriptor const &srcDesc,
-                float * dst,       BufferDescriptor const &dstDesc,
-                float * dstDu,     BufferDescriptor const &dstDuDesc,
-                float * dstDv,     BufferDescriptor const &dstDvDesc,
-                float * dstDuu,    BufferDescriptor const &dstDuuDesc,
-                float * dstDuv,    BufferDescriptor const &dstDuvDesc,
-                float * dstDvv,    BufferDescriptor const &dstDvvDesc,
-                int const * sizes,
-                int const * offsets,
-                int const * indices,
-                float const * weights,
-                float const * duWeights,
-                float const * dvWeights,
-                float const * duuWeights,
-                float const * duvWeights,
-                float const * dvvWeights,
-                int start, int end) {
-    if (start > 0) {
+void CpuEvalStencils(float const *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, float *dstDu, BufferDescriptor const &dstDuDesc, float *dstDv, BufferDescriptor const &dstDvDesc, float *dstDuu,
+                     BufferDescriptor const &dstDuuDesc, float *dstDuv, BufferDescriptor const &dstDuvDesc, float *dstDvv, BufferDescriptor const &dstDvvDesc, int const *sizes, int const *offsets, int const *indices, float const *weights,
+                     float const *duWeights, float const *dvWeights, float const *duuWeights, float const *duvWeights, float const *dvvWeights, int start, int end)
+{
+    if (start > 0)
+    {
         sizes += start;
         indices += offsets[start];
         weights += offsets[start];
@@ -206,23 +175,23 @@ CpuEvalStencils(float const * src, BufferDescriptor const &srcDesc,
     dstDuv += dstDuvDesc.offset;
     dstDvv += dstDvvDesc.offset;
 
-    int nOutLength = dstDesc.length + dstDuDesc.length + dstDvDesc.length
-                   + dstDuuDesc.length + dstDuvDesc.length + dstDvvDesc.length;
-    float * result   = (float*)alloca(nOutLength * sizeof(float));
-    float * resultDu = result + dstDesc.length;
-    float * resultDv = resultDu + dstDuDesc.length;
-    float * resultDuu = resultDv + dstDvDesc.length;
-    float * resultDuv = resultDuu + dstDuuDesc.length;
-    float * resultDvv = resultDuv + dstDuvDesc.length;
+    int    nOutLength = dstDesc.length + dstDuDesc.length + dstDvDesc.length + dstDuuDesc.length + dstDuvDesc.length + dstDvvDesc.length;
+    float *result     = (float *)alloca(nOutLength * sizeof(float));
+    float *resultDu   = result + dstDesc.length;
+    float *resultDv   = resultDu + dstDuDesc.length;
+    float *resultDuu  = resultDv + dstDvDesc.length;
+    float *resultDuv  = resultDuu + dstDuuDesc.length;
+    float *resultDvv  = resultDuv + dstDuvDesc.length;
 
     int nStencils = end - start;
-    for (int i = 0; i < nStencils; ++i, ++sizes) {
-
+    for (int i = 0; i < nStencils; ++i, ++sizes)
+    {
         // clear
         memset(result, 0, nOutLength * sizeof(float));
 
-        for (int j=0; j<*sizes; ++j) {
-            addWithWeight(result,   src, *indices, *weights++,   srcDesc);
+        for (int j = 0; j < *sizes; ++j)
+        {
+            addWithWeight(result, src, *indices, *weights++, srcDesc);
             addWithWeight(resultDu, src, *indices, *duWeights++, srcDesc);
             addWithWeight(resultDv, src, *indices, *dvWeights++, srcDesc);
             addWithWeight(resultDuu, src, *indices, *duuWeights++, srcDesc);
@@ -230,7 +199,7 @@ CpuEvalStencils(float const * src, BufferDescriptor const &srcDesc,
             addWithWeight(resultDvv, src, *indices, *dvvWeights++, srcDesc);
             ++indices;
         }
-        copy(dst,   i, result, dstDesc);
+        copy(dst, i, result, dstDesc);
         copy(dstDu, i, resultDu, dstDuDesc);
         copy(dstDv, i, resultDv, dstDvDesc);
         copy(dstDuu, i, resultDuu, dstDuuDesc);
@@ -239,7 +208,7 @@ CpuEvalStencils(float const * src, BufferDescriptor const &srcDesc,
     }
 }
 
-}  // end namespace Osd
+} // end namespace Osd
 
-}  // end namespace OPENSUBDIV_VERSION
-}  // end namespace OpenSubdiv
+} // end namespace OPENSUBDIV_VERSION
+} // end namespace OpenSubdiv

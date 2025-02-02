@@ -22,7 +22,6 @@
 //   language governing permissions and limitations under the Apache License.
 //
 
-
 //------------------------------------------------------------------------------
 // Tutorial description:
 //
@@ -32,8 +31,8 @@
 // alternative supporting variable length data.
 //
 
-#include <opensubdiv/far/topologyDescriptor.h>
 #include <opensubdiv/far/primvarRefiner.h>
+#include <opensubdiv/far/topologyDescriptor.h>
 
 #include <cstdio>
 
@@ -45,74 +44,81 @@ using namespace OpenSubdiv;
 //      - Coord2 is fixed to support 2 floats
 //      - CoordBuffer can support a specified number of floats
 //
-struct Coord3 {
-    Coord3() { }
+struct Coord3
+{
+    Coord3() {}
     Coord3(float x, float y, float z) { _xyz[0] = x, _xyz[1] = y, _xyz[2] = z; }
 
     void Clear() { _xyz[0] = _xyz[1] = _xyz[2] = 0.0f; }
 
-    void AddWithWeight(Coord3 const & src, float weight) {
+    void AddWithWeight(Coord3 const &src, float weight)
+    {
         _xyz[0] += weight * src._xyz[0];
         _xyz[1] += weight * src._xyz[1];
         _xyz[2] += weight * src._xyz[2];
     }
 
-    float const * Coords() const { return &_xyz[0]; }
+    float const *Coords() const { return &_xyz[0]; }
 
-private:
+  private:
     float _xyz[3];
 };
 
-struct Coord2 {
-    Coord2() { }
+struct Coord2
+{
+    Coord2() {}
     Coord2(float u, float v) { _uv[0] = u, _uv[1] = v; }
 
     void Clear() { _uv[0] = _uv[1] = 0.0f; }
 
-    void AddWithWeight(Coord2 const & src, float weight) {
+    void AddWithWeight(Coord2 const &src, float weight)
+    {
         _uv[0] += weight * src._uv[0];
         _uv[1] += weight * src._uv[1];
     }
 
-    float const * Coords() const { return &_uv[0]; }
+    float const *Coords() const { return &_uv[0]; }
 
-private:
+  private:
     float _uv[2];
 };
 
-struct CoordBuffer {
+struct CoordBuffer
+{
     //
     //  The head of an external buffer and stride is specified on construction:
     //
-    CoordBuffer(float * data, int size) : _data(data), _size(size) { }
-    CoordBuffer() : _data(0), _size(0) { }
+    CoordBuffer(float *data, int size) : _data(data), _size(size) {}
+    CoordBuffer() : _data(0), _size(0) {}
 
-    void Clear() {
-        for (int i = 0; i < _size; ++i) {
+    void Clear()
+    {
+        for (int i = 0; i < _size; ++i)
+        {
             _data[i] = 0.0f;
         }
     }
 
-    void AddWithWeight(CoordBuffer const & src, float weight) {
+    void AddWithWeight(CoordBuffer const &src, float weight)
+    {
         assert(src._size == _size);
-        for (int i = 0; i < _size; ++i) {
+        for (int i = 0; i < _size; ++i)
+        {
             _data[i] += weight * src._data[i];
         }
     }
 
-    float const * Coords() const { return _data; }
+    float const *Coords() const { return _data; }
 
     //
     //  Defining [] to return a location elsewhere in the buffer is the key
     //  requirement to supporting interpolatible data of varying size
     //
-    CoordBuffer operator[](int index) const {
-        return CoordBuffer(_data + index * _size, _size);
-    }
+    CoordBuffer operator[](int index) const { return CoordBuffer(_data + index * _size, _size); }
 
-private:
-    float * _data;
-    int     _size;
+  private:
+    float *_data;
+    int    _size;
 };
 
 //
@@ -122,30 +128,18 @@ private:
 static int g_nverts = 8;
 static int g_nfaces = 6;
 
-static int g_vertsperface[6] = { 4, 4, 4, 4, 4, 4 };
+static int g_vertsperface[6] = {4, 4, 4, 4, 4, 4};
 
-static int g_vertIndices[24] = { 0, 1, 3, 2,
-                                 2, 3, 5, 4,
-                                 4, 5, 7, 6,
-                                 6, 7, 1, 0,
-                                 1, 7, 5, 3,
-                                 6, 0, 2, 4  };
+static int g_vertIndices[24] = {0, 1, 3, 2, 2, 3, 5, 4, 4, 5, 7, 6, 6, 7, 1, 0, 1, 7, 5, 3, 6, 0, 2, 4};
 //  Primvar data:
-static float g_verts[8][3] = {{  0.0f,  0.0f,  1.0f },
-                              {  1.0f,  0.0f,  1.0f },
-                              {  0.0f,  1.0f,  1.0f },
-                              {  1.0f,  1.0f,  1.0f },
-                              {  0.0f,  1.0f,  0.0f },
-                              {  1.0f,  1.0f,  0.0f },
-                              {  0.0f,  0.0f,  0.0f },
-                              {  1.0f,  0.0f,  0.0f }};
+static float g_verts[8][3] = {{0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}};
 
 //
 //  Creates Far::TopologyRefiner from raw geometry above (see tutorial_1_1 for
 //  more details)
 //
-static Far::TopologyRefiner *
-createFarTopologyRefiner() {
+static Far::TopologyRefiner *createFarTopologyRefiner()
+{
 
     typedef Far::TopologyDescriptor Descriptor;
 
@@ -155,15 +149,13 @@ createFarTopologyRefiner() {
     options.SetVtxBoundaryInterpolation(Sdc::Options::VTX_BOUNDARY_EDGE_ONLY);
 
     Descriptor desc;
-    desc.numVertices  = g_nverts;
-    desc.numFaces     = g_nfaces;
-    desc.numVertsPerFace = g_vertsperface;
-    desc.vertIndicesPerFace  = g_vertIndices;
+    desc.numVertices        = g_nverts;
+    desc.numFaces           = g_nfaces;
+    desc.numVertsPerFace    = g_vertsperface;
+    desc.vertIndicesPerFace = g_vertIndices;
 
     // Instantiate a Far::TopologyRefiner from the descriptor
-    Far::TopologyRefiner * refiner =
-            Far::TopologyRefinerFactory<Descriptor>::Create(desc,
-                    Far::TopologyRefinerFactory<Descriptor>::Options(type, options));
+    Far::TopologyRefiner *refiner = Far::TopologyRefinerFactory<Descriptor>::Create(desc, Far::TopologyRefinerFactory<Descriptor>::Options(type, options));
 
     return refiner;
 }
@@ -180,10 +172,11 @@ createFarTopologyRefiner() {
 #pragma warning disable 1572
 #endif
 
-int main(int, char **) {
+int main(int, char **)
+{
 
     //  Instantiate a Far::TopologyRefiner from the global geometry:
-    Far::TopologyRefiner * refiner = createFarTopologyRefiner();
+    Far::TopologyRefiner *refiner = createFarTopologyRefiner();
 
     //  Uniformly refine the topology up to 'maxlevel'
     int maxlevel = 2;
@@ -201,34 +194,36 @@ int main(int, char **) {
     std::vector<Coord3> posData(numTotalVertices);
     std::vector<Coord2> uvData(numTotalVertices);
 
-    int                 combinedStride = 3 + 2;
-    std::vector<float>  combinedData(numTotalVertices * combinedStride);
+    int                combinedStride = 3 + 2;
+    std::vector<float> combinedData(numTotalVertices * combinedStride);
 
-    for (int i = 0; i < numBaseVertices; ++i) {
+    for (int i = 0; i < numBaseVertices; ++i)
+    {
         posData[i] = Coord3(g_verts[i][0], g_verts[i][1], g_verts[i][2]);
         uvData[i]  = Coord2(g_verts[i][0], g_verts[i][1]);
 
-        float * coordCombined = &combinedData[i * combinedStride];
-        coordCombined[0] = g_verts[i][0];
-        coordCombined[1] = g_verts[i][1];
-        coordCombined[2] = g_verts[i][2];
-        coordCombined[3] = g_verts[i][0];
-        coordCombined[4] = g_verts[i][1];
+        float *coordCombined = &combinedData[i * combinedStride];
+        coordCombined[0]     = g_verts[i][0];
+        coordCombined[1]     = g_verts[i][1];
+        coordCombined[2]     = g_verts[i][2];
+        coordCombined[3]     = g_verts[i][0];
+        coordCombined[4]     = g_verts[i][1];
     }
 
     //  Interpolate vertex primvar data
     Far::PrimvarRefiner primvarRefiner(*refiner);
 
-    Coord3 * posSrc = &posData[0];
-    Coord2 * uvSrc  = & uvData[0];
+    Coord3 *posSrc = &posData[0];
+    Coord2 *uvSrc  = &uvData[0];
 
     CoordBuffer combinedSrc(&combinedData[0], combinedStride);
 
-    for (int level = 1; level <= maxlevel; ++level) {
-        int numLevelVerts = refiner->GetLevel(level-1).GetNumVertices();
+    for (int level = 1; level <= maxlevel; ++level)
+    {
+        int numLevelVerts = refiner->GetLevel(level - 1).GetNumVertices();
 
-        Coord3 * posDst = posSrc + numLevelVerts;
-        Coord2 * uvDst  = uvSrc + numLevelVerts;
+        Coord3 *posDst = posSrc + numLevelVerts;
+        Coord2 *uvDst  = uvSrc + numLevelVerts;
 
         CoordBuffer combinedDst = combinedSrc[numLevelVerts];
 
@@ -236,17 +231,18 @@ int main(int, char **) {
         primvarRefiner.Interpolate(level, uvSrc, uvDst);
         primvarRefiner.Interpolate(level, combinedSrc, combinedDst);
 
-        posSrc = posDst;
-        uvSrc = uvDst;
+        posSrc      = posDst;
+        uvSrc       = uvDst;
         combinedSrc = combinedDst;
     }
 
     //  Verify that the combined coords match the separate results:
-    for (int i = numBaseVertices; i < numTotalVertices; ++i) {
-        float const * posCoords = posData[i].Coords();
-        float const * uvCoords  = uvData[i].Coords();
+    for (int i = numBaseVertices; i < numTotalVertices; ++i)
+    {
+        float const *posCoords = posData[i].Coords();
+        float const *uvCoords  = uvData[i].Coords();
 
-        float const * combCoords = &combinedData[combinedStride * i];
+        float const *combCoords = &combinedData[combinedStride * i];
 
         assert(combCoords[0] == posCoords[0]);
         assert(combCoords[1] == posCoords[1]);
@@ -258,20 +254,22 @@ int main(int, char **) {
     //
     //  Output OBJ of the highest level refined:
     //
-    Far::TopologyLevel const & refLastLevel = refiner->GetLevel(maxlevel);
+    Far::TopologyLevel const &refLastLevel = refiner->GetLevel(maxlevel);
 
     int firstOfLastVerts = numTotalVertices - refLastLevel.GetNumVertices();
 
     //  Print vertex positions
     printf("#  Vertices:\n");
-    for (int vert = firstOfLastVerts; vert < numTotalVertices; ++vert) {
-        float const * pos = &combinedData[vert * combinedStride];
+    for (int vert = firstOfLastVerts; vert < numTotalVertices; ++vert)
+    {
+        float const *pos = &combinedData[vert * combinedStride];
         printf("v %f %f %f\n", pos[0], pos[1], pos[2]);
     }
 
     printf("#  UV coordinates:\n");
-    for (int vert = firstOfLastVerts; vert < numTotalVertices; ++vert) {
-        float const * uv = &combinedData[vert * combinedStride] + 3;
+    for (int vert = firstOfLastVerts; vert < numTotalVertices; ++vert)
+    {
+        float const *uv = &combinedData[vert * combinedStride] + 3;
         printf("vt %f %f\n", uv[0], uv[1]);
     }
 
@@ -279,11 +277,13 @@ int main(int, char **) {
     int numFaces = refLastLevel.GetNumFaces();
 
     printf("#  Faces:\n");
-    for (int face = 0; face < numFaces; ++face) {
+    for (int face = 0; face < numFaces; ++face)
+    {
         Far::ConstIndexArray fverts = refLastLevel.GetFaceVertices(face);
 
         printf("f ");
-        for (int fvert = 0; fvert < fverts.size(); ++fvert) {
+        for (int fvert = 0; fvert < fverts.size(); ++fvert)
+        {
             int objIndex = 1 + fverts[fvert]; // OBJ uses 1-based arrays...
             printf("%d/%d ", objIndex, objIndex);
         }

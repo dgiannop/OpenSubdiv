@@ -25,15 +25,18 @@
 #ifndef OPENSUBDIV3_OSD_CPU_GL_VERTEX_BUFFER_H
 #define OPENSUBDIV3_OSD_CPU_GL_VERTEX_BUFFER_H
 
+#include <cstddef>
+
+#include "../osd/opengl.h"
 #include "../version.h"
 
-#include <cstddef>
-#include "../osd/opengl.h"
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Osd {
+namespace Osd
+{
 
 ///
 /// \brief Concrete vertex buffer class for cpu subdivision and OpenGL drawing.
@@ -44,19 +47,18 @@ namespace Osd {
 /// The buffer interop between Cpu and GL is handled automatically when a
 /// client calls BindCpuBuffer and BindVBO methods.
 ///
-class CpuGLVertexBuffer {
-public:
+class CpuGLVertexBuffer
+{
+  public:
     /// Creator. Returns NULL if error.
-    static CpuGLVertexBuffer * Create(int numElements, int numVertices,
-                                      void *deviceContext = NULL);
+    static CpuGLVertexBuffer *Create(int numElements, int numVertices, void *deviceContext = NULL);
 
     /// Destructor.
     ~CpuGLVertexBuffer();
 
     /// This method is meant to be used in client code in order to provide
     /// coarse vertices data to Osd.
-    void UpdateData(const float *src, int startVertex, int numVertices,
-                    void *deviceContext = NULL);
+    void UpdateData(const float *src, int startVertex, int numVertices, void *deviceContext = NULL);
 
     /// Returns how many elements defined in this vertex buffer.
     int GetNumElements() const;
@@ -66,32 +68,32 @@ public:
 
     /// Returns cpu memory. GL buffer will be mapped to cpu address
     /// if necessary.
-    float * BindCpuBuffer();
+    float *BindCpuBuffer();
 
     /// Returns the name of GL buffer object. If the buffer is mapped
     /// to cpu address, it will be unmapped back to GL.
     GLuint BindVBO(void *deviceContext = NULL);
 
-protected:
+  protected:
     /// Constructor.
     CpuGLVertexBuffer(int numElements, int numVertices);
 
     /// Allocates VBO for this buffer. Returns true if success.
     bool allocate();
 
-private:
-    int _numElements;
-    int _numVertices;
+  private:
+    int    _numElements;
+    int    _numVertices;
     GLuint _vbo;
     float *_cpuBuffer;
-    bool _dataDirty;
+    bool   _dataDirty;
 };
 
-}  // end namespace Osd
+} // end namespace Osd
 
-}  // end namespace OPENSUBDIV_VERSION
+} // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;
 
-}  // end namespace OpenSubdiv
+} // end namespace OpenSubdiv
 
-#endif  // OPENSUBDIV3_OSD_CPU_GL_VERTEX_BUFFER_H
+#endif // OPENSUBDIV3_OSD_CPU_GL_VERTEX_BUFFER_H

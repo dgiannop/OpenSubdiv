@@ -25,25 +25,27 @@
 #ifndef OPENSUBDIV3_FAR_PATCH_TABLE_FACTORY_H
 #define OPENSUBDIV3_FAR_PATCH_TABLE_FACTORY_H
 
+#include "../far/patchTable.h"
+#include "../far/topologyRefiner.h"
 #include "../version.h"
 
-#include "../far/topologyRefiner.h"
-#include "../far/patchTable.h"
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Far {
+namespace Far
+{
 
 /// \brief Factory for constructing a PatchTable from a TopologyRefiner
 ///
-class PatchTableFactory {
-public:
-
+class PatchTableFactory
+{
+  public:
     /// \brief Public options for the PatchTable factory
     ///
-    struct Options {
-
+    struct Options
+    {
         /// \brief Choice for approximating irregular patches (end-caps)
         ///
         /// This enum specifies how irregular patches (end-caps) are approximated.
@@ -52,34 +54,21 @@ public:
         /// triangular patch type exists for each basis.  These choices provide a
         /// trade-off between surface quality and performance.
         ///
-        enum EndCapType {
-            ENDCAP_NONE = 0,        ///< unspecified
-            ENDCAP_BILINEAR_BASIS,  ///< use linear patches (simple quads or tris)
-            ENDCAP_BSPLINE_BASIS,   ///< use BSpline-like patches (same patch type as regular)
-            ENDCAP_GREGORY_BASIS,   ///< use Gregory patches (highest quality, recommended default)
-            ENDCAP_LEGACY_GREGORY   ///< legacy option for 2.x style Gregory patches (Catmark only)
+        enum EndCapType
+        {
+            ENDCAP_NONE = 0,       ///< unspecified
+            ENDCAP_BILINEAR_BASIS, ///< use linear patches (simple quads or tris)
+            ENDCAP_BSPLINE_BASIS,  ///< use BSpline-like patches (same patch type as regular)
+            ENDCAP_GREGORY_BASIS,  ///< use Gregory patches (highest quality, recommended default)
+            ENDCAP_LEGACY_GREGORY  ///< legacy option for 2.x style Gregory patches (Catmark only)
         };
 
-        Options(unsigned int maxIsolation=10) :
-             generateAllLevels(false),
-             includeBaseLevelIndices(true),
-             includeFVarBaseLevelIndices(false),
-             triangulateQuads(false),
-             useSingleCreasePatch(false),
-             useInfSharpPatch(false),
-             maxIsolationLevel(maxIsolation & 0xf),
-             endCapType(ENDCAP_GREGORY_BASIS),
-             shareEndCapPatchPoints(true),
-             generateVaryingTables(true),
-             generateVaryingLocalPoints(true),
-             generateFVarTables(false),
-             patchPrecisionDouble(false),
-             fvarPatchPrecisionDouble(false),
-             generateFVarLegacyLinearPatches(true),
-             generateLegacySharpCornerPatches(true),
-             numFVarChannels(-1),
-             fvarChannelIndices(0)
-        { }
+        Options(unsigned int maxIsolation = 10)
+            : generateAllLevels(false), includeBaseLevelIndices(true), includeFVarBaseLevelIndices(false), triangulateQuads(false), useSingleCreasePatch(false), useInfSharpPatch(false), maxIsolationLevel(maxIsolation & 0xf),
+              endCapType(ENDCAP_GREGORY_BASIS), shareEndCapPatchPoints(true), generateVaryingTables(true), generateVaryingLocalPoints(true), generateFVarTables(false), patchPrecisionDouble(false), fvarPatchPrecisionDouble(false),
+              generateFVarLegacyLinearPatches(true), generateLegacySharpCornerPatches(true), numFVarChannels(-1), fvarChannelIndices(0)
+        {
+        }
 
         /// \brief Get endcap basis type
         EndCapType GetEndCapType() const { return (EndCapType)endCapType; }
@@ -97,47 +86,47 @@ public:
         template <typename REAL> void SetFVarPatchPrecision();
 
         /// \brief Determine adaptive refinement options to match assigned patch options
-        TopologyRefiner::AdaptiveOptions GetRefineAdaptiveOptions() const {
+        TopologyRefiner::AdaptiveOptions GetRefineAdaptiveOptions() const
+        {
             TopologyRefiner::AdaptiveOptions adaptiveOptions(maxIsolationLevel);
 
             adaptiveOptions.useInfSharpPatch     = useInfSharpPatch;
             adaptiveOptions.useSingleCreasePatch = useSingleCreasePatch;
-            adaptiveOptions.considerFVarChannels = generateFVarTables &&
-                                                  !generateFVarLegacyLinearPatches;
+            adaptiveOptions.considerFVarChannels = generateFVarTables && !generateFVarLegacyLinearPatches;
             return adaptiveOptions;
         }
 
-        unsigned int generateAllLevels           : 1, ///< Generate levels from 'firstLevel' to 'maxLevel' (Uniform mode only)
-                     includeBaseLevelIndices     : 1, ///< Include base level in patch point indices (Uniform mode only)
-                     includeFVarBaseLevelIndices : 1, ///< Include base level in face-varying patch point indices (Uniform mode only)
-                     triangulateQuads            : 1, ///< Triangulate 'QUADS' primitives (Uniform mode only)
+        unsigned int generateAllLevels : 1,  ///< Generate levels from 'firstLevel' to 'maxLevel' (Uniform mode only)
+            includeBaseLevelIndices : 1,     ///< Include base level in patch point indices (Uniform mode only)
+            includeFVarBaseLevelIndices : 1, ///< Include base level in face-varying patch point indices (Uniform mode only)
+            triangulateQuads : 1,            ///< Triangulate 'QUADS' primitives (Uniform mode only)
 
-                     useSingleCreasePatch : 1, ///< Use single crease patch
-                     useInfSharpPatch     : 1, ///< Use infinitely-sharp patch
-                     maxIsolationLevel    : 4, ///< Cap adaptive feature isolation to the given level (max. 10)
+            useSingleCreasePatch : 1, ///< Use single crease patch
+            useInfSharpPatch : 1,     ///< Use infinitely-sharp patch
+            maxIsolationLevel : 4,    ///< Cap adaptive feature isolation to the given level (max. 10)
 
-                     // end-capping
-                     endCapType              : 3, ///< EndCapType
-                     shareEndCapPatchPoints  : 1, ///< Share endcap patch points among adjacent endcap patches.
-                                                  ///< currently only work with GregoryBasis.
+            // end-capping
+            endCapType : 3,             ///< EndCapType
+            shareEndCapPatchPoints : 1, ///< Share endcap patch points among adjacent endcap patches.
+                                        ///< currently only work with GregoryBasis.
 
-                     // varying
-                     generateVaryingTables      : 1, ///< Generate varying patch tables
-                     generateVaryingLocalPoints : 1, ///< Generate local points with varying patches
+            // varying
+            generateVaryingTables : 1,      ///< Generate varying patch tables
+            generateVaryingLocalPoints : 1, ///< Generate local points with varying patches
 
-                     // face-varying
-                     generateFVarTables  : 1, ///< Generate face-varying patch tables
+            // face-varying
+            generateFVarTables : 1, ///< Generate face-varying patch tables
 
-                     // precision
-                     patchPrecisionDouble     : 1, ///< Generate double-precision stencils for vertex patches
-                     fvarPatchPrecisionDouble : 1, ///< Generate double-precision stencils for face-varying patches
+            // precision
+            patchPrecisionDouble : 1,     ///< Generate double-precision stencils for vertex patches
+            fvarPatchPrecisionDouble : 1, ///< Generate double-precision stencils for face-varying patches
 
-                     // legacy behaviors (default to true)
-                     generateFVarLegacyLinearPatches  : 1, ///< Generate all linear face-varying patches (legacy)
-                     generateLegacySharpCornerPatches : 1; ///< Generate sharp regular patches at smooth corners (legacy)
+            // legacy behaviors (default to true)
+            generateFVarLegacyLinearPatches : 1,  ///< Generate all linear face-varying patches (legacy)
+            generateLegacySharpCornerPatches : 1; ///< Generate sharp regular patches at smooth corners (legacy)
 
-        int          numFVarChannels;          ///< Number of channel indices and interpolation modes passed
-        int const *  fvarChannelIndices;       ///< List containing the indices of the channels selected for the factory
+        int        numFVarChannels;    ///< Number of channel indices and interpolation modes passed
+        int const *fvarChannelIndices; ///< List containing the indices of the channels selected for the factory
     };
 
     /// \brief Instantiates a PatchTable from a client-provided TopologyRefiner.
@@ -172,11 +161,9 @@ public:
     ///
     /// @return               A new instance of PatchTable
     ///
-    static PatchTable * Create(TopologyRefiner const & refiner,
-                               Options options = Options(),
-                               ConstIndexArray selectedFaces = ConstIndexArray());
+    static PatchTable *Create(TopologyRefiner const &refiner, Options options = Options(), ConstIndexArray selectedFaces = ConstIndexArray());
 
-public:
+  public:
     //  PatchFaceTag
     //
     //  This simple struct was previously used within the factory to take inventory of
@@ -189,16 +176,17 @@ public:
     /// \brief Obsolete internal struct not intended for public use -- due to
     /// be deprecated.
     //
-    struct PatchFaceTag {
-    public:
-        unsigned int   _hasPatch        : 1;
-        unsigned int   _isRegular       : 1;
-        unsigned int   _transitionMask  : 4;
-        unsigned int   _boundaryMask    : 4;
-        unsigned int   _boundaryIndex   : 2;
-        unsigned int   _boundaryCount   : 3;
-        unsigned int   _hasBoundaryEdge : 3;
-        unsigned int   _isSingleCrease  : 1;
+    struct PatchFaceTag
+    {
+      public:
+        unsigned int _hasPatch : 1;
+        unsigned int _isRegular : 1;
+        unsigned int _transitionMask : 4;
+        unsigned int _boundaryMask : 4;
+        unsigned int _boundaryIndex : 2;
+        unsigned int _boundaryCount : 3;
+        unsigned int _hasBoundaryEdge : 3;
+        unsigned int _isSingleCrease : 1;
 
         void clear();
         void assignBoundaryPropertiesFromEdgeMask(int boundaryEdgeMask);
@@ -208,21 +196,11 @@ public:
     typedef std::vector<PatchFaceTag> PatchTagVector;
 };
 
+template <> inline void PatchTableFactory::Options::SetPatchPrecision<float>() { patchPrecisionDouble = false; }
+template <> inline void PatchTableFactory::Options::SetFVarPatchPrecision<float>() { fvarPatchPrecisionDouble = false; }
 
-template <> inline void PatchTableFactory::Options::SetPatchPrecision<float>() {
-    patchPrecisionDouble = false;
-}
-template <> inline void PatchTableFactory::Options::SetFVarPatchPrecision<float>() {
-    fvarPatchPrecisionDouble = false;
-}
-
-template <> inline void PatchTableFactory::Options::SetPatchPrecision<double>() {
-    patchPrecisionDouble = true;
-}
-template <> inline void PatchTableFactory::Options::SetFVarPatchPrecision<double>() {
-    fvarPatchPrecisionDouble = true;
-}
-
+template <> inline void PatchTableFactory::Options::SetPatchPrecision<double>() { patchPrecisionDouble = true; }
+template <> inline void PatchTableFactory::Options::SetFVarPatchPrecision<double>() { fvarPatchPrecisionDouble = true; }
 
 } // end namespace Far
 
@@ -230,6 +208,5 @@ template <> inline void PatchTableFactory::Options::SetFVarPatchPrecision<double
 using namespace OPENSUBDIV_VERSION;
 
 } // end namespace OpenSubdiv
-
 
 #endif /* OPENSUBDIV3_FAR_PATCH_TABLE_FACTORY_H */

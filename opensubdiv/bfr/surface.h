@@ -25,16 +25,18 @@
 #ifndef OPENSUBDIV3_BFR_SURFACE_H
 #define OPENSUBDIV3_BFR_SURFACE_H
 
-#include "../version.h"
-
-#include "../bfr/surfaceData.h"
 #include "../bfr/parameterization.h"
+#include "../bfr/surfaceData.h"
+#include "../version.h"
 #include "../vtr/array.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Bfr {
+namespace Bfr
+{
 
 ///
 /// @brief Encapsulates the limit surface for a face of a mesh
@@ -55,15 +57,16 @@ namespace Bfr {
 /// scheme and the size of the face, which can then be used for evaluation
 /// and tessellation of the surface.
 ///
-template <typename REAL>
-class Surface {
-public:
+template <typename REAL> class Surface
+{
+  public:
     /// @brief Simple struct defining the size and stride of points in
     ///        arrays.
-    struct PointDescriptor {
-        PointDescriptor() : size(0), stride(0) { }
-        PointDescriptor(int n) : size(n), stride(n) { }
-        PointDescriptor(int n, int m) : size(n), stride(m) { }
+    struct PointDescriptor
+    {
+        PointDescriptor() : size(0), stride(0) {}
+        PointDescriptor(int n) : size(n), stride(n) {}
+        PointDescriptor(int n, int m) : size(n), stride(m) {}
 
         int size, stride;
     };
@@ -71,7 +74,7 @@ public:
     /// @brief Integer type representing a mesh index
     typedef int Index;
 
-public:
+  public:
     //@{
     /// @name Construction and initialization
     ///
@@ -91,9 +94,9 @@ public:
     /// @brief Default construction produces an invalid instance
     Surface();
 
-    Surface(Surface const & src) = default;
-    Surface& operator=(Surface const & src) = default;
-    ~Surface() = default;
+    Surface(Surface const &src) = default;
+    Surface &operator=(Surface const &src) = default;
+    ~Surface()                             = default;
     //@}
 
     //@{
@@ -131,7 +134,7 @@ public:
     /// mesh data require that the array be contiguous. If a large data
     /// set is fragmented into blocks or pages, these methods cannot be
     /// used and control points will need to be gathered explicitly.
-    ///       
+    ///
 
     /// @brief Return the number of control points affecting the Surface
     int GetNumControlPoints() const { return _data.getNumCVs(); }
@@ -148,23 +151,13 @@ public:
     /// @param  controlPoints    Output array of control point data
     /// @param  controlPointDesc The size and stride of control point data
     ///
-    template <typename REAL_MESH>
-    void GatherControlPoints(REAL_MESH       const   meshPoints[],
-                             PointDescriptor const & meshPointDesc,
-                             REAL                    controlPoints[],
-                             PointDescriptor const & controlPointDesc) const;
+    template <typename REAL_MESH> void GatherControlPoints(REAL_MESH const meshPoints[], PointDescriptor const &meshPointDesc, REAL controlPoints[], PointDescriptor const &controlPointDesc) const;
 
     /// @brief Compute bounds of control points from a local array
-    void BoundControlPoints(REAL            const   controlPoints[],
-                            PointDescriptor const & controlPointDesc,
-                            REAL                    minExtent[],
-                            REAL                    maxExtent[]) const;
+    void BoundControlPoints(REAL const controlPoints[], PointDescriptor const &controlPointDesc, REAL minExtent[], REAL maxExtent[]) const;
 
     /// @brief Compute bounds of control points from the mesh data
-    void BoundControlPointsFromMesh(REAL            const   meshPoints[],
-                                    PointDescriptor const & meshPointDesc,
-                                    REAL                    minExtent[],
-                                    REAL                    maxExtent[]) const;
+    void BoundControlPointsFromMesh(REAL const meshPoints[], PointDescriptor const &meshPointDesc, REAL minExtent[], REAL maxExtent[]) const;
     //@}
 
     //@{
@@ -173,7 +166,7 @@ public:
     /// Patch points are derived from the control points and are used to
     /// evaluate the Surface. The patch points always include the control
     /// points as a subset.
-    ///       
+    ///
 
     /// @brief Return the number of patch points representing the Surface
     int GetNumPatchPoints() const;
@@ -196,10 +189,7 @@ public:
     /// explicitly as the subset of patch points, after which the method to
     /// compute the remaining patch points can be used.
     ///
-    void PreparePatchPoints(REAL            const   meshPoints[],
-                            PointDescriptor const & meshPointDesc,
-                            REAL                    patchPoints[],
-                            PointDescriptor const & patchPointDesc) const;
+    void PreparePatchPoints(REAL const meshPoints[], PointDescriptor const &meshPointDesc, REAL patchPoints[], PointDescriptor const &patchPointDesc) const;
 
     /// @brief Compute all patch points following the control points
     ///
@@ -210,8 +200,7 @@ public:
     /// @param  patchPoints    Array of patch point data to be modified
     /// @param  patchPointDesc The size and stride of patch point data
     ///
-    void ComputePatchPoints(REAL                    patchPoints[],
-                            PointDescriptor const & patchPointDesc) const;
+    void ComputePatchPoints(REAL patchPoints[], PointDescriptor const &patchPointDesc) const;
     //@}
 
     //@{
@@ -221,23 +210,16 @@ public:
     /// 2nd derivatives of the Surface at a given (u,v) coordinate within
     /// the domain of the Surface's Parameterization. All parameters of the
     /// different overloads are required.
-    ///       
+    ///
 
     /// @brief Evaluation of position
-    void Evaluate(REAL const uv[2],
-                  REAL const patchPoints[], PointDescriptor const & pointDesc,
-                  REAL P[]) const;
+    void Evaluate(REAL const uv[2], REAL const patchPoints[], PointDescriptor const &pointDesc, REAL P[]) const;
 
     /// @brief Overload of evaluation for 1st derivatives
-    void Evaluate(REAL const uv[2],
-                  REAL const patchPoints[], PointDescriptor const & pointDesc,
-                  REAL P[], REAL Du[], REAL Dv[]) const;
+    void Evaluate(REAL const uv[2], REAL const patchPoints[], PointDescriptor const &pointDesc, REAL P[], REAL Du[], REAL Dv[]) const;
 
     /// @brief Overload of evaluation for 2nd derivatives
-    void Evaluate(REAL const uv[2],
-                  REAL const patchPoints[], PointDescriptor const & pointDesc,
-                  REAL P[], REAL Du[],  REAL Dv[],
-                  REAL Duu[], REAL Duv[], REAL Dvv[]) const;
+    void Evaluate(REAL const uv[2], REAL const patchPoints[], PointDescriptor const &pointDesc, REAL P[], REAL Du[], REAL Dv[], REAL Duu[], REAL Duv[], REAL Dvv[]) const;
     //@}
 
     //@{
@@ -252,53 +234,42 @@ public:
     /// provided to apply them to the control points. Since application of
     /// stencils is identical for each (i.e. the same for position and any
     /// derivative) no overloads are provided for derivatives.
-    ///       
+    ///
 
     /// @brief Evaluation of the limit stencil for position
     int EvaluateStencil(REAL const uv[2], REAL sP[]) const;
 
     /// @brief Overload of limit stencil evaluation for 1st derivatives
-    int EvaluateStencil(REAL const uv[2], REAL sP[],
-                        REAL sDu[], REAL sDv[]) const;
+    int EvaluateStencil(REAL const uv[2], REAL sP[], REAL sDu[], REAL sDv[]) const;
 
     /// @brief Overload of limit stencil evaluation for 2nd derivatives
-    int EvaluateStencil(REAL const uv[2], REAL sP[],
-                        REAL sDu[],  REAL sDv[],
-                        REAL sDuu[], REAL sDuv[], REAL sDvv[]) const;
+    int EvaluateStencil(REAL const uv[2], REAL sP[], REAL sDu[], REAL sDv[], REAL sDuu[], REAL sDuv[], REAL sDvv[]) const;
 
     /// @brief Apply a single stencil to control points from a local array
-    void ApplyStencil(REAL const stencil[],
-                      REAL const controlPoints[], PointDescriptor const &,
-                      REAL result[]) const;
+    void ApplyStencil(REAL const stencil[], REAL const controlPoints[], PointDescriptor const &, REAL result[]) const;
 
     /// @brief Apply a single stencil to control points from the mesh data
-    void ApplyStencilFromMesh(REAL const stencil[],
-                              REAL const meshPoints[], PointDescriptor const &,
-                              REAL result[]) const;
+    void ApplyStencilFromMesh(REAL const stencil[], REAL const meshPoints[], PointDescriptor const &, REAL result[]) const;
     //@}
 
-private:
+  private:
     //  Internal methods for evaluating derivatives, basis weights and
     //  stencils for regular, irregular and irregular linear patches:
     typedef Vtr::ConstArray<int> IndexArray;
 
-    void evaluateDerivs(REAL const uv[2], REAL const patchPoints[],
-                        PointDescriptor const &, REAL * derivs[]) const;
-    void evalRegularDerivs(REAL const uv[2], REAL const patchPoints[],
-                           PointDescriptor const &, REAL * derivs[]) const;
-    void evalIrregularDerivs(REAL const uv[2], REAL const patchPoints[],
-                             PointDescriptor const &, REAL * derivs[]) const;
-    void evalMultiLinearDerivs(REAL const uv[2], REAL const patchPoints[],
-                               PointDescriptor const &, REAL * derivs[]) const;
+    void evaluateDerivs(REAL const uv[2], REAL const patchPoints[], PointDescriptor const &, REAL *derivs[]) const;
+    void evalRegularDerivs(REAL const uv[2], REAL const patchPoints[], PointDescriptor const &, REAL *derivs[]) const;
+    void evalIrregularDerivs(REAL const uv[2], REAL const patchPoints[], PointDescriptor const &, REAL *derivs[]) const;
+    void evalMultiLinearDerivs(REAL const uv[2], REAL const patchPoints[], PointDescriptor const &, REAL *derivs[]) const;
 
-    void       evalRegularBasis(REAL const uv[2], REAL * wDeriv[]) const;
-    IndexArray evalIrregularBasis(REAL const uv[2], REAL * wDeriv[]) const;
-    int        evalMultiLinearBasis(REAL const uv[2], REAL * wDeriv[]) const;
+    void       evalRegularBasis(REAL const uv[2], REAL *wDeriv[]) const;
+    IndexArray evalIrregularBasis(REAL const uv[2], REAL *wDeriv[]) const;
+    int        evalMultiLinearBasis(REAL const uv[2], REAL *wDeriv[]) const;
 
-    int evaluateStencils(REAL const uv[2], REAL * sDeriv[]) const;
-    int evalRegularStencils(REAL const uv[2], REAL * sDeriv[]) const;
-    int evalIrregularStencils(REAL const uv[2], REAL * sDeriv[]) const;
-    int evalMultiLinearStencils(REAL const uv[2], REAL * sDeriv[]) const;
+    int evaluateStencils(REAL const uv[2], REAL *sDeriv[]) const;
+    int evalRegularStencils(REAL const uv[2], REAL *sDeriv[]) const;
+    int evalIrregularStencils(REAL const uv[2], REAL *sDeriv[]) const;
+    int evalMultiLinearStencils(REAL const uv[2], REAL *sDeriv[]) const;
 
     //  Internal methods to compute patch points:
     void computeLinearPatchPoints(REAL p[], PointDescriptor const &) const;
@@ -308,44 +279,40 @@ private:
     unsigned char getRegPatchType() const { return _data.getRegPatchType(); }
     unsigned char getRegPatchMask() const { return _data.getRegPatchMask(); }
 
-    internal::IrregularPatchType const & getIrregPatch() const;
+    internal::IrregularPatchType const &getIrregPatch() const;
 
-private:
+  private:
     //  Access to the set of member variables - provided to the Factory:
     friend class SurfaceFactory;
 
-    internal::SurfaceData       & getSurfaceData()       { return _data; }
-    internal::SurfaceData const & getSurfaceData() const { return _data; }
+    internal::SurfaceData &      getSurfaceData() { return _data; }
+    internal::SurfaceData const &getSurfaceData() const { return _data; }
 
-private:
+  private:
     //  All member variables encapsulated in a single class:
     internal::SurfaceData _data;
 };
 
-
 //
 //  Simple inline methods composed of other methods:
 //
-template <typename REAL>
-inline void
-Surface<REAL>::ComputePatchPoints(REAL points[],
-                                  PointDescriptor const & pointDesc) const {
-
-    if (!IsRegular()) {
-        if (IsLinear()) {
+template <typename REAL> inline void Surface<REAL>::ComputePatchPoints(REAL points[], PointDescriptor const &pointDesc) const
+{
+    if (!IsRegular())
+    {
+        if (IsLinear())
+        {
             computeLinearPatchPoints(points, pointDesc);
-        } else {
+        }
+        else
+        {
             computeIrregularPatchPoints(points, pointDesc);
         }
     }
 }
 
-template <typename REAL>
-inline void
-Surface<REAL>::PreparePatchPoints(
-        REAL const meshPoints[], PointDescriptor const & meshPointDesc,
-        REAL patchPoints[],  PointDescriptor const & patchPointDesc) const {
-
+template <typename REAL> inline void Surface<REAL>::PreparePatchPoints(REAL const meshPoints[], PointDescriptor const &meshPointDesc, REAL patchPoints[], PointDescriptor const &patchPointDesc) const
+{
     GatherControlPoints(meshPoints, meshPointDesc, patchPoints, patchPointDesc);
     ComputePatchPoints(patchPoints, patchPointDesc);
 }
@@ -353,86 +320,65 @@ Surface<REAL>::PreparePatchPoints(
 //
 //  Inline invocations of more general methods for derivative overloads:
 //
-template <typename REAL>
-inline void
-Surface<REAL>::evaluateDerivs(REAL const uv[2],
-                              REAL const patchPoints[],
-                              PointDescriptor const & pointDesc,
-                              REAL * derivatives[]) const {
-    if (IsRegular()) {
+template <typename REAL> inline void Surface<REAL>::evaluateDerivs(REAL const uv[2], REAL const patchPoints[], PointDescriptor const &pointDesc, REAL *derivatives[]) const
+{
+    if (IsRegular())
+    {
         evalRegularDerivs(uv, patchPoints, pointDesc, derivatives);
-    } else if (IsLinear()) {
+    }
+    else if (IsLinear())
+    {
         evalMultiLinearDerivs(uv, patchPoints, pointDesc, derivatives);
-    } else {
+    }
+    else
+    {
         evalIrregularDerivs(uv, patchPoints, pointDesc, derivatives);
     }
 }
-template <typename REAL>
-inline void
-Surface<REAL>::Evaluate(REAL const uv[2],
-                        REAL const patchPoints[],
-                        PointDescriptor const & pointDesc,
-                        REAL P[]) const {
-
-    REAL * derivatives[6] = { P, 0, 0, 0, 0, 0 };
+template <typename REAL> inline void Surface<REAL>::Evaluate(REAL const uv[2], REAL const patchPoints[], PointDescriptor const &pointDesc, REAL P[]) const
+{
+    REAL *derivatives[6] = {P, 0, 0, 0, 0, 0};
     evaluateDerivs(uv, patchPoints, pointDesc, derivatives);
 }
-template <typename REAL>
-inline void
-Surface<REAL>::Evaluate(REAL const uv[2],
-                        REAL const patchPoints[],
-                        PointDescriptor const & pointDesc,
-                        REAL P[], REAL Du[], REAL Dv[]) const {
-
-    REAL * derivatives[6] = { P, Du, Dv, 0, 0, 0 };
+template <typename REAL> inline void Surface<REAL>::Evaluate(REAL const uv[2], REAL const patchPoints[], PointDescriptor const &pointDesc, REAL P[], REAL Du[], REAL Dv[]) const
+{
+    REAL *derivatives[6] = {P, Du, Dv, 0, 0, 0};
     evaluateDerivs(uv, patchPoints, pointDesc, derivatives);
 }
-template <typename REAL>
-inline void
-Surface<REAL>::Evaluate(REAL const uv[2],
-                        REAL const patchPoints[],
-                        PointDescriptor const & pointDesc,
-                        REAL P[],   REAL Du[],  REAL Dv[],
-                        REAL Duu[], REAL Duv[], REAL Dvv[]) const {
-
-    REAL * derivatives[6] = { P, Du, Dv, Duu, Duv, Dvv };
+template <typename REAL> inline void Surface<REAL>::Evaluate(REAL const uv[2], REAL const patchPoints[], PointDescriptor const &pointDesc, REAL P[], REAL Du[], REAL Dv[], REAL Duu[], REAL Duv[], REAL Dvv[]) const
+{
+    REAL *derivatives[6] = {P, Du, Dv, Duu, Duv, Dvv};
     evaluateDerivs(uv, patchPoints, pointDesc, derivatives);
 }
 
-template <typename REAL>
-inline int
-Surface<REAL>::evaluateStencils(REAL const uv[2], REAL * sDeriv[]) const {
-
-    if (IsRegular()) {
+template <typename REAL> inline int Surface<REAL>::evaluateStencils(REAL const uv[2], REAL *sDeriv[]) const
+{
+    if (IsRegular())
+    {
         return evalRegularStencils(uv, sDeriv);
-    } else if (IsLinear()) {
+    }
+    else if (IsLinear())
+    {
         return evalMultiLinearStencils(uv, sDeriv);
-    } else {
+    }
+    else
+    {
         return evalIrregularStencils(uv, sDeriv);
     }
 }
-template <typename REAL>
-inline int
-Surface<REAL>::EvaluateStencil(REAL const uv[2], REAL sP[]) const {
-
-    REAL * derivativeStencils[6] = { sP, 0, 0, 0, 0, 0 };
+template <typename REAL> inline int Surface<REAL>::EvaluateStencil(REAL const uv[2], REAL sP[]) const
+{
+    REAL *derivativeStencils[6] = {sP, 0, 0, 0, 0, 0};
     return evaluateStencils(uv, derivativeStencils);
 }
-template <typename REAL>
-inline int
-Surface<REAL>::EvaluateStencil(REAL const uv[2],
-                          REAL sP[], REAL sDu[], REAL sDv[]) const {
-
-    REAL * derivativeStencils[6] = { sP, sDu, sDv, 0, 0, 0 };
+template <typename REAL> inline int Surface<REAL>::EvaluateStencil(REAL const uv[2], REAL sP[], REAL sDu[], REAL sDv[]) const
+{
+    REAL *derivativeStencils[6] = {sP, sDu, sDv, 0, 0, 0};
     return evaluateStencils(uv, derivativeStencils);
 }
-template <typename REAL>
-inline int
-Surface<REAL>::EvaluateStencil(REAL const uv[2],
-                          REAL sP[],   REAL sDu[],  REAL sDv[],
-                          REAL sDuu[], REAL sDuv[], REAL sDvv[]) const {
-
-    REAL * derivativeStencils[6] = { sP, sDu, sDv, sDuu, sDuv, sDvv };
+template <typename REAL> inline int Surface<REAL>::EvaluateStencil(REAL const uv[2], REAL sP[], REAL sDu[], REAL sDv[], REAL sDuu[], REAL sDuv[], REAL sDvv[]) const
+{
+    REAL *derivativeStencils[6] = {sP, sDu, sDv, sDuu, sDuv, sDvv};
     return evaluateStencils(uv, derivativeStencils);
 }
 

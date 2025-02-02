@@ -22,23 +22,22 @@
 //   language governing permissions and limitations under the Apache License.
 //
 
-
+#import "../../common/mtlHud.h"
+#import "../mtlViewer.h"
 #import <AppKit/AppKit.h>
 #import <MetalKit/MetalKit.h>
-#import "../mtlViewer.h"
-#import "../../common/mtlHud.h"
 @class ViewController;
 
-@interface OSDView : MTKView {
-    @public
+@interface OSDView : MTKView
+{
+  @public
     MTLhud hud;
 }
-@property (nonatomic) ViewController* controller;
+@property(nonatomic) ViewController *controller;
 @end
 
-@interface ViewController : NSViewController<MTKViewDelegate, OSDRendererDelegate>
-@property (weak) IBOutlet OSDView *view;
-@property (nonatomic) OSDRenderer* osdRenderer;
-
+@interface               ViewController : NSViewController <MTKViewDelegate, OSDRendererDelegate>
+@property(weak) IBOutlet OSDView *view;
+@property(nonatomic) OSDRenderer *osdRenderer;
 
 @end

@@ -30,10 +30,10 @@
 #include "font_image.h"
 #include "simple_math.h"
 
+#include <cassert>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cstdio>
-#include <cassert>
 #include <iostream>
 
 static const char *s_VS =
@@ -127,12 +127,10 @@ static const char *s_BG_FS =
     "}\n";
 #endif
 
-GLhud::GLhud() : _fontTexture(0), _vbo(0), _staticVbo(0),
-                 _vao(0), _staticVao(0), _program(0),
-                 _aPosition(0), _aColor(0), _aUV(0), _bgProgram(0) {
-}
+GLhud::GLhud() : _fontTexture(0), _vbo(0), _staticVbo(0), _vao(0), _staticVao(0), _program(0), _aPosition(0), _aColor(0), _aUV(0), _bgProgram(0) {}
 
-GLhud::~GLhud() {
+GLhud::~GLhud()
+{
     if (_program)
         glDeleteProgram(_program);
     if (_fontTexture)
@@ -151,8 +149,8 @@ GLhud::~GLhud() {
         glDeleteProgram(_bgProgram);
 }
 
-void
-GLhud::Init(int width, int height, int frameBufferWidth, int frameBufferHeight) {
+void GLhud::Init(int width, int height, int frameBufferWidth, int frameBufferHeight)
+{
     Hud::Init(width, height, frameBufferWidth, frameBufferHeight);
 
     glGenTextures(1, &_fontTexture);
@@ -163,9 +161,7 @@ GLhud::Init(int width, int height, int frameBufferWidth, int frameBufferHeight) 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-                 FONT_TEXTURE_WIDTH, FONT_TEXTURE_HEIGHT,
-                 0, GL_RGBA, GL_UNSIGNED_BYTE, font_image);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, FONT_TEXTURE_WIDTH, FONT_TEXTURE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, font_image);
 
     glGenBuffers(1, &_vbo);
     glGenBuffers(1, &_staticVbo);
@@ -174,7 +170,7 @@ GLhud::Init(int width, int height, int frameBufferWidth, int frameBufferHeight) 
     glGenVertexArrays(1, &_staticVao);
     glGenVertexArrays(1, &_bgVao);
 
-    GLuint vertexShader = GLUtils::CompileShader(GL_VERTEX_SHADER, s_VS);
+    GLuint vertexShader   = GLUtils::CompileShader(GL_VERTEX_SHADER, s_VS);
     GLuint fragmentShader = GLUtils::CompileShader(GL_FRAGMENT_SHADER, s_FS);
 
     _program = glCreateProgram();
@@ -188,7 +184,8 @@ GLhud::Init(int width, int height, int frameBufferWidth, int frameBufferHeight) 
 
     GLint status;
     glGetProgramiv(_program, GL_LINK_STATUS, &status);
-    if (status == GL_FALSE) {
+    if (status == GL_FALSE)
+    {
         GLint infoLogLength;
         glGetProgramiv(_program, GL_INFO_LOG_LENGTH, &infoLogLength);
         char *infoLog = new char[infoLogLength];
@@ -199,39 +196,33 @@ GLhud::Init(int width, int height, int frameBufferWidth, int frameBufferHeight) 
 
     _mvpMatrix = glGetUniformLocation(_program, "ModelViewProjectionMatrix");
     _aPosition = glGetAttribLocation(_program, "position");
-    _aColor = glGetAttribLocation(_program, "color");
-    _aUV = glGetAttribLocation(_program, "uv");
+    _aColor    = glGetAttribLocation(_program, "color");
+    _aUV       = glGetAttribLocation(_program, "uv");
 
     glBindVertexArray(_vao);
     glEnableVertexAttribArray(_aPosition);
     glEnableVertexAttribArray(_aColor);
     glEnableVertexAttribArray(_aUV);
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-    glVertexAttribPointer(_aPosition, 2, GL_FLOAT, GL_FALSE,
-                          sizeof(GLfloat)*7, (void*)0);
-    glVertexAttribPointer(_aColor, 3, GL_FLOAT, GL_FALSE,
-                          sizeof(GLfloat)*7, (void*)(sizeof(GLfloat)*2));
-    glVertexAttribPointer(_aUV, 2, GL_FLOAT, GL_FALSE,
-                          sizeof(GLfloat)*7, (void*)(sizeof(GLfloat)*5));
+    glVertexAttribPointer(_aPosition, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 7, (void *)0);
+    glVertexAttribPointer(_aColor, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 7, (void *)(sizeof(GLfloat) * 2));
+    glVertexAttribPointer(_aUV, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 7, (void *)(sizeof(GLfloat) * 5));
 
     glBindVertexArray(_staticVao);
     glEnableVertexAttribArray(_aPosition);
     glEnableVertexAttribArray(_aColor);
     glEnableVertexAttribArray(_aUV);
     glBindBuffer(GL_ARRAY_BUFFER, _staticVbo);
-    glVertexAttribPointer(_aPosition, 2, GL_FLOAT, GL_FALSE,
-                          sizeof(GLfloat)*7, (void*)0);
-    glVertexAttribPointer(_aColor, 3, GL_FLOAT, GL_FALSE,
-                          sizeof(GLfloat)*7, (void*)(sizeof(GLfloat)*2));
-    glVertexAttribPointer(_aUV, 2, GL_FLOAT, GL_FALSE,
-                          sizeof(GLfloat)*7, (void*)(sizeof(GLfloat)*5));
+    glVertexAttribPointer(_aPosition, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 7, (void *)0);
+    glVertexAttribPointer(_aColor, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 7, (void *)(sizeof(GLfloat) * 2));
+    glVertexAttribPointer(_aUV, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 7, (void *)(sizeof(GLfloat) * 5));
 
     glBindVertexArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // ------ create bg program
-    vertexShader = GLUtils::CompileShader(GL_VERTEX_SHADER, s_BG_VS);
+    vertexShader   = GLUtils::CompileShader(GL_VERTEX_SHADER, s_BG_VS);
     fragmentShader = GLUtils::CompileShader(GL_FRAGMENT_SHADER, s_BG_FS);
 
     _bgProgram = glCreateProgram();
@@ -243,34 +234,31 @@ GLhud::Init(int width, int height, int frameBufferWidth, int frameBufferHeight) 
     GLUtils::CheckGLErrors("GLhud::Init");
 }
 
-void
-GLhud::Rebuild(int width, int height,
-               int framebufferWidth, int framebufferHeight) {
+void GLhud::Rebuild(int width, int height, int framebufferWidth, int framebufferHeight)
+{
     Hud::Rebuild(width, height, framebufferWidth, framebufferHeight);
 
-    if (! _staticVbo)
+    if (!_staticVbo)
         return;
 
     _staticVboSize = (int)getStaticVboSource().size();
     glBindBuffer(GL_ARRAY_BUFFER, _staticVbo);
-    glBufferData(GL_ARRAY_BUFFER, _staticVboSize * sizeof(float),
-                 &getStaticVboSource()[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, _staticVboSize * sizeof(float), &getStaticVboSource()[0], GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-bool
-GLhud::Flush() {
+bool GLhud::Flush()
+{
     if (!Hud::Flush())
         return false;
 
     // update dynamic text
     glBindVertexArray(_vao);
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-    glBufferData(GL_ARRAY_BUFFER, getVboSource().size() * sizeof(float),
-                 &getVboSource()[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, getVboSource().size() * sizeof(float), &getVboSource()[0], GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     // (x, y, r, g, b, u, v) = 7
-    int numVertices = (int)getVboSource().size()/7;
+    int numVertices = (int)getVboSource().size() / 7;
 
     // reserved space of the vector remains for the next frame.
     getVboSource().clear();
@@ -288,7 +276,7 @@ GLhud::Flush() {
         glDrawArrays(GL_TRIANGLES, 0, numVertices);
 
         glBindVertexArray(_staticVao);
-        glDrawArrays(GL_TRIANGLES, 0, _staticVboSize/7);
+        glDrawArrays(GL_TRIANGLES, 0, _staticVboSize / 7);
 
         glBindTexture(GL_TEXTURE_2D, 0);
     }
@@ -297,8 +285,8 @@ GLhud::Flush() {
     return true;
 }
 
-void
-GLhud::FillBackground() {
+void GLhud::FillBackground()
+{
     glUseProgram(_bgProgram);
     glBindVertexArray(_bgVao);
     glDisable(GL_DEPTH_TEST);
@@ -309,4 +297,3 @@ GLhud::FillBackground() {
     glUseProgram(0);
     glBindVertexArray(0);
 }
-

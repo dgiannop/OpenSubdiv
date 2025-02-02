@@ -21,19 +21,22 @@
 //   KIND, either express or implied. See the Apache License for the specific
 //   language governing permissions and limitations under the Apache License.
 //
-#include "../sdc/types.h"
-
 #include "../sdc/bilinearScheme.h"
 #include "../sdc/catmarkScheme.h"
 #include "../sdc/loopScheme.h"
+#include "../sdc/types.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Sdc {
+namespace Sdc
+{
 
-struct TraitsEntry {
-    char const * _name;
+struct TraitsEntry
+{
+    char const *_name;
 
     Split _splitType;
     int   _regularFaceSize;
@@ -42,54 +45,24 @@ struct TraitsEntry {
 };
 
 static const TraitsEntry staticTraitsTable[3] = {
-    { "bilinear", Scheme<SCHEME_BILINEAR>::GetTopologicalSplitType(),
-                  Scheme<SCHEME_BILINEAR>::GetRegularFaceSize(),
-                  Scheme<SCHEME_BILINEAR>::GetRegularVertexValence(),
-                  Scheme<SCHEME_BILINEAR>::GetLocalNeighborhoodSize() },
-    { "catmark",  Scheme<SCHEME_CATMARK>::GetTopologicalSplitType(),
-                  Scheme<SCHEME_CATMARK>::GetRegularFaceSize(),
-                  Scheme<SCHEME_CATMARK>::GetRegularVertexValence(),
-                  Scheme<SCHEME_CATMARK>::GetLocalNeighborhoodSize() },
-    { "loop",     Scheme<SCHEME_LOOP>::GetTopologicalSplitType(),
-                  Scheme<SCHEME_LOOP>::GetRegularFaceSize(),
-                  Scheme<SCHEME_LOOP>::GetRegularVertexValence(),
-                  Scheme<SCHEME_LOOP>::GetLocalNeighborhoodSize() }
-};
+    {"bilinear", Scheme<SCHEME_BILINEAR>::GetTopologicalSplitType(), Scheme<SCHEME_BILINEAR>::GetRegularFaceSize(), Scheme<SCHEME_BILINEAR>::GetRegularVertexValence(), Scheme<SCHEME_BILINEAR>::GetLocalNeighborhoodSize()},
+    {"catmark", Scheme<SCHEME_CATMARK>::GetTopologicalSplitType(), Scheme<SCHEME_CATMARK>::GetRegularFaceSize(), Scheme<SCHEME_CATMARK>::GetRegularVertexValence(), Scheme<SCHEME_CATMARK>::GetLocalNeighborhoodSize()},
+    {"loop", Scheme<SCHEME_LOOP>::GetTopologicalSplitType(), Scheme<SCHEME_LOOP>::GetRegularFaceSize(), Scheme<SCHEME_LOOP>::GetRegularVertexValence(), Scheme<SCHEME_LOOP>::GetLocalNeighborhoodSize()}};
 
 //
 //  Static methods for SchemeTypeTraits:
 //
-char const*
-SchemeTypeTraits::GetName(SchemeType schemeType) {
+char const *SchemeTypeTraits::GetName(SchemeType schemeType) { return staticTraitsTable[schemeType]._name; }
 
-    return staticTraitsTable[schemeType]._name;
-}
+Split SchemeTypeTraits::GetTopologicalSplitType(SchemeType schemeType) { return staticTraitsTable[schemeType]._splitType; }
 
-Split
-SchemeTypeTraits::GetTopologicalSplitType(SchemeType schemeType) {
+int SchemeTypeTraits::GetRegularFaceSize(SchemeType schemeType) { return staticTraitsTable[schemeType]._regularFaceSize; }
 
-    return staticTraitsTable[schemeType]._splitType;
-}
+int SchemeTypeTraits::GetRegularVertexValence(SchemeType schemeType) { return staticTraitsTable[schemeType]._regularVertexValence; }
 
-int
-SchemeTypeTraits::GetRegularFaceSize(SchemeType schemeType) {
+int SchemeTypeTraits::GetLocalNeighborhoodSize(SchemeType schemeType) { return staticTraitsTable[schemeType]._localNeighborhood; }
 
-    return staticTraitsTable[schemeType]._regularFaceSize;
-}
-
-int
-SchemeTypeTraits::GetRegularVertexValence(SchemeType schemeType) {
-
-    return staticTraitsTable[schemeType]._regularVertexValence;
-}
-
-int
-SchemeTypeTraits::GetLocalNeighborhoodSize(SchemeType schemeType) {
-
-    return staticTraitsTable[schemeType]._localNeighborhood;
-}
-
-} // end namespace sdc
+} // namespace Sdc
 
 } // end namespace OPENSUBDIV_VERSION
 } // end namespace OpenSubdiv

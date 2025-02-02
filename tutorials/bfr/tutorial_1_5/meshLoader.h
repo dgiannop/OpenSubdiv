@@ -24,8 +24,8 @@
 
 #include "../../../regression/common/far_utils.h"
 
-#include <opensubdiv/far/topologyRefiner.h>
 #include <opensubdiv/far/topologyDescriptor.h>
+#include <opensubdiv/far/topologyRefiner.h>
 
 #include <cstdio>
 #include <cstring>
@@ -33,16 +33,16 @@
 #include <sstream>
 
 //  Utilities local to this tutorial:
-namespace tutorial {
+namespace tutorial
+{
 
 using namespace OpenSubdiv;
 
 //
 //  Create a TopologyRefiner from default geometry:
 //
-Far::TopologyRefiner *
-dfltTopologyRefiner(std::vector<float> & posVector,
-                    std::vector<float> & uvVector) {
+Far::TopologyRefiner *dfltTopologyRefiner(std::vector<float> &posVector, std::vector<float> &uvVector)
+{
 
     //
     //  Default topology and positions for a cube:
@@ -51,47 +51,16 @@ dfltTopologyRefiner(std::vector<float> & posVector,
     int dfltNumVerts = 8;
     int dfltNumUVs   = 16;
 
-    int dfltFaceSizes[6] = { 4, 4, 4, 4, 4, 4 };
+    int dfltFaceSizes[6] = {4, 4, 4, 4, 4, 4};
 
-    int dfltFaceVerts[24] = { 0, 1, 3, 2,
-                              2, 3, 5, 4,
-                              4, 5, 7, 6,
-                              6, 7, 1, 0,
-                              1, 7, 5, 3,
-                              6, 0, 2, 4 };
+    int dfltFaceVerts[24] = {0, 1, 3, 2, 2, 3, 5, 4, 4, 5, 7, 6, 6, 7, 1, 0, 1, 7, 5, 3, 6, 0, 2, 4};
 
-    float dfltPositions[8][3] = {{ -0.5f, -0.5f,  0.5f },
-                                 {  0.5f, -0.5f,  0.5f },
-                                 { -0.5f,  0.5f,  0.5f },
-                                 {  0.5f,  0.5f,  0.5f },
-                                 { -0.5f,  0.5f, -0.5f },
-                                 {  0.5f,  0.5f, -0.5f },
-                                 { -0.5f, -0.5f, -0.5f },
-                                 {  0.5f, -0.5f, -0.5f }};
+    float dfltPositions[8][3] = {{-0.5f, -0.5f, 0.5f}, {0.5f, -0.5f, 0.5f}, {-0.5f, 0.5f, 0.5f}, {0.5f, 0.5f, 0.5f}, {-0.5f, 0.5f, -0.5f}, {0.5f, 0.5f, -0.5f}, {-0.5f, -0.5f, -0.5f}, {0.5f, -0.5f, -0.5f}};
 
-    int dfltFaceFVars[24] = {  9, 10, 14, 13,
-                               4,  0,  1,  5,
-                               5,  1,  2,  6,
-                               6,  2,  3,  7,
-                              10, 11, 15, 14,
-                               8,  9, 13, 12 };
+    int dfltFaceFVars[24] = {9, 10, 14, 13, 4, 0, 1, 5, 5, 1, 2, 6, 6, 2, 3, 7, 10, 11, 15, 14, 8, 9, 13, 12};
 
-    float dfltUVs[16][2] = {{ 0.05f, 0.05f },
-                            { 0.35f, 0.15f },
-                            { 0.65f, 0.15f },
-                            { 0.95f, 0.05f },
-                            { 0.05f, 0.35f },
-                            { 0.35f, 0.45f },
-                            { 0.65f, 0.45f },
-                            { 0.95f, 0.35f },
-                            { 0.05f, 0.65f },
-                            { 0.35f, 0.55f },
-                            { 0.65f, 0.55f },
-                            { 0.95f, 0.65f },
-                            { 0.05f, 0.95f },
-                            { 0.35f, 0.85f },
-                            { 0.65f, 0.85f },
-                            { 0.95f, 0.95f }};
+    float dfltUVs[16][2] = {{0.05f, 0.05f}, {0.35f, 0.15f}, {0.65f, 0.15f}, {0.95f, 0.05f}, {0.05f, 0.35f}, {0.35f, 0.45f}, {0.65f, 0.45f}, {0.95f, 0.35f},
+                            {0.05f, 0.65f}, {0.35f, 0.55f}, {0.65f, 0.55f}, {0.95f, 0.65f}, {0.05f, 0.95f}, {0.35f, 0.85f}, {0.65f, 0.85f}, {0.95f, 0.95f}};
 
     posVector.resize(8 * 3);
     std::memcpy(&posVector[0], dfltPositions, 8 * 3 * sizeof(float));
@@ -120,16 +89,12 @@ dfltTopologyRefiner(std::vector<float> & posVector,
     Sdc::SchemeType schemeType = Sdc::SCHEME_CATMARK;
 
     Sdc::Options schemeOptions;
-    schemeOptions.SetVtxBoundaryInterpolation(
-                            Sdc::Options::VTX_BOUNDARY_EDGE_ONLY);
-    schemeOptions.SetFVarLinearInterpolation(
-                            Sdc::Options::FVAR_LINEAR_CORNERS_ONLY);
+    schemeOptions.SetVtxBoundaryInterpolation(Sdc::Options::VTX_BOUNDARY_EDGE_ONLY);
+    schemeOptions.SetFVarLinearInterpolation(Sdc::Options::FVAR_LINEAR_CORNERS_ONLY);
 
     typedef Far::TopologyRefinerFactory<Descriptor> RefinerFactory;
 
-    Far::TopologyRefiner * topRefiner =
-        RefinerFactory::Create(topDescriptor,
-            RefinerFactory::Options(schemeType, schemeOptions));
+    Far::TopologyRefiner *topRefiner = RefinerFactory::Create(topDescriptor, RefinerFactory::Options(schemeType, schemeOptions));
     assert(topRefiner);
     return topRefiner;
 }
@@ -137,30 +102,29 @@ dfltTopologyRefiner(std::vector<float> & posVector,
 //
 //  Create a TopologyRefiner from a specified Obj file:
 //
-Far::TopologyRefiner *
-readTopologyRefiner(std::string const & objFileName,
-                    Sdc::SchemeType schemeType,
-                    std::vector<float> & posVector,
-                    std::vector<float> & uvVector) {
+Far::TopologyRefiner *readTopologyRefiner(std::string const &objFileName, Sdc::SchemeType schemeType, std::vector<float> &posVector, std::vector<float> &uvVector)
+{
 
-    const char *  filename = objFileName.c_str();
-    const Shape * shape = 0;
+    const char * filename = objFileName.c_str();
+    const Shape *shape    = 0;
 
     std::ifstream ifs(filename);
-    if (ifs) {
+    if (ifs)
+    {
         std::stringstream ss;
         ss << ifs.rdbuf();
         ifs.close();
         std::string shapeString = ss.str();
 
-        shape = Shape::parseObj(
-            shapeString.c_str(), ConvertSdcTypeToShapeScheme(schemeType), false);
-        if (shape == 0) {
-            fprintf(stderr,
-                "Error:  Cannot create Shape from Obj file '%s'\n", filename);
+        shape = Shape::parseObj(shapeString.c_str(), ConvertSdcTypeToShapeScheme(schemeType), false);
+        if (shape == 0)
+        {
+            fprintf(stderr, "Error:  Cannot create Shape from Obj file '%s'\n", filename);
             return 0;
         }
-    } else {
+    }
+    else
+    {
         fprintf(stderr, "Error:  Cannot open Obj file '%s'\n", filename);
         return 0;
     }
@@ -168,42 +132,40 @@ readTopologyRefiner(std::string const & objFileName,
     Sdc::SchemeType sdcType    = GetSdcType(*shape);
     Sdc::Options    sdcOptions = GetSdcOptions(*shape);
 
-    Far::TopologyRefiner * refiner = Far::TopologyRefinerFactory<Shape>::Create(
-        *shape, Far::TopologyRefinerFactory<Shape>::Options(sdcType, sdcOptions));
-    if (refiner == 0) {
-        fprintf(stderr,
-            "Error:  Unable to construct TopologyRefiner from Obj file '%s'\n",
-            filename);
+    Far::TopologyRefiner *refiner = Far::TopologyRefinerFactory<Shape>::Create(*shape, Far::TopologyRefinerFactory<Shape>::Options(sdcType, sdcOptions));
+    if (refiner == 0)
+    {
+        fprintf(stderr, "Error:  Unable to construct TopologyRefiner from Obj file '%s'\n", filename);
         return 0;
     }
 
     int numVertices = refiner->GetNumVerticesTotal();
     posVector.resize(numVertices * 3);
-    std::memcpy(&posVector[0], &shape->verts[0], 3*numVertices*sizeof(float));
+    std::memcpy(&posVector[0], &shape->verts[0], 3 * numVertices * sizeof(float));
 
     uvVector.resize(0);
-    if (refiner->GetNumFVarChannels()) {
+    if (refiner->GetNumFVarChannels())
+    {
         int numUVs = refiner->GetNumFVarValuesTotal(0);
         uvVector.resize(numUVs * 2);
-        std::memcpy(&uvVector[0], &shape->uvs[0], 2 * numUVs*sizeof(float));
+        std::memcpy(&uvVector[0], &shape->uvs[0], 2 * numUVs * sizeof(float));
     }
 
     delete shape;
     return refiner;
 }
 
-Far::TopologyRefiner *
-createTopologyRefiner(std::string const & objFileName,
-                      Sdc::SchemeType schemeType,
-                      std::vector<float> & posVector,
-                      std::vector<float> & uvVector) {
+Far::TopologyRefiner *createTopologyRefiner(std::string const &objFileName, Sdc::SchemeType schemeType, std::vector<float> &posVector, std::vector<float> &uvVector)
+{
 
-    if (objFileName.empty()) {
+    if (objFileName.empty())
+    {
         return dfltTopologyRefiner(posVector, uvVector);
-    } else {
-        return readTopologyRefiner(objFileName, schemeType,
-                                   posVector, uvVector);
+    }
+    else
+    {
+        return readTopologyRefiner(objFileName, schemeType, posVector, uvVector);
     }
 }
 
-} // end namespace
+} // namespace tutorial

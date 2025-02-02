@@ -24,14 +24,16 @@
 #ifndef OPENSUBDIV3_SDC_BILINEAR_SCHEME_H
 #define OPENSUBDIV3_SDC_BILINEAR_SCHEME_H
 
+#include "../sdc/scheme.h"
 #include "../version.h"
 
-#include "../sdc/scheme.h"
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Sdc {
+namespace Sdc
+{
 
 //
 //  Specializations for Scheme<SCHEME_BILINEAR>:
@@ -40,49 +42,34 @@ namespace Sdc {
 //
 //  Bilinear traits:
 //
-template <>
-inline Split Scheme<SCHEME_BILINEAR>::GetTopologicalSplitType() { return SPLIT_TO_QUADS; }
+template <> inline Split Scheme<SCHEME_BILINEAR>::GetTopologicalSplitType() { return SPLIT_TO_QUADS; }
 
-template <>
-inline int Scheme<SCHEME_BILINEAR>::GetRegularFaceSize() { return 4; }
+template <> inline int Scheme<SCHEME_BILINEAR>::GetRegularFaceSize() { return 4; }
 
-template <>
-inline int Scheme<SCHEME_BILINEAR>::GetRegularVertexValence() { return 4; }
+template <> inline int Scheme<SCHEME_BILINEAR>::GetRegularVertexValence() { return 4; }
 
-template <>
-inline int Scheme<SCHEME_BILINEAR>::GetLocalNeighborhoodSize() { return 0; }
-
+template <> inline int Scheme<SCHEME_BILINEAR>::GetLocalNeighborhoodSize() { return 0; }
 
 //
 //  Refinement masks:
 //
-template <>
-template <typename EDGE, typename MASK>
-void
-Scheme<SCHEME_BILINEAR>::ComputeEdgeVertexMask(EDGE const& edge, MASK& mask,
-                                                Crease::Rule, Crease::Rule) const {
+template <> template <typename EDGE, typename MASK> void Scheme<SCHEME_BILINEAR>::ComputeEdgeVertexMask(EDGE const &edge, MASK &mask, Crease::Rule, Crease::Rule) const
+{
     //  This should be inline, otherwise trivially replicate it:
     assignCreaseMaskForEdge(edge, mask);
 }
 
-template <>
-template <typename VERTEX, typename MASK>
-void
-Scheme<SCHEME_BILINEAR>::ComputeVertexVertexMask(VERTEX const& vertex, MASK& mask,
-                                                  Crease::Rule, Crease::Rule) const {
+template <> template <typename VERTEX, typename MASK> void Scheme<SCHEME_BILINEAR>::ComputeVertexVertexMask(VERTEX const &vertex, MASK &mask, Crease::Rule, Crease::Rule) const
+{
     //  This should be inline, otherwise trivially replicate it:
     assignCornerMaskForVertex(vertex, mask);
 }
 
-
 //
 //  Limit masks for position -- the limit position of all vertices is the refined vertex.
 //
-template <>
-template <typename VERTEX, typename MASK>
-inline void
-Scheme<SCHEME_BILINEAR>::assignCornerLimitMask(VERTEX const& /* vertex */, MASK& posMask) const {
-
+template <> template <typename VERTEX, typename MASK> inline void Scheme<SCHEME_BILINEAR>::assignCornerLimitMask(VERTEX const & /* vertex */, MASK &posMask) const
+{
     posMask.SetNumVertexWeights(1);
     posMask.SetNumEdgeWeights(0);
     posMask.SetNumFaceWeights(0);
@@ -91,33 +78,16 @@ Scheme<SCHEME_BILINEAR>::assignCornerLimitMask(VERTEX const& /* vertex */, MASK&
     posMask.VertexWeight(0) = 1.0f;
 }
 
-template <>
-template <typename VERTEX, typename MASK>
-inline void
-Scheme<SCHEME_BILINEAR>::assignCreaseLimitMask(VERTEX const& vertex, MASK& posMask,
-                                               int const /* creaseEnds */[2]) const {
+template <> template <typename VERTEX, typename MASK> inline void Scheme<SCHEME_BILINEAR>::assignCreaseLimitMask(VERTEX const &vertex, MASK &posMask, int const /* creaseEnds */[2]) const { assignCornerLimitMask(vertex, posMask); }
 
-    assignCornerLimitMask(vertex, posMask);
-}
-
-template <>
-template <typename VERTEX, typename MASK>
-inline void
-Scheme<SCHEME_BILINEAR>::assignSmoothLimitMask(VERTEX const& vertex, MASK& posMask) const {
-
-    assignCornerLimitMask(vertex, posMask);
-}
+template <> template <typename VERTEX, typename MASK> inline void Scheme<SCHEME_BILINEAR>::assignSmoothLimitMask(VERTEX const &vertex, MASK &posMask) const { assignCornerLimitMask(vertex, posMask); }
 
 //
 //  Limit masks for tangents -- these are ambiguous around all vertices.  Provide
 //  the tangents based on the incident edges of the first face.
 //
-template <>
-template <typename VERTEX, typename MASK>
-inline void
-Scheme<SCHEME_BILINEAR>::assignCornerLimitTangentMasks(VERTEX const& /* vertex */,
-        MASK& tan1Mask, MASK& tan2Mask) const {
-
+template <> template <typename VERTEX, typename MASK> inline void Scheme<SCHEME_BILINEAR>::assignCornerLimitTangentMasks(VERTEX const & /* vertex */, MASK &tan1Mask, MASK &tan2Mask) const
+{
     tan1Mask.SetNumVertexWeights(1);
     tan1Mask.SetNumEdgeWeights(2);
     tan1Mask.SetNumFaceWeights(0);
@@ -129,33 +99,22 @@ Scheme<SCHEME_BILINEAR>::assignCornerLimitTangentMasks(VERTEX const& /* vertex *
     tan2Mask.SetFaceWeightsForFaceCenters(false);
 
     tan1Mask.VertexWeight(0) = -1.0f;
-    tan1Mask.EdgeWeight(0) = 1.0f;
-    tan1Mask.EdgeWeight(1) = 0.0f;
+    tan1Mask.EdgeWeight(0)   = 1.0f;
+    tan1Mask.EdgeWeight(1)   = 0.0f;
 
     tan2Mask.VertexWeight(0) = -1.0f;
-    tan2Mask.EdgeWeight(0) = 0.0f;
-    tan2Mask.EdgeWeight(1) = 1.0f;
+    tan2Mask.EdgeWeight(0)   = 0.0f;
+    tan2Mask.EdgeWeight(1)   = 1.0f;
 }
 
-template <>
-template <typename VERTEX, typename MASK>
-inline void
-Scheme<SCHEME_BILINEAR>::assignCreaseLimitTangentMasks(VERTEX const& vertex,
-        MASK& tan1Mask, MASK& tan2Mask, int const /* creaseEnds */[2]) const {
-
+template <> template <typename VERTEX, typename MASK> inline void Scheme<SCHEME_BILINEAR>::assignCreaseLimitTangentMasks(VERTEX const &vertex, MASK &tan1Mask, MASK &tan2Mask, int const /* creaseEnds */[2]) const
+{
     assignCornerLimitTangentMasks(vertex, tan1Mask, tan2Mask);
 }
 
-template <>
-template <typename VERTEX, typename MASK>
-inline void
-Scheme<SCHEME_BILINEAR>::assignSmoothLimitTangentMasks(VERTEX const& vertex,
-        MASK& tan1Mask, MASK& tan2Mask) const {
+template <> template <typename VERTEX, typename MASK> inline void Scheme<SCHEME_BILINEAR>::assignSmoothLimitTangentMasks(VERTEX const &vertex, MASK &tan1Mask, MASK &tan2Mask) const { assignCornerLimitTangentMasks(vertex, tan1Mask, tan2Mask); }
 
-    assignCornerLimitTangentMasks(vertex, tan1Mask, tan2Mask);
-}
-
-} // end namespace sdc
+} // namespace Sdc
 
 } // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;

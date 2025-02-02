@@ -24,9 +24,9 @@
 
 #include "./version.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 } // end namespace OPENSUBDIV_VERSION
 } // end namespace OpenSubdiv

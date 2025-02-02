@@ -22,11 +22,8 @@
 //   language governing permissions and limitations under the Apache License.
 //
 
-
 #import <Cocoa/Cocoa.h>
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
-
 @end
-

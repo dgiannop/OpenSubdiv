@@ -23,48 +23,52 @@
 //
 
 #include "../osd/glslPatchShaderSource.h"
+
 #include <sstream>
 #include <string>
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Osd {
+namespace Osd
+{
 
 static const char *commonShaderSource =
 #include "glslPatchCommon.gen.h"
-;
+    ;
 static const char *commonTessShaderSource =
 #include "glslPatchCommonTess.gen.h"
-;
+    ;
 static const char *patchLegacyShaderSource =
 #include "glslPatchLegacy.gen.h"
-;
+    ;
 static const char *patchBasisTypesShaderSource =
 #include "patchBasisTypes.gen.h"
-;
+    ;
 static const char *patchBasisShaderSource =
 #include "patchBasis.gen.h"
-;
+    ;
 static const char *boxSplineTriangleShaderSource =
 #include "glslPatchBoxSplineTriangle.gen.h"
-;
+    ;
 static const char *bsplineShaderSource =
 #include "glslPatchBSpline.gen.h"
-;
+    ;
 static const char *gregoryShaderSource =
 #include "glslPatchGregory.gen.h"
-;
+    ;
 static const char *gregoryBasisShaderSource =
 #include "glslPatchGregoryBasis.gen.h"
-;
+    ;
 static const char *gregoryTriangleShaderSource =
 #include "glslPatchGregoryTriangle.gen.h"
-;
+    ;
 
 /*static*/
-std::string
-GLSLPatchShaderSource::GetPatchDrawingShaderSource() {
+std::string GLSLPatchShaderSource::GetPatchDrawingShaderSource()
+{
     std::stringstream ss;
     ss << std::string(commonShaderSource);
     ss << std::string(commonTessShaderSource);
@@ -72,8 +76,8 @@ GLSLPatchShaderSource::GetPatchDrawingShaderSource() {
 }
 
 /*static*/
-std::string
-GLSLPatchShaderSource::GetCommonShaderSource() {
+std::string GLSLPatchShaderSource::GetCommonShaderSource()
+{
     std::stringstream ss;
     ss << GetPatchDrawingShaderSource();
     ss << std::string(patchLegacyShaderSource);
@@ -81,8 +85,8 @@ GLSLPatchShaderSource::GetCommonShaderSource() {
 }
 
 /*static*/
-std::string
-GLSLPatchShaderSource::GetPatchBasisShaderSource() {
+std::string GLSLPatchShaderSource::GetPatchBasisShaderSource()
+{
     std::stringstream ss;
 #if defined(OPENSUBDIV_GREGORY_EVAL_TRUE_DERIVATIVES)
     ss << "#define OPENSUBDIV_GREGORY_EVAL_TRUE_DERIVATIVES\n";
@@ -93,10 +97,11 @@ GLSLPatchShaderSource::GetPatchBasisShaderSource() {
 }
 
 /*static*/
-std::string
-GLSLPatchShaderSource::GetVertexShaderSource(Far::PatchDescriptor::Type type) {
+std::string GLSLPatchShaderSource::GetVertexShaderSource(Far::PatchDescriptor::Type type)
+{
     std::stringstream ss;
-    switch (type) {
+    switch (type)
+    {
     case Far::PatchDescriptor::REGULAR:
         ss << "#define OSD_PATCH_BSPLINE\n"
            << "#define OSD_PATCH_VERTEX_BSPLINE_SHADER\n"
@@ -128,17 +133,17 @@ GLSLPatchShaderSource::GetVertexShaderSource(Far::PatchDescriptor::Type type) {
            << gregoryTriangleShaderSource;
         break;
     default:
-        break;  // returns empty (points, lines, quads, ...)
+        break; // returns empty (points, lines, quads, ...)
     }
     return ss.str();
 }
 
 /*static*/
-std::string
-GLSLPatchShaderSource::GetTessControlShaderSource(
-    Far::PatchDescriptor::Type type) {
+std::string GLSLPatchShaderSource::GetTessControlShaderSource(Far::PatchDescriptor::Type type)
+{
     std::stringstream ss;
-    switch (type) {
+    switch (type)
+    {
     case Far::PatchDescriptor::REGULAR:
         ss << "#define OSD_PATCH_BSPLINE\n"
            << "#define OSD_PATCH_TESS_CONTROL_BSPLINE_SHADER\n"
@@ -170,17 +175,17 @@ GLSLPatchShaderSource::GetTessControlShaderSource(
            << gregoryTriangleShaderSource;
         break;
     default:
-        break;  // returns empty (points, lines, quads, ...)
+        break; // returns empty (points, lines, quads, ...)
     }
     return ss.str();
 }
 
 /*static*/
-std::string
-GLSLPatchShaderSource::GetTessEvalShaderSource(
-    Far::PatchDescriptor::Type type) {
+std::string GLSLPatchShaderSource::GetTessEvalShaderSource(Far::PatchDescriptor::Type type)
+{
     std::stringstream ss;
-    switch (type) {
+    switch (type)
+    {
     case Far::PatchDescriptor::REGULAR:
         ss << "#define OSD_PATCH_BSPLINE\n"
            << "#define OSD_PATCH_TESS_EVAL_BSPLINE_SHADER\n"
@@ -212,12 +217,12 @@ GLSLPatchShaderSource::GetTessEvalShaderSource(
            << gregoryTriangleShaderSource;
         break;
     default:
-        break;  // returns empty (points, lines, quads, ...)
+        break; // returns empty (points, lines, quads, ...)
     }
     return ss.str();
 }
 
-}  // end namespace Osd
+} // end namespace Osd
 
-}  // end namespace OPENSUBDIV_VERSION
+} // end namespace OPENSUBDIV_VERSION
 } // end namespace OpenSubdiv

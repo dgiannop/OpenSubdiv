@@ -25,19 +25,21 @@
 #ifndef OPENSUBDIV3_BFR_PATCH_TREE_H
 #define OPENSUBDIV3_BFR_PATCH_TREE_H
 
-#include "../version.h"
+#include <cstring>
+#include <vector>
 
 #include "../far/patchDescriptor.h"
 #include "../far/patchParam.h"
+#include "../version.h"
 #include "../vtr/array.h"
 
-#include <vector>
-#include <cstring>
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Bfr {
+namespace Bfr
+{
 
 //
 //  A PatchTree is a hierarchical collection of parametric patches that
@@ -64,77 +66,67 @@ namespace Bfr {
 //  the search). Construction options allow this functionality to be
 //  selectively enabled/disabled, and Bfr currently disables it.
 //
-class PatchTree {
-public:
+class PatchTree
+{
+  public:
     //  Constructors are protected
     ~PatchTree();
 
     //  Simple public accessors:
-    int GetNumControlPoints() const  { return _numControlPoints; }
+    int GetNumControlPoints() const { return _numControlPoints; }
     int GetNumSubPatchPoints() const { return _numSubPatchPoints; }
-    int GetNumPointsTotal() const    { return _numControlPoints +
-                                              _numSubPatchPoints; }
+    int GetNumPointsTotal() const { return _numControlPoints + _numSubPatchPoints; }
 
     //  These queries may not be necessary...
-    int GetDepth() const      { return _treeDepth; }
+    int GetDepth() const { return _treeDepth; }
     int GetNumPatches() const { return (int)_patchParams.size(); }
 
     //  Methods to access stencils to compute patch points:
-    template <typename REAL>
-    REAL const * GetStencilMatrix() const;
+    template <typename REAL> REAL const *GetStencilMatrix() const;
 
     bool UsesDoublePrecision() const { return _useDoublePrecision; }
 
     //  Methods supporting evaluation:
-    int HasSubFaces() const    { return _numSubFaces > 0; }
+    int HasSubFaces() const { return _numSubFaces > 0; }
     int GetNumSubFaces() const { return _numSubFaces; }
 
-    int FindSubPatch(double u, double v, int subFace=0, int maxDep=-1) const;
+    int FindSubPatch(double u, double v, int subFace = 0, int maxDep = -1) const;
 
     typedef Vtr::ConstArray<int> PatchPointArray;
-    PatchPointArray GetSubPatchPoints(int subPatch) const;
-    Far::PatchParam GetSubPatchParam( int subPatch) const;
+    PatchPointArray              GetSubPatchPoints(int subPatch) const;
+    Far::PatchParam              GetSubPatchParam(int subPatch) const;
 
     //  Main evaluation methods - basis weights or limit stencils:
-    template <typename REAL>
-    int EvalSubPatchBasis(int subPatch, REAL u, REAL v, REAL w[],
-                          REAL wDu[],  REAL wDv[],
-                          REAL wDuu[], REAL wDuv[], REAL wDvv[]) const;
+    template <typename REAL> int EvalSubPatchBasis(int subPatch, REAL u, REAL v, REAL w[], REAL wDu[], REAL wDv[], REAL wDuu[], REAL wDuv[], REAL wDvv[]) const;
 
-    template <typename REAL>
-    int EvalSubPatchStencils(int subPatch, REAL u, REAL v, REAL s[],
-                             REAL sDu[],  REAL sDv[],
-                             REAL sDuu[], REAL sDuv[], REAL sDvv[]) const;
+    template <typename REAL> int EvalSubPatchStencils(int subPatch, REAL u, REAL v, REAL s[], REAL sDu[], REAL sDv[], REAL sDuu[], REAL sDuv[], REAL sDvv[]) const;
 
-protected:
+  protected:
     PatchTree();
     friend class PatchTreeBuilder;
 
     //
     //  Internal utilities to support the stencil matrix of variable precision
     //
-    template <typename REAL> std::vector<REAL> const & getStencilMatrix() const;
-    template <typename REAL> std::vector<REAL>       & getStencilMatrix();
+    template <typename REAL> std::vector<REAL> const &getStencilMatrix() const;
+    template <typename REAL> std::vector<REAL> &      getStencilMatrix();
 
-    template <typename REAL_MATRIX, typename REAL>
-    int evalSubPatchStencils(int subPatch, REAL u, REAL v, REAL s[],
-                             REAL sDu[],  REAL sDv[],
-                             REAL sDuu[], REAL sDuv[], REAL sDvv[]) const;
+    template <typename REAL_MATRIX, typename REAL> int evalSubPatchStencils(int subPatch, REAL u, REAL v, REAL s[], REAL sDu[], REAL sDv[], REAL sDuu[], REAL sDuv[], REAL sDvv[]) const;
 
-protected:
+  protected:
     //  Internal quad-tree node type and assembly and search methods:
-    struct TreeNode {
-        struct Child {
-            unsigned int isSet  :  1;
-            unsigned int isLeaf :  1;
-            unsigned int index  : 28;
+    struct TreeNode
+    {
+        struct Child
+        {
+            unsigned int isSet : 1;
+            unsigned int isLeaf : 1;
+            unsigned int index : 28;
 
             void SetIndex(int indexArg) { index = indexArg & 0xfffffff; }
         };
 
-        TreeNode() : patchIndex(-1) {
-            std::memset(children, 0, sizeof(children));
-        }
+        TreeNode() : patchIndex(-1) { std::memset(children, 0, sizeof(children)); }
 
         void SetChildren(int index);
         void SetChild(int quadrant, int index, bool isLeaf);
@@ -143,20 +135,19 @@ protected:
         Child children[4];
     };
 
-    int searchQuadtree(double u, double v, int subFace=0, int depth=-1) const;
+    int  searchQuadtree(double u, double v, int subFace = 0, int depth = -1) const;
     void buildQuadtree();
 
-    TreeNode * assignLeafOrChildNode(TreeNode * node,
-                                     bool isLeaf, int quadrant, int index);
+    TreeNode *assignLeafOrChildNode(TreeNode *node, bool isLeaf, int quadrant, int index);
 
-private:
+  private:
     //  Private members:
     typedef Far::PatchDescriptor::Type PatchType;
 
     //  Simple configuration members:
-    unsigned int _useDoublePrecision    : 1;
+    unsigned int _useDoublePrecision : 1;
     unsigned int _patchesIncludeNonLeaf : 1;
-    unsigned int _patchesAreTriangular  : 1;
+    unsigned int _patchesAreTriangular : 1;
 
     PatchType _regPatchType;
     PatchType _irregPatchType;
@@ -184,8 +175,8 @@ private:
     std::vector<Far::PatchParam> _patchParams;
 
     //  The quadtree organizing the patches:
-    std::vector<TreeNode>  _treeNodes;
-    int                    _treeDepth;
+    std::vector<TreeNode> _treeNodes;
+    int                   _treeDepth;
 
     //  Array of stencils for computing patch points from control points
     //  (single or double to be used as specified on construction):
@@ -198,48 +189,28 @@ private:
 //  precision -- const access presumes it is non-empty (and so assert)
 //  while non-const access may be used to populate it.
 //
-template <>
-inline std::vector<float> const &
-PatchTree::getStencilMatrix<float>() const {
+template <> inline std::vector<float> const &PatchTree::getStencilMatrix<float>() const
+{
     assert(!_stencilMatrixFloat.empty());
     return _stencilMatrixFloat;
 }
-template <>
-inline std::vector<double> const &
-PatchTree::getStencilMatrix<double>() const {
+template <> inline std::vector<double> const &PatchTree::getStencilMatrix<double>() const
+{
     assert(!_stencilMatrixDouble.empty());
     return _stencilMatrixDouble;
 }
 
-template <>
-inline std::vector<float> &
-PatchTree::getStencilMatrix<float>() {
-    return _stencilMatrixFloat;
-}
-template <>
-inline std::vector<double> &
-PatchTree::getStencilMatrix<double>() {
-    return _stencilMatrixDouble;
-}
+template <> inline std::vector<float> & PatchTree::getStencilMatrix<float>() { return _stencilMatrixFloat; }
+template <> inline std::vector<double> &PatchTree::getStencilMatrix<double>() { return _stencilMatrixDouble; }
 
 //
 //  Inline methods:
 //
-inline Far::PatchParam
-PatchTree::GetSubPatchParam(int subPatch) const {
-    return _patchParams[subPatch];
-}
+inline Far::PatchParam PatchTree::GetSubPatchParam(int subPatch) const { return _patchParams[subPatch]; }
 
-inline int
-PatchTree::FindSubPatch(double u, double v, int subFace, int maxDep) const {
-    return searchQuadtree(u, v, subFace, maxDep);
-}
+inline int PatchTree::FindSubPatch(double u, double v, int subFace, int maxDep) const { return searchQuadtree(u, v, subFace, maxDep); }
 
-template <typename REAL>
-inline REAL const *
-PatchTree::GetStencilMatrix() const {
-    return &getStencilMatrix<REAL>()[0];
-}
+template <typename REAL> inline REAL const *PatchTree::GetStencilMatrix() const { return &getStencilMatrix<REAL>()[0]; }
 
 } // end namespace Bfr
 

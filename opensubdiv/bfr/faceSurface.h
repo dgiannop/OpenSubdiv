@@ -25,17 +25,19 @@
 #ifndef OPENSUBDIV3_BFR_FACE_SURFACE_H
 #define OPENSUBDIV3_BFR_FACE_SURFACE_H
 
-#include "../version.h"
-
 #include "../bfr/faceTopology.h"
 #include "../bfr/faceVertex.h"
+#include "../version.h"
 #include "../vtr/stackBuffer.h"
 #include "../vtr/types.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Bfr {
+namespace Bfr
+{
 
 //
 //  The FaceSurface class combines references to several other classes and
@@ -67,20 +69,21 @@ namespace Bfr {
 //  as a container to be passed to other classes to assemble into regular
 //  or irregular surfaces.
 //
-class FaceSurface {
-public:
+class FaceSurface
+{
+  public:
     typedef FaceTopology::Index Index;
 
-public:
+  public:
     //  Constructors for vertex and face-varying surfaces:
     FaceSurface();
-    FaceSurface(FaceTopology const & vtxTopology, Index const vtxIndices[]);
-    FaceSurface(FaceSurface const  & vtxSurface,  Index const fvarIndices[]);
-    ~FaceSurface() { }
+    FaceSurface(FaceTopology const &vtxTopology, Index const vtxIndices[]);
+    FaceSurface(FaceSurface const &vtxSurface, Index const fvarIndices[]);
+    ~FaceSurface() {}
 
     bool IsInitialized() const;
-    void Initialize(FaceTopology const & vtxTopology, Index const vtxInds[]);
-    void Initialize(FaceSurface const  & vtxSurface,  Index const fvarInds[]);
+    void Initialize(FaceTopology const &vtxTopology, Index const vtxInds[]);
+    void Initialize(FaceSurface const &vtxSurface, Index const fvarInds[]);
 
     //   Main public methods to distinguish surface and topology:
     bool IsRegular() const { return _isRegular; }
@@ -90,14 +93,14 @@ public:
     //  Debugging:
     void print(bool printVerts = false) const;
 
-public:
+  public:
     //  Public access to the main members:
-    FaceTopology     const & GetTopology() const { return *_topology; }
-    FaceVertexSubset const * GetSubsets()  const { return _corners; }
-    Index            const * GetIndices()  const { return _indices; }
-    MultiVertexTag           GetTag()      const { return _combinedTag; }
+    FaceTopology const &    GetTopology() const { return *_topology; }
+    FaceVertexSubset const *GetSubsets() const { return _corners; }
+    Index const *           GetIndices() const { return _indices; }
+    MultiVertexTag          GetTag() const { return _combinedTag; }
 
-public:
+  public:
     //  Additional public access to data used by builder classes:
     int GetFaceSize() const;
     int GetRegFaceSize() const;
@@ -106,36 +109,30 @@ public:
     Sdc::Options    GetSdcOptionsInEffect() const;
     Sdc::Options    GetSdcOptionsAsAssigned() const;
 
-    FaceVertex       const & GetCornerTopology(int corner) const;
-    FaceVertexSubset const & GetCornerSubset(int corner) const;
+    FaceVertex const &      GetCornerTopology(int corner) const;
+    FaceVertexSubset const &GetCornerSubset(int corner) const;
 
     int GetNumIndices() const;
 
-private:
+  private:
     //  Internal methods:
-    void preInitialize(FaceTopology const & topology, Index const indices[]);
+    void preInitialize(FaceTopology const &topology, Index const indices[]);
     void postInitialize();
 
     bool isRegular() const;
     void reviseSdcOptionsInEffect();
 
     //  Methods to apply specified interpolation options to the corners:
-    void sharpenBySdcVtxBoundaryInterpolation(
-                   FaceVertexSubset       * vtxSubsetPtr,
-                   FaceVertex       const & cornerTopology) const;
+    void sharpenBySdcVtxBoundaryInterpolation(FaceVertexSubset *vtxSubsetPtr, FaceVertex const &cornerTopology) const;
 
-    void sharpenBySdcFVarLinearInterpolation(
-                   FaceVertexSubset       * fvarSubsetPtr,
-                   Index const              fvarIndices[],
-                   FaceVertexSubset const & vtxSubset,
-                   FaceVertex       const & cornerTopology) const;
+    void sharpenBySdcFVarLinearInterpolation(FaceVertexSubset *fvarSubsetPtr, Index const fvarIndices[], FaceVertexSubset const &vtxSubset, FaceVertex const &cornerTopology) const;
 
-private:
-    typedef Vtr::internal::StackBuffer<FaceVertexSubset,8,true> CornerArray;
+  private:
+    typedef Vtr::internal::StackBuffer<FaceVertexSubset, 8, true> CornerArray;
 
-    FaceTopology const * _topology;
-    Index        const * _indices;
-    CornerArray          _corners;
+    FaceTopology const *_topology;
+    Index const *       _indices;
+    CornerArray         _corners;
 
     //  Members reflecting the effective subset of topology and options:
     MultiVertexTag _combinedTag;
@@ -143,68 +140,33 @@ private:
 
     unsigned int _isFaceVarying : 1;
     unsigned int _matchesVertex : 1;
-    unsigned int _isRegular     : 1;
+    unsigned int _isRegular : 1;
 };
 
 //
 //  Inline constructors:
 //
-inline
-FaceSurface::FaceSurface() : _topology(0), _indices(0) {
-}
-inline
-FaceSurface::FaceSurface(FaceTopology const & vtxTop, Index const vIndices[]) {
-    Initialize(vtxTop, vIndices);
-}
-inline
-FaceSurface::FaceSurface(FaceSurface const & vtxSurf, Index const fvIndices[]) {
-    Initialize(vtxSurf, fvIndices);
-}
+inline FaceSurface::FaceSurface() : _topology(0), _indices(0) {}
+inline FaceSurface::FaceSurface(FaceTopology const &vtxTop, Index const vIndices[]) { Initialize(vtxTop, vIndices); }
+inline FaceSurface::FaceSurface(FaceSurface const &vtxSurf, Index const fvIndices[]) { Initialize(vtxSurf, fvIndices); }
 
 //
 //  Inline accessors:
 //
-inline bool
-FaceSurface::IsInitialized() const {
-    return _topology != 0;
-}
+inline bool FaceSurface::IsInitialized() const { return _topology != 0; }
 
-inline int
-FaceSurface::GetFaceSize() const {
-    return _topology->GetFaceSize();
-}
-inline int
-FaceSurface::GetRegFaceSize() const {
-    return _topology->GetRegFaceSize();
-}
+inline int FaceSurface::GetFaceSize() const { return _topology->GetFaceSize(); }
+inline int FaceSurface::GetRegFaceSize() const { return _topology->GetRegFaceSize(); }
 
-inline Sdc::SchemeType
-FaceSurface::GetSdcScheme() const {
-    return _topology->_schemeType;
-}
-inline Sdc::Options
-FaceSurface::GetSdcOptionsInEffect() const {
-    return _optionsInEffect;
-}
-inline Sdc::Options
-FaceSurface::GetSdcOptionsAsAssigned() const {
-    return _topology->_schemeOptions;
-}
+inline Sdc::SchemeType FaceSurface::GetSdcScheme() const { return _topology->_schemeType; }
+inline Sdc::Options    FaceSurface::GetSdcOptionsInEffect() const { return _optionsInEffect; }
+inline Sdc::Options    FaceSurface::GetSdcOptionsAsAssigned() const { return _topology->_schemeOptions; }
 
-inline FaceVertex const &
-FaceSurface::GetCornerTopology(int corner) const {
-    return _topology->GetTopology(corner);
-}
+inline FaceVertex const &FaceSurface::GetCornerTopology(int corner) const { return _topology->GetTopology(corner); }
 
-inline FaceVertexSubset const & 
-FaceSurface::GetCornerSubset(int corner) const {
-    return _corners[corner];
-}
+inline FaceVertexSubset const &FaceSurface::GetCornerSubset(int corner) const { return _corners[corner]; }
 
-inline int
-FaceSurface::GetNumIndices() const {
-    return _topology->GetNumFaceVertices();
-}
+inline int FaceSurface::GetNumIndices() const { return _topology->GetNumFaceVertices(); }
 
 } // end namespace Bfr
 

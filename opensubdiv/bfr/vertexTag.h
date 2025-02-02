@@ -25,14 +25,17 @@
 #ifndef OPENSUBDIV3_BFR_VERTEX_TAG_H
 #define OPENSUBDIV3_BFR_VERTEX_TAG_H
 
-#include "../version.h"
-
 #include <cstring>
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+#include "../version.h"
 
-namespace Bfr {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
+
+namespace Bfr
+{
 
 //
 //  VertexTag is a simple set of bits that identify exceptional properties
@@ -47,42 +50,40 @@ namespace Bfr {
 //  is defined as a base class and two separate classes are derived from
 //  it to suit those purposes.
 //
-class FeatureBits {
-public:
-    FeatureBits() { }
-    ~FeatureBits() { }
+class FeatureBits
+{
+  public:
+    FeatureBits() {}
+    ~FeatureBits() {}
 
-public:
+  public:
     //  Integer/bit conversions and operations:
     typedef unsigned short IntType;
 
-    IntType GetBits() const {
+    IntType GetBits() const
+    {
         IntType bits;
         std::memcpy(&bits, this, sizeof(*this));
         return bits;
     }
-    void SetBits(IntType bits) {
-        std::memcpy(this, &bits, sizeof(*this));
-    }
-    void Clear() {
-        SetBits(0);
-    }
+    void SetBits(IntType bits) { std::memcpy(this, &bits, sizeof(*this)); }
+    void Clear() { SetBits(0); }
 
-protected:
+  protected:
     friend class FaceVertex;
     friend struct FaceVertexSubset;
 
-    IntType _boundaryVerts      : 1;
-    IntType _infSharpVerts      : 1;
-    IntType _infSharpEdges      : 1;
-    IntType _infSharpDarts      : 1;
-    IntType _semiSharpVerts     : 1;
-    IntType _semiSharpEdges     : 1;
-    IntType _unCommonFaceSizes  : 1;
+    IntType _boundaryVerts : 1;
+    IntType _infSharpVerts : 1;
+    IntType _infSharpEdges : 1;
+    IntType _infSharpDarts : 1;
+    IntType _semiSharpVerts : 1;
+    IntType _semiSharpEdges : 1;
+    IntType _unCommonFaceSizes : 1;
     IntType _irregularFaceSizes : 1;
-    IntType _unOrderedFaces     : 1;
-    IntType _nonManifoldVerts   : 1;
-    IntType _boundaryNonSharp   : 1;
+    IntType _unOrderedFaces : 1;
+    IntType _nonManifoldVerts : 1;
+    IntType _boundaryNonSharp : 1;
 };
 
 //
@@ -96,62 +97,59 @@ protected:
 //  corner in Bfr, so the collective presence is determined when the
 //  surface definition is finalized in the regular/irregular test.
 //
-class VertexTag : public FeatureBits {
-public:
-    VertexTag() { }
-    ~VertexTag() { }
+class VertexTag : public FeatureBits
+{
+  public:
+    VertexTag() {}
+    ~VertexTag() {}
 
     //  Queries for single corner/vertex (some reversing sense of the bit):
-    bool IsBoundary()            const { return  _boundaryVerts; }
-    bool IsInterior()            const { return !_boundaryVerts; }
-    bool IsInfSharp()            const { return  _infSharpVerts; }
-    bool HasInfSharpEdges()      const { return  _infSharpEdges; }
-    bool IsInfSharpDart()        const { return  _infSharpDarts; }
-    bool IsSemiSharp()           const { return  _semiSharpVerts; }
-    bool HasSemiSharpEdges()     const { return  _semiSharpEdges; }
-    bool HasUnCommonFaceSizes()  const { return  _unCommonFaceSizes; }
-    bool HasIrregularFaceSizes() const { return  _irregularFaceSizes; }
-    bool IsOrdered()             const { return !_unOrderedFaces; }
-    bool IsUnOrdered()           const { return  _unOrderedFaces; }
-    bool IsManifold()            const { return !_nonManifoldVerts; }
-    bool IsNonManifold()         const { return  _nonManifoldVerts; }
-    bool HasNonSharpBoundary()   const { return  _boundaryNonSharp; }
-    bool HasSharpEdges()         const { return   HasInfSharpEdges() ||
-                                                  HasSemiSharpEdges(); }
+    bool IsBoundary() const { return _boundaryVerts; }
+    bool IsInterior() const { return !_boundaryVerts; }
+    bool IsInfSharp() const { return _infSharpVerts; }
+    bool HasInfSharpEdges() const { return _infSharpEdges; }
+    bool IsInfSharpDart() const { return _infSharpDarts; }
+    bool IsSemiSharp() const { return _semiSharpVerts; }
+    bool HasSemiSharpEdges() const { return _semiSharpEdges; }
+    bool HasUnCommonFaceSizes() const { return _unCommonFaceSizes; }
+    bool HasIrregularFaceSizes() const { return _irregularFaceSizes; }
+    bool IsOrdered() const { return !_unOrderedFaces; }
+    bool IsUnOrdered() const { return _unOrderedFaces; }
+    bool IsManifold() const { return !_nonManifoldVerts; }
+    bool IsNonManifold() const { return _nonManifoldVerts; }
+    bool HasNonSharpBoundary() const { return _boundaryNonSharp; }
+    bool HasSharpEdges() const { return HasInfSharpEdges() || HasSemiSharpEdges(); }
 };
 
 //
-//  MultiVertexTag wraps the FeatureBits for use with bits combined from 
+//  MultiVertexTag wraps the FeatureBits for use with bits combined from
 //  several corners/vertices. It includes the Combine() method to apply
 //  the bitwise-OR with a given VertexTag, in addition to using different
 //  names for the access methods to reflect their collective nature (e.g.
 //  the use of "has" versus "is").
 //
-class MultiVertexTag : public FeatureBits {
-public:
-    MultiVertexTag() { }
-    ~MultiVertexTag() { }
+class MultiVertexTag : public FeatureBits
+{
+  public:
+    MultiVertexTag() {}
+    ~MultiVertexTag() {}
 
     //  Queries for multiple VertexTags combined into one:
-    bool HasBoundaryVertices()     const { return _boundaryVerts; }
-    bool HasInfSharpVertices()     const { return _infSharpVerts; }
-    bool HasInfSharpEdges()        const { return _infSharpEdges; }
-    bool HasInfSharpDarts()        const { return _infSharpDarts; }
-    bool HasSemiSharpVertices()    const { return _semiSharpVerts; }
-    bool HasSemiSharpEdges()       const { return _semiSharpEdges; }
-    bool HasUnCommonFaceSizes()    const { return _unCommonFaceSizes; }
-    bool HasIrregularFaceSizes()   const { return _irregularFaceSizes; }
-    bool HasUnOrderedVertices()    const { return _unOrderedFaces; }
-    bool HasNonManifoldVertices()  const { return _nonManifoldVerts; }
-    bool HasNonSharpBoundary()     const { return _boundaryNonSharp; }
-    bool HasSharpVertices()        const { return  HasInfSharpVertices() ||
-                                                   HasSemiSharpVertices(); }
-    bool HasSharpEdges()           const { return  HasInfSharpEdges() ||
-                                                   HasSemiSharpEdges(); }
+    bool HasBoundaryVertices() const { return _boundaryVerts; }
+    bool HasInfSharpVertices() const { return _infSharpVerts; }
+    bool HasInfSharpEdges() const { return _infSharpEdges; }
+    bool HasInfSharpDarts() const { return _infSharpDarts; }
+    bool HasSemiSharpVertices() const { return _semiSharpVerts; }
+    bool HasSemiSharpEdges() const { return _semiSharpEdges; }
+    bool HasUnCommonFaceSizes() const { return _unCommonFaceSizes; }
+    bool HasIrregularFaceSizes() const { return _irregularFaceSizes; }
+    bool HasUnOrderedVertices() const { return _unOrderedFaces; }
+    bool HasNonManifoldVertices() const { return _nonManifoldVerts; }
+    bool HasNonSharpBoundary() const { return _boundaryNonSharp; }
+    bool HasSharpVertices() const { return HasInfSharpVertices() || HasSemiSharpVertices(); }
+    bool HasSharpEdges() const { return HasInfSharpEdges() || HasSemiSharpEdges(); }
 
-    void Combine(VertexTag const & tag) {
-        SetBits(GetBits() | tag.GetBits());
-    }
+    void Combine(VertexTag const &tag) { SetBits(GetBits() | tag.GetBits()); }
 };
 
 } // end namespace Bfr

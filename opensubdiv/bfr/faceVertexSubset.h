@@ -25,14 +25,16 @@
 #ifndef OPENSUBDIV3_BFR_FACE_VERTEX_SUBSET_H
 #define OPENSUBDIV3_BFR_FACE_VERTEX_SUBSET_H
 
+#include "../bfr/vertexTag.h"
 #include "../version.h"
 
-#include "../bfr/vertexTag.h"
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Bfr {
+namespace Bfr
+{
 
 //
 //  FaceVertexSubset is a simple struct and companion of FaceVertex that
@@ -44,11 +46,13 @@ namespace Bfr {
 //      - it serves no purpose without a FaceVertex and the FaceVertex
 //        class has several methods to initialize/modify FaceVertexSubsets
 //
-struct FaceVertexSubset {
-    FaceVertexSubset() { }
+struct FaceVertexSubset
+{
+    FaceVertexSubset() {}
 
-    void Initialize(VertexTag tag) {
-        _tag = tag;
+    void Initialize(VertexTag tag)
+    {
+        _tag            = tag;
         _numFacesBefore = 0;
         _numFacesAfter  = 0;
         _numFacesTotal  = 1;
@@ -62,20 +66,14 @@ struct FaceVertexSubset {
 
     //  Simple get/set methods to avoid the tedious syntax of the tag:
     bool IsBoundary() const { return _tag._boundaryVerts; }
-    bool IsSharp()    const { return _tag._infSharpVerts; }
+    bool IsSharp() const { return _tag._infSharpVerts; }
 
     void SetBoundary(bool on) { _tag._boundaryVerts = on; }
-    void SetSharp(bool on)    { _tag._infSharpVerts = on; }
+    void SetSharp(bool on) { _tag._infSharpVerts = on; }
 
     //  Methods comparing to a superset (not any arbitrary subset):
-    bool ExtentMatchesSuperset(FaceVertexSubset const & sup) const {
-        return (GetNumFaces() == sup.GetNumFaces()) &&
-               (IsBoundary()  == sup.IsBoundary());
-    }
-    bool ShapeMatchesSuperset(FaceVertexSubset const & sup) const {
-        return ExtentMatchesSuperset(sup) &&
-               (IsSharp() == sup.IsSharp());
-    }
+    bool ExtentMatchesSuperset(FaceVertexSubset const &sup) const { return (GetNumFaces() == sup.GetNumFaces()) && (IsBoundary() == sup.IsBoundary()); }
+    bool ShapeMatchesSuperset(FaceVertexSubset const &sup) const { return ExtentMatchesSuperset(sup) && (IsSharp() == sup.IsSharp()); }
 
     //  Member tags containing boundary and sharp bits:
     VertexTag _tag;

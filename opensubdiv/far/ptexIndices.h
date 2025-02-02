@@ -24,17 +24,19 @@
 #ifndef OPENSUBDIV3_FAR_PTEX_INDICES_H
 #define OPENSUBDIV3_FAR_PTEX_INDICES_H
 
-#include "../version.h"
+#include <vector>
 
 #include "../far/topologyRefiner.h"
 #include "../far/types.h"
+#include "../version.h"
 
-#include <vector>
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Far {
+namespace Far
+{
 
 ///
 /// \brief Object used to compute and query ptex face indices.
@@ -43,10 +45,9 @@ namespace Far {
 /// from coarse faces to ptex ids.  Once built, the object can be used to
 /// query the mapping.
 ///
-class PtexIndices {
-
-public:
-
+class PtexIndices
+{
+  public:
     /// \brief Constructor
     PtexIndices(TopologyRefiner const &refiner);
 
@@ -80,22 +81,16 @@ public:
     ///
     /// @param adjEdges  ptex edge indices of adjacent faces
     ///
-    void GetAdjacency(
-        TopologyRefiner const &refiner,
-        int face, int quadrant,
-        int adjFaces[4], int adjEdges[4]) const;
+    void GetAdjacency(TopologyRefiner const &refiner, int face, int quadrant, int adjFaces[4], int adjEdges[4]) const;
 
     //@}
 
-private:
-
+  private:
     void initializePtexIndices(TopologyRefiner const &refiner);
 
-private:
-
+  private:
     std::vector<Index> _ptexIndices;
 };
-
 
 } // end namespace Far
 

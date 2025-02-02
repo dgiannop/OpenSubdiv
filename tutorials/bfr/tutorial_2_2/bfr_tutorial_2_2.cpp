@@ -39,16 +39,16 @@
 //      the shared set of points.
 //
 
-#include <opensubdiv/far/topologyRefiner.h>
 #include <opensubdiv/bfr/refinerSurfaceFactory.h>
 #include <opensubdiv/bfr/surface.h>
 #include <opensubdiv/bfr/tessellation.h>
+#include <opensubdiv/far/topologyRefiner.h>
 
-#include <vector>
-#include <string>
-#include <cstring>
-#include <cstdio>
 #include <cassert>
+#include <cstdio>
+#include <cstring>
+#include <string>
+#include <vector>
 
 //  Local headers with support for this tutorial in "namespace tutorial"
 #include "./meshLoader.h"
@@ -56,82 +56,101 @@
 
 using namespace OpenSubdiv;
 
+using Far::ConstIndexArray;
 using Far::Index;
 using Far::IndexArray;
-using Far::ConstIndexArray;
 
 //
 //  Simple command line arguments to provide input and run-time options:
 //
-class Args {
-public:
+class Args
+{
+  public:
     std::string     inputObjFile;
     std::string     outputObjFile;
     Sdc::SchemeType schemeType;
     int             tessUniformRate;
     bool            tessQuadsFlag;
 
-public:
-    Args(int argc, char * argv[]) :
-        inputObjFile(),
-        outputObjFile(),
-        schemeType(Sdc::SCHEME_CATMARK),
-        tessUniformRate(5),
-        tessQuadsFlag(false) {
+  public:
+    Args(int argc, char *argv[]) : inputObjFile(), outputObjFile(), schemeType(Sdc::SCHEME_CATMARK), tessUniformRate(5), tessQuadsFlag(false)
+    {
 
-        for (int i = 1; i < argc; ++i) {
-            if (strstr(argv[i], ".obj")) {
-                if (inputObjFile.empty()) {
+        for (int i = 1; i < argc; ++i)
+        {
+            if (strstr(argv[i], ".obj"))
+            {
+                if (inputObjFile.empty())
+                {
                     inputObjFile = std::string(argv[i]);
-                } else {
-                    fprintf(stderr,
-                        "Warning: Extra Obj file '%s' ignored\n", argv[i]);
                 }
-            } else if (!strcmp(argv[i], "-o")) {
-                if (++i < argc) outputObjFile = std::string(argv[i]);
-            } else if (!strcmp(argv[i], "-bilinear")) {
+                else
+                {
+                    fprintf(stderr, "Warning: Extra Obj file '%s' ignored\n", argv[i]);
+                }
+            }
+            else if (!strcmp(argv[i], "-o"))
+            {
+                if (++i < argc)
+                    outputObjFile = std::string(argv[i]);
+            }
+            else if (!strcmp(argv[i], "-bilinear"))
+            {
                 schemeType = Sdc::SCHEME_BILINEAR;
-            } else if (!strcmp(argv[i], "-catmark")) {
+            }
+            else if (!strcmp(argv[i], "-catmark"))
+            {
                 schemeType = Sdc::SCHEME_CATMARK;
-            } else if (!strcmp(argv[i], "-loop")) {
+            }
+            else if (!strcmp(argv[i], "-loop"))
+            {
                 schemeType = Sdc::SCHEME_LOOP;
-            } else if (!strcmp(argv[i], "-res")) {
-                if (++i < argc) tessUniformRate = atoi(argv[i]);
-            } else if (!strcmp(argv[i], "-quads")) {
+            }
+            else if (!strcmp(argv[i], "-res"))
+            {
+                if (++i < argc)
+                    tessUniformRate = atoi(argv[i]);
+            }
+            else if (!strcmp(argv[i], "-quads"))
+            {
                 tessQuadsFlag = true;
-            } else {
-                fprintf(stderr,
-                    "Warning: Unrecognized argument '%s' ignored\n", argv[i]);
+            }
+            else
+            {
+                fprintf(stderr, "Warning: Unrecognized argument '%s' ignored\n", argv[i]);
             }
         }
     }
 
-private:
-    Args() { }
+  private:
+    Args() {}
 };
 
 //
 //  Simple local structs supporting shared points for vertices and edges:
 //
-namespace {
-    struct SharedVertex {
-        SharedVertex() : pointIndex(-1) { }
+namespace
+{
+struct SharedVertex
+{
+    SharedVertex() : pointIndex(-1) {}
 
-        bool IsSet() const { return pointIndex >= 0; }
-        void Set(int index) { pointIndex = index; }
+    bool IsSet() const { return pointIndex >= 0; }
+    void Set(int index) { pointIndex = index; }
 
-        int pointIndex;
-    };
+    int pointIndex;
+};
 
-    struct SharedEdge {
-        SharedEdge() : pointIndex(-1), numPoints(0) { }
+struct SharedEdge
+{
+    SharedEdge() : pointIndex(-1), numPoints(0) {}
 
-        bool IsSet() const { return pointIndex >= 0; }
-        void Set(int index, int n) { pointIndex = index, numPoints = n; }
+    bool IsSet() const { return pointIndex >= 0; }
+    void Set(int index, int n) { pointIndex = index, numPoints = n; }
 
-        int pointIndex;
-        int numPoints;
-    };
+    int pointIndex;
+    int numPoints;
+};
 } // end namespace
 
 //
@@ -156,10 +175,8 @@ namespace {
 //  the bookkeeping to deal with indices of shared points becomes more
 //  complicated.
 //
-void
-tessellateToObj(Far::TopologyRefiner const & meshTopology,
-                std::vector<float>   const & meshVertexPositions,
-                Args                 const & options) {
+void tessellateToObj(Far::TopologyRefiner const &meshTopology, std::vector<float> const &meshVertexPositions, Args const &options)
+{
 
     //
     //  Use simpler local type names for the Surface and its factory:
@@ -215,7 +232,7 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
     //  Declare vectors to identify shared tessellation points at vertices
     //  and edges and their indices around the boundary of a face:
     //
-    Far::TopologyLevel const & baseLevel = meshTopology.GetLevel(0);
+    Far::TopologyLevel const &baseLevel = meshTopology.GetLevel(0);
 
     std::vector<SharedVertex> sharedVerts(baseLevel.GetNumVertices());
     std::vector<SharedEdge>   sharedEdges(baseLevel.GetNumEdges());
@@ -230,12 +247,14 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
     int numMeshPointsEvaluated = 0;
 
     int numFaces = meshSurfaceFactory.GetNumFaces();
-    for (int faceIndex = 0; faceIndex < numFaces; ++faceIndex) {
+    for (int faceIndex = 0; faceIndex < numFaces; ++faceIndex)
+    {
         //
         //  Initialize the Surface for this face -- if valid (skipping
         //  holes and boundary faces in some rare cases):
         //
-        if (!meshSurfaceFactory.InitVertexSurface(faceIndex, &faceSurface)) {
+        if (!meshSurfaceFactory.InitVertexSurface(faceIndex, &faceSurface))
+        {
             continue;
         }
 
@@ -243,8 +262,7 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
         //  Declare a simple uniform Tessellation for the Parameterization
         //  of this face and identify coordinates of the points to evaluate:
         //
-        Bfr::Tessellation tessPattern(faceSurface.GetParameterization(),
-                                      options.tessUniformRate, tessOptions);
+        Bfr::Tessellation tessPattern(faceSurface.GetParameterization(), options.tessUniformRate, tessOptions);
 
         int numOutCoords = tessPattern.GetNumCoords();
 
@@ -266,8 +284,7 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
         outDv.resize(numOutCoords * pointSize);
 
         //  Populate the patch point array:
-        faceSurface.PreparePatchPoints(meshVertexPositions.data(), pointSize,
-                                       facePatchPoints.data(), pointSize);
+        faceSurface.PreparePatchPoints(meshVertexPositions.data(), pointSize, facePatchPoints.data(), pointSize);
 
         //
         //  Evaluate the sample points of the Tessellation:
@@ -284,8 +301,8 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
         int numBoundaryCoords = tessPattern.GetNumBoundaryCoords();
         int numInteriorCoords = numOutCoords - numBoundaryCoords;
 
-        float const * tessBoundaryCoords = &outCoords[0];
-        float const * tessInteriorCoords = &outCoords[numBoundaryCoords*2];
+        float const *tessBoundaryCoords = &outCoords[0];
+        float const *tessInteriorCoords = &outCoords[numBoundaryCoords * 2];
 
         ConstIndexArray fVerts = baseLevel.GetFaceVertices(faceIndex);
         ConstIndexArray fEdges = baseLevel.GetFaceEdges(faceIndex);
@@ -296,11 +313,12 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
         //  Walk around the face, inspecting each vertex and outgoing edge,
         //  and populating the index array of boundary points:
         //
-        float * patchPointData = facePatchPoints.data();
+        float *patchPointData = facePatchPoints.data();
 
-        int boundaryIndex = 0;
+        int boundaryIndex          = 0;
         int numFacePointsEvaluated = 0;
-        for (int i = 0; i < fVerts.size(); ++i) {
+        for (int i = 0; i < fVerts.size(); ++i)
+        {
             Index vertIndex = fVerts[i];
             Index edgeIndex = fEdges[i];
             int   edgeRate  = options.tessUniformRate;
@@ -308,8 +326,9 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
             //
             //  Evaluate/assign or retrieve the shared point for the vertex:
             //
-            SharedVertex & sharedVertex = sharedVerts[vertIndex];
-            if (!sharedVertex.IsSet()) {
+            SharedVertex &sharedVertex = sharedVerts[vertIndex];
+            if (!sharedVertex.IsSet())
+            {
                 //  Identify indices of the new shared point in both the
                 //  mesh and face and increment their inventory:
                 int indexInMesh = numMeshPointsEvaluated++;
@@ -318,14 +337,15 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
                 sharedVertex.Set(indexInMesh);
 
                 //  Evaluate new shared point and assign index to boundary:
-                float const * uv = &tessBoundaryCoords[boundaryIndex*2];
+                float const *uv = &tessBoundaryCoords[boundaryIndex * 2];
 
                 int pIndex = indexInFace * pointSize;
-                faceSurface.Evaluate(uv, patchPointData, pointSize,
-                        &outPos[pIndex], &outDu[pIndex], &outDv[pIndex]);
+                faceSurface.Evaluate(uv, patchPointData, pointSize, &outPos[pIndex], &outDu[pIndex], &outDv[pIndex]);
 
                 tessBoundaryIndices[boundaryIndex++] = indexInMesh;
-            } else {
+            }
+            else
+            {
                 //  Assign shared vertex point index to boundary:
                 tessBoundaryIndices[boundaryIndex++] = sharedVertex.pointIndex;
             }
@@ -345,11 +365,13 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
             //  face for which the shared edge points were evaluated. So a
             //  little more book-keeping and/or inspection is required.
             //
-            if (edgeRate > 1) {
+            if (edgeRate > 1)
+            {
                 int pointsPerEdge = edgeRate - 1;
 
-                SharedEdge & sharedEdge = sharedEdges[edgeIndex];
-                if (!sharedEdge.IsSet()) {
+                SharedEdge &sharedEdge = sharedEdges[edgeIndex];
+                if (!sharedEdge.IsSet())
+                {
                     //  Identify indices of the new shared points in both the
                     //  mesh and face and increment their inventory:
                     int nextInMesh = numMeshPointsEvaluated;
@@ -361,22 +383,25 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
                     sharedEdge.Set(nextInMesh, pointsPerEdge);
 
                     //  Evaluate shared points and assign indices to boundary:
-                    float const * uv = &tessBoundaryCoords[boundaryIndex*2];
+                    float const *uv = &tessBoundaryCoords[boundaryIndex * 2];
 
-                    for (int j = 0; j < pointsPerEdge; ++j, uv += 2) {
+                    for (int j = 0; j < pointsPerEdge; ++j, uv += 2)
+                    {
                         int pIndex = (nextInFace++) * pointSize;
-                        faceSurface.Evaluate(uv, patchPointData, pointSize,
-                            &outPos[pIndex], &outDu[pIndex], &outDv[pIndex]);
+                        faceSurface.Evaluate(uv, patchPointData, pointSize, &outPos[pIndex], &outDu[pIndex], &outDv[pIndex]);
 
                         tessBoundaryIndices[boundaryIndex++] = nextInMesh++;
                     }
-                } else {
+                }
+                else
+                {
                     //  See note above on simplification for manifold edges
                     assert(!baseLevel.IsEdgeNonManifold(edgeIndex));
 
                     //  Assign shared points to boundary in reverse order:
                     int nextInMesh = sharedEdge.pointIndex + pointsPerEdge - 1;
-                    for (int j = 0; j < pointsPerEdge; ++j) {
+                    for (int j = 0; j < pointsPerEdge; ++j)
+                    {
                         tessBoundaryIndices[boundaryIndex++] = nextInMesh--;
                     }
                 }
@@ -387,14 +412,15 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
         //  Evaluate any interior points unique to this face -- appending
         //  them to those shared points computed above for the boundary:
         //
-        if (numInteriorCoords) {
-            float const * uv = tessInteriorCoords;
+        if (numInteriorCoords)
+        {
+            float const *uv = tessInteriorCoords;
 
             int iLast = numFacePointsEvaluated + numInteriorCoords;
-            for (int i = numFacePointsEvaluated; i < iLast; ++i, uv += 2) {
+            for (int i = numFacePointsEvaluated; i < iLast; ++i, uv += 2)
+            {
                 int pIndex = i * pointSize;
-                faceSurface.Evaluate(uv, patchPointData, pointSize,
-                         &outPos[pIndex], &outDu[pIndex], &outDv[pIndex]);
+                faceSurface.Evaluate(uv, patchPointData, pointSize, &outPos[pIndex], &outDu[pIndex], &outDv[pIndex]);
             }
             numFacePointsEvaluated += numInteriorCoords;
             numMeshPointsEvaluated += numInteriorCoords;
@@ -432,8 +458,7 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
         outFacets.resize(numFacets * tessFacetSize);
         tessPattern.GetFacets(outFacets.data());
 
-        tessPattern.TransformFacetCoordIndices(outFacets.data(),
-                        tessBoundaryIndices.data(), tessInteriorOffset);
+        tessPattern.TransformFacetCoordIndices(outFacets.data(), tessBoundaryIndices.data(), tessInteriorOffset);
 
         //
         //  Write the evaluated points and faces connecting them as Obj:
@@ -450,18 +475,18 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
 //
 //  Load command line arguments, specified or default geometry and process:
 //
-int
-main(int argc, char * argv[]) {
+int main(int argc, char *argv[])
+{
 
     Args args(argc, argv);
 
-    Far::TopologyRefiner * meshTopology = 0;
-    std::vector<float>     meshVtxPositions;
-    std::vector<float>     meshFVarUVs;
+    Far::TopologyRefiner *meshTopology = 0;
+    std::vector<float>    meshVtxPositions;
+    std::vector<float>    meshFVarUVs;
 
-    meshTopology = tutorial::createTopologyRefiner(
-            args.inputObjFile, args.schemeType, meshVtxPositions, meshFVarUVs);
-    if (meshTopology == 0) {
+    meshTopology = tutorial::createTopologyRefiner(args.inputObjFile, args.schemeType, meshVtxPositions, meshFVarUVs);
+    if (meshTopology == 0)
+    {
         return EXIT_FAILURE;
     }
 

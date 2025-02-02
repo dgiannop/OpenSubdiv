@@ -27,14 +27,16 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 
-typedef enum {
+typedef enum
+{
     kEndCapBilinearBasis = 0,
     kEndCapBSplineBasis,
     kEndCapGregoryBasis,
     kEndCapLegacyGregory,
 } EndCap;
 
-typedef enum {
+typedef enum
+{
     kFVarLinearNone = 0,
     kFVarLinearCornersOnly,
     kFVarLinearCornersPlus1,
@@ -43,18 +45,21 @@ typedef enum {
     kFVarLinearAll
 } FVarLinearInterp;
 
-typedef enum {
+typedef enum
+{
     kCPU = 0,
     kMetal,
 } KernelType;
 
-typedef enum {
+typedef enum
+{
     kDisplayStyleWire = 0,
     kDisplayStyleShaded,
     kDisplayStyleWireOnShaded,
 } DisplayStyle;
 
-typedef enum {
+typedef enum
+{
     kShadingMaterial = 0,
     kShadingFaceVaryingColor,
     kShadingPatchType,
@@ -63,7 +68,8 @@ typedef enum {
     kShadingNormal,
 } ShadingMode;
 
-typedef struct {
+typedef struct
+{
     float rotationX;
     float rotationY;
     float dollyDistance;
@@ -73,54 +79,54 @@ typedef struct {
 @class OSDRenderer;
 
 @protocol OSDRendererDelegate <NSObject>
--(id<MTLDevice>)deviceFor:(OSDRenderer*)renderer;
--(id<MTLCommandQueue>)commandQueueFor:(OSDRenderer*)renderer;
--(MTLRenderPassDescriptor*)renderPassDescriptorFor:(OSDRenderer*)renderer;
+- (id<MTLDevice>)deviceFor:(OSDRenderer *)renderer;
+- (id<MTLCommandQueue>)commandQueueFor:(OSDRenderer *)renderer;
+- (MTLRenderPassDescriptor *)renderPassDescriptorFor:(OSDRenderer *)renderer;
 -(void)setupDepthStencilState:(MTLDepthStencilDescriptor*)descriptor for:(OSDRenderer*)renderer;
 -(void)setupRenderPipelineState:(MTLRenderPipelineDescriptor*)descriptor for:(OSDRenderer*)renderer;
 @end
 
 @interface OSDRenderer : NSObject
 
--(instancetype)initWithDelegate:(id<OSDRendererDelegate>)delegate;
+- (instancetype)initWithDelegate:(id<OSDRendererDelegate>)delegate;
 
--(id<MTLRenderCommandEncoder>)drawFrame:(id<MTLCommandBuffer>)commandBuffer;
+- (id<MTLRenderCommandEncoder>)drawFrame:(id<MTLCommandBuffer>)commandBuffer;
 
--(void)fitFrame;
+- (void)fitFrame;
 
-@property (readonly, nonatomic) id<OSDRendererDelegate> delegate;
+@property(readonly, nonatomic) id<OSDRendererDelegate> delegate;
 
-@property (nonatomic) unsigned refinementLevel;
-@property (nonatomic) int tessellationLevel;
+@property(nonatomic) unsigned refinementLevel;
+@property(nonatomic) int      tessellationLevel;
 
-@property (readonly, nonatomic) NSArray<NSString*>* loadedModels;
-@property (nonatomic) NSString* currentModel;
+@property(readonly, nonatomic) NSArray<NSString *> *loadedModels;
+@property(nonatomic) NSString *                     currentModel;
 
-@property (readonly, nonatomic) Camera* camera;
+@property(readonly, nonatomic) Camera *camera;
 
-@property (readonly, nonatomic) int* patchCounts;
+@property(readonly, nonatomic) int *patchCounts;
 
-@property (nonatomic) bool useFractionalTessellation;
-@property (nonatomic) bool useScreenspaceTessellation;
-@property (nonatomic) bool usePatchIndexBuffer;
-@property (nonatomic) bool usePatchBackfaceCulling;
-@property (nonatomic) bool usePatchClipCulling;
-@property (nonatomic) bool useSmoothCornerPatch;
-@property (nonatomic) bool useSingleCreasePatch;
-@property (nonatomic) bool useInfinitelySharpPatch;
-@property (nonatomic) bool useStageIn;
-@property (nonatomic) bool usePrimitiveBackfaceCulling;
-@property (nonatomic) bool useAdaptive;
-@property (nonatomic) bool yup;
-@property (nonatomic) bool freeze;
-@property (nonatomic) bool animateVertices;
-@property (nonatomic) bool displayControlMeshEdges;
-@property (nonatomic) bool displayControlMeshVertices;
-@property (nonatomic) bool legacyGregoryEnabled;
-@property (nonatomic) DisplayStyle displayStyle;
-@property (nonatomic) ShadingMode shadingMode;
-@property (nonatomic) EndCap endCapMode;
-@property (nonatomic) FVarLinearInterp fVarLinearInterp;
-@property (nonatomic) KernelType kernelType;
+@property(nonatomic) bool             useFractionalTessellation;
+@property(nonatomic) bool             useScreenspaceTessellation;
+@property(nonatomic) bool             usePatchIndexBuffer;
+@property(nonatomic) bool             usePatchBackfaceCulling;
+@property(nonatomic) bool             usePatchClipCulling;
+@property(nonatomic) bool             useSmoothCornerPatch;
+@property(nonatomic) bool             useSingleCreasePatch;
+@property(nonatomic) bool             useInfinitelySharpPatch;
+@property(nonatomic) bool             useStageIn;
+@property(nonatomic) bool             usePrimitiveBackfaceCulling;
+@property(nonatomic) bool             useAdaptive;
+@property(nonatomic) bool             yup;
+@property(nonatomic) bool             freeze;
+@property(nonatomic) bool             animateVertices;
+@property(nonatomic) bool             displayControlMeshEdges;
+@property(nonatomic) bool             displayControlMeshVertices;
+@property(nonatomic) bool             legacyGregoryEnabled;
+@property(nonatomic) DisplayStyle     displayStyle;
+@property(nonatomic) ShadingMode      shadingMode;
+@property(nonatomic) EndCap           endCapMode;
+@property(nonatomic) FVarLinearInterp fVarLinearInterp;
+@property(nonatomic) KernelType       kernelType;
 
 @end

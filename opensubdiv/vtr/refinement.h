@@ -24,23 +24,26 @@
 #ifndef OPENSUBDIV3_VTR_REFINEMENT_H
 #define OPENSUBDIV3_VTR_REFINEMENT_H
 
-#include "../version.h"
-
-#include "../sdc/types.h"
-#include "../sdc/options.h"
-#include "../vtr/types.h"
-#include "../vtr/level.h"
-
 #include <vector>
+
+#include "../sdc/options.h"
+#include "../sdc/types.h"
+#include "../version.h"
+#include "../vtr/level.h"
+#include "../vtr/types.h"
 
 //
 //  Declaration for the main refinement class (Refinement) and its pre-requisites:
 //
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Vtr {
-namespace internal {
+namespace Vtr
+{
+namespace internal
+{
 
 class FVarRefinement;
 
@@ -66,24 +69,24 @@ class FVarRefinement;
 //  begin with lower case (as is the convention for protected methods) and the list of friends
 //  will be maintained more strictly.
 //
-class Refinement {
-
-public:
-    Refinement(Level const & parent, Level & child, Sdc::Options const& schemeOptions);
+class Refinement
+{
+  public:
+    Refinement(Level const &parent, Level &child, Sdc::Options const &schemeOptions);
     virtual ~Refinement();
 
-    Level const& parent() const { return *_parent; }
-    Level const& child() const  { return *_child; }
-    Level&       child()        { return *_child; }
+    Level const &parent() const { return *_parent; }
+    Level const &child() const { return *_child; }
+    Level &      child() { return *_child; }
 
-    Sdc::Split getSplitType() const { return _splitType; }
-    int getRegularFaceSize() const { return _regFaceSize; }
+    Sdc::Split   getSplitType() const { return _splitType; }
+    int          getRegularFaceSize() const { return _regFaceSize; }
     Sdc::Options getOptions() const { return _options; }
 
     //  Face-varying:
-    int getNumFVarChannels() const { return (int) _fvarChannels.size(); }
+    int getNumFVarChannels() const { return (int)_fvarChannels.size(); }
 
-    FVarRefinement const & getFVarRefinement(int c) const { return *_fvarChannels[c]; }
+    FVarRefinement const &getFVarRefinement(int c) const { return *_fvarChannels[c]; }
 
     //
     //  Options associated with the actual refinement operation, which may end up
@@ -104,71 +107,68 @@ public:
     //  currently enforce full topology at the finest level to allow for subsequent
     //  patch construction.
     //
-    struct Options {
-        Options() : _sparse(false),
-                    _faceVertsFirst(false),
-                    _minimalTopology(false)
-                    { }
+    struct Options
+    {
+        Options() : _sparse(false), _faceVertsFirst(false), _minimalTopology(false) {}
 
-        unsigned int _sparse          : 1;
-        unsigned int _faceVertsFirst  : 1;
+        unsigned int _sparse : 1;
+        unsigned int _faceVertsFirst : 1;
         unsigned int _minimalTopology : 1;
 
         //  Still under consideration:
-        //unsigned int _childToParentMap : 1;
+        // unsigned int _childToParentMap : 1;
     };
 
     void refine(Options options = Options());
 
     bool hasFaceVerticesFirst() const { return _faceVertsFirst; }
 
-public:
+  public:
     //
     //  Access to members -- some testing classes (involving vertex interpolation)
     //  currently make use of these:
     //
-    int getNumChildFacesFromFaces() const       { return _childFaceFromFaceCount; }
-    int getNumChildEdgesFromFaces() const       { return _childEdgeFromFaceCount; }
-    int getNumChildEdgesFromEdges() const       { return _childEdgeFromEdgeCount; }
-    int getNumChildVerticesFromFaces() const    { return _childVertFromFaceCount; }
-    int getNumChildVerticesFromEdges() const    { return _childVertFromEdgeCount; }
+    int getNumChildFacesFromFaces() const { return _childFaceFromFaceCount; }
+    int getNumChildEdgesFromFaces() const { return _childEdgeFromFaceCount; }
+    int getNumChildEdgesFromEdges() const { return _childEdgeFromEdgeCount; }
+    int getNumChildVerticesFromFaces() const { return _childVertFromFaceCount; }
+    int getNumChildVerticesFromEdges() const { return _childVertFromEdgeCount; }
     int getNumChildVerticesFromVertices() const { return _childVertFromVertCount; }
 
-    Index getFirstChildFaceFromFaces() const      { return _firstChildFaceFromFace; }
-    Index getFirstChildEdgeFromFaces() const      { return _firstChildEdgeFromFace; }
-    Index getFirstChildEdgeFromEdges() const      { return _firstChildEdgeFromEdge; }
-    Index getFirstChildVertexFromFaces() const    { return _firstChildVertFromFace; }
-    Index getFirstChildVertexFromEdges() const    { return _firstChildVertFromEdge; }
+    Index getFirstChildFaceFromFaces() const { return _firstChildFaceFromFace; }
+    Index getFirstChildEdgeFromFaces() const { return _firstChildEdgeFromFace; }
+    Index getFirstChildEdgeFromEdges() const { return _firstChildEdgeFromEdge; }
+    Index getFirstChildVertexFromFaces() const { return _firstChildVertFromFace; }
+    Index getFirstChildVertexFromEdges() const { return _firstChildVertFromEdge; }
     Index getFirstChildVertexFromVertices() const { return _firstChildVertFromVert; }
 
-    Index getFaceChildVertex(Index f) const   { return _faceChildVertIndex[f]; }
-    Index getEdgeChildVertex(Index e) const   { return _edgeChildVertIndex[e]; }
+    Index getFaceChildVertex(Index f) const { return _faceChildVertIndex[f]; }
+    Index getEdgeChildVertex(Index e) const { return _edgeChildVertIndex[e]; }
     Index getVertexChildVertex(Index v) const { return _vertChildVertIndex[v]; }
 
-    ConstIndexArray  getFaceChildFaces(Index parentFace) const;
-    ConstIndexArray  getFaceChildEdges(Index parentFace) const;
-    ConstIndexArray  getEdgeChildEdges(Index parentEdge) const;
+    ConstIndexArray getFaceChildFaces(Index parentFace) const;
+    ConstIndexArray getFaceChildEdges(Index parentFace) const;
+    ConstIndexArray getEdgeChildEdges(Index parentEdge) const;
 
     //  Child-to-parent relationships
-    bool isChildVertexComplete(Index v) const       { return ! _childVertexTag[v]._incomplete; }
+    bool isChildVertexComplete(Index v) const { return !_childVertexTag[v]._incomplete; }
 
-    Index getChildFaceParentFace(Index f) const     { return _childFaceParentIndex[f]; }
-    int   getChildFaceInParentFace(Index f) const   { return _childFaceTag[f]._indexInParent; }
+    Index getChildFaceParentFace(Index f) const { return _childFaceParentIndex[f]; }
+    int   getChildFaceInParentFace(Index f) const { return _childFaceTag[f]._indexInParent; }
 
-    Index getChildEdgeParentIndex(Index e) const    { return _childEdgeParentIndex[e]; }
+    Index getChildEdgeParentIndex(Index e) const { return _childEdgeParentIndex[e]; }
 
-    Index getChildVertexParentIndex(Index v) const  { return _childVertexParentIndex[v]; }
+    Index getChildVertexParentIndex(Index v) const { return _childVertexParentIndex[v]; }
 
-//
-//  Modifiers intended for internal/protected use:
-//
-public:
-
+    //
+    //  Modifiers intended for internal/protected use:
+    //
+  public:
     IndexArray getFaceChildFaces(Index parentFace);
     IndexArray getFaceChildEdges(Index parentFace);
     IndexArray getEdgeChildEdges(Index parentEdge);
 
-public:
+  public:
     //
     //  Tags have now been added per-component in Level, but there is additional need to tag
     //  components within Refinement -- we can't tag the parent level components for any
@@ -186,40 +186,42 @@ public:
     //  about its relationship to its parent, e.g. is it completely defined, what the parent
     //  component type is, what is the index of the child within its parent, etc.
     //
-    struct SparseTag {
-        SparseTag() : _selected(0), _transitional(0) { }
+    struct SparseTag
+    {
+        SparseTag() : _selected(0), _transitional(0) {}
 
-        unsigned char _selected     : 1;  // component specifically selected for refinement
-        unsigned char _transitional : 4;  // adjacent to a refined component (4-bits for face)
+        unsigned char _selected : 1;     // component specifically selected for refinement
+        unsigned char _transitional : 4; // adjacent to a refined component (4-bits for face)
     };
 
-    struct ChildTag {
-        ChildTag() { }
+    struct ChildTag
+    {
+        ChildTag() {}
 
-        unsigned char _incomplete    : 1;  // incomplete neighborhood to represent limit of parent
-        unsigned char _parentType    : 2;  // type of parent component:  vertex, edge or face
-        unsigned char _indexInParent : 2;  // index of child wrt parent:  0-3, or iterative if N > 4
+        unsigned char _incomplete : 1;    // incomplete neighborhood to represent limit of parent
+        unsigned char _parentType : 2;    // type of parent component:  vertex, edge or face
+        unsigned char _indexInParent : 2; // index of child wrt parent:  0-3, or iterative if N > 4
     };
 
     //  Methods to access and modify tags:
-    SparseTag const & getParentFaceSparseTag(  Index f) const { return _parentFaceTag[f]; }
-    SparseTag const & getParentEdgeSparseTag(  Index e) const { return _parentEdgeTag[e]; }
-    SparseTag const & getParentVertexSparseTag(Index v) const { return _parentVertexTag[v]; }
+    SparseTag const &getParentFaceSparseTag(Index f) const { return _parentFaceTag[f]; }
+    SparseTag const &getParentEdgeSparseTag(Index e) const { return _parentEdgeTag[e]; }
+    SparseTag const &getParentVertexSparseTag(Index v) const { return _parentVertexTag[v]; }
 
-    SparseTag & getParentFaceSparseTag(  Index f) { return _parentFaceTag[f]; }
-    SparseTag & getParentEdgeSparseTag(  Index e) { return _parentEdgeTag[e]; }
-    SparseTag & getParentVertexSparseTag(Index v) { return _parentVertexTag[v]; }
+    SparseTag &getParentFaceSparseTag(Index f) { return _parentFaceTag[f]; }
+    SparseTag &getParentEdgeSparseTag(Index e) { return _parentEdgeTag[e]; }
+    SparseTag &getParentVertexSparseTag(Index v) { return _parentVertexTag[v]; }
 
-    ChildTag const & getChildFaceTag(  Index f) const { return _childFaceTag[f]; }
-    ChildTag const & getChildEdgeTag(  Index e) const { return _childEdgeTag[e]; }
-    ChildTag const & getChildVertexTag(Index v) const { return _childVertexTag[v]; }
+    ChildTag const &getChildFaceTag(Index f) const { return _childFaceTag[f]; }
+    ChildTag const &getChildEdgeTag(Index e) const { return _childEdgeTag[e]; }
+    ChildTag const &getChildVertexTag(Index v) const { return _childVertexTag[v]; }
 
-    ChildTag & getChildFaceTag(  Index f) { return _childFaceTag[f]; }
-    ChildTag & getChildEdgeTag(  Index e) { return _childEdgeTag[e]; }
-    ChildTag & getChildVertexTag(Index v) { return _childVertexTag[v]; }
+    ChildTag &getChildFaceTag(Index f) { return _childFaceTag[f]; }
+    ChildTag &getChildEdgeTag(Index e) { return _childEdgeTag[e]; }
+    ChildTag &getChildVertexTag(Index v) { return _childVertexTag[v]; }
 
-//  Remaining methods should really be protected -- for use by subclasses...
-public:
+    //  Remaining methods should really be protected -- for use by subclasses...
+  public:
     //
     //  Methods involved in constructing the parent-to-child mapping -- when the
     //  refinement is sparse, additional methods are needed to identify the selection:
@@ -278,15 +280,17 @@ public:
     //  Methods (and types) involved in subdividing the topology -- though not
     //  fully exploited, any subset of the 6 relations can be generated:
     //
-    struct Relations {
-        unsigned int   _faceVertices : 1;
-        unsigned int   _faceEdges    : 1;
-        unsigned int   _edgeVertices : 1;
-        unsigned int   _edgeFaces    : 1;
-        unsigned int   _vertexFaces  : 1;
-        unsigned int   _vertexEdges  : 1;
+    struct Relations
+    {
+        unsigned int _faceVertices : 1;
+        unsigned int _faceEdges : 1;
+        unsigned int _edgeVertices : 1;
+        unsigned int _edgeFaces : 1;
+        unsigned int _vertexFaces : 1;
+        unsigned int _vertexEdges : 1;
 
-        void setAll(bool enable) {
+        void setAll(bool enable)
+        {
             _faceVertices = enable;
             _faceEdges    = enable;
             _edgeVertices = enable;
@@ -296,12 +300,12 @@ public:
         }
     };
 
-    void subdivideTopology(Relations const& relationsToSubdivide);
+    void subdivideTopology(Relations const &relationsToSubdivide);
 
     virtual void populateFaceVertexRelation() = 0;
-    virtual void populateFaceEdgeRelation() = 0;
+    virtual void populateFaceEdgeRelation()   = 0;
     virtual void populateEdgeVertexRelation() = 0;
-    virtual void populateEdgeFaceRelation() = 0;
+    virtual void populateEdgeFaceRelation()   = 0;
     virtual void populateVertexFaceRelation() = 0;
     virtual void populateVertexEdgeRelation() = 0;
 
@@ -319,7 +323,7 @@ public:
     //
     void subdivideFVarChannels();
 
-protected:
+  protected:
     // A debug method of Level prints a Refinement (should really change this)
     friend void Level::print(const Refinement *) const;
 
@@ -329,9 +333,9 @@ protected:
     //
 
     //  Defined on construction:
-    Level const * _parent;
-    Level *       _child;
-    Sdc::Options  _options;
+    Level const *_parent;
+    Level *      _child;
+    Sdc::Options _options;
 
     //  Defined by the subclass:
     Sdc::Split _splitType;
@@ -344,14 +348,14 @@ protected:
     //
     //  Inventory and ordering of the types of child components:
     //
-    int _childFaceFromFaceCount;  // arguably redundant (all faces originate from faces)
+    int _childFaceFromFaceCount; // arguably redundant (all faces originate from faces)
     int _childEdgeFromFaceCount;
     int _childEdgeFromEdgeCount;
     int _childVertFromFaceCount;
     int _childVertFromEdgeCount;
     int _childVertFromVertCount;
 
-    int _firstChildFaceFromFace;  // arguably redundant (all faces originate from faces)
+    int _firstChildFaceFromFace; // arguably redundant (all faces originate from faces)
     int _firstChildEdgeFromFace;
     int _firstChildEdgeFromEdge;
     int _firstChildVertFromFace;
@@ -374,11 +378,11 @@ protected:
     IndexArray _faceChildFaceCountsAndOffsets;
     IndexArray _faceChildEdgeCountsAndOffsets;
 
-    IndexVector _faceChildFaceIndices;  // *cannot* always use face-vert counts/offsets
-    IndexVector _faceChildEdgeIndices;  // can use face-vert counts/offsets
+    IndexVector _faceChildFaceIndices; // *cannot* always use face-vert counts/offsets
+    IndexVector _faceChildEdgeIndices; // can use face-vert counts/offsets
     IndexVector _faceChildVertIndex;
 
-    IndexVector _edgeChildEdgeIndices;  // trivial/corresponding pair for each
+    IndexVector _edgeChildEdgeIndices; // trivial/corresponding pair for each
     IndexVector _edgeChildVertIndex;
 
     IndexVector _vertChildVertIndex;
@@ -404,47 +408,19 @@ protected:
     //
     //  Refinement data for face-varying channels present in the Levels being refined:
     //
-    std::vector<FVarRefinement*> _fvarChannels;
+    std::vector<FVarRefinement *> _fvarChannels;
 };
 
-inline ConstIndexArray
-Refinement::getFaceChildFaces(Index parentFace) const {
+inline ConstIndexArray Refinement::getFaceChildFaces(Index parentFace) const { return ConstIndexArray(&_faceChildFaceIndices[_faceChildFaceCountsAndOffsets[2 * parentFace + 1]], _faceChildFaceCountsAndOffsets[2 * parentFace]); }
 
-    return ConstIndexArray(&_faceChildFaceIndices[_faceChildFaceCountsAndOffsets[2*parentFace+1]],
-                                             _faceChildFaceCountsAndOffsets[2*parentFace]);
-}
+inline IndexArray Refinement::getFaceChildFaces(Index parentFace) { return IndexArray(&_faceChildFaceIndices[_faceChildFaceCountsAndOffsets[2 * parentFace + 1]], _faceChildFaceCountsAndOffsets[2 * parentFace]); }
 
-inline IndexArray
-Refinement::getFaceChildFaces(Index parentFace) {
+inline ConstIndexArray Refinement::getFaceChildEdges(Index parentFace) const { return ConstIndexArray(&_faceChildEdgeIndices[_faceChildEdgeCountsAndOffsets[2 * parentFace + 1]], _faceChildEdgeCountsAndOffsets[2 * parentFace]); }
+inline IndexArray      Refinement::getFaceChildEdges(Index parentFace) { return IndexArray(&_faceChildEdgeIndices[_faceChildEdgeCountsAndOffsets[2 * parentFace + 1]], _faceChildEdgeCountsAndOffsets[2 * parentFace]); }
 
-    return IndexArray(&_faceChildFaceIndices[_faceChildFaceCountsAndOffsets[2*parentFace+1]],
-                                             _faceChildFaceCountsAndOffsets[2*parentFace]);
-}
+inline ConstIndexArray Refinement::getEdgeChildEdges(Index parentEdge) const { return ConstIndexArray(&_edgeChildEdgeIndices[parentEdge * 2], 2); }
 
-inline ConstIndexArray
-Refinement::getFaceChildEdges(Index parentFace) const {
-
-    return ConstIndexArray(&_faceChildEdgeIndices[_faceChildEdgeCountsAndOffsets[2*parentFace+1]],
-                                             _faceChildEdgeCountsAndOffsets[2*parentFace]);
-}
-inline IndexArray
-Refinement::getFaceChildEdges(Index parentFace) {
-
-    return IndexArray(&_faceChildEdgeIndices[_faceChildEdgeCountsAndOffsets[2*parentFace+1]],
-                                             _faceChildEdgeCountsAndOffsets[2*parentFace]);
-}
-
-inline ConstIndexArray
-Refinement::getEdgeChildEdges(Index parentEdge) const {
-
-    return ConstIndexArray(&_edgeChildEdgeIndices[parentEdge*2], 2);
-}
-
-inline IndexArray
-Refinement::getEdgeChildEdges(Index parentEdge) {
-
-    return IndexArray(&_edgeChildEdgeIndices[parentEdge*2], 2);
-}
+inline IndexArray Refinement::getEdgeChildEdges(Index parentEdge) { return IndexArray(&_edgeChildEdgeIndices[parentEdge * 2], 2); }
 
 } // end namespace internal
 } // end namespace Vtr

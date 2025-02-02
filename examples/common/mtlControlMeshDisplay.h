@@ -28,14 +28,13 @@
 #include <Metal/Metal.h>
 #include <opensubdiv/far/topologyLevel.h>
 
-class MTLControlMeshDisplay {
-public:
-    MTLControlMeshDisplay(id<MTLDevice> device, MTLRenderPipelineDescriptor* pipelineDescriptor);
+class MTLControlMeshDisplay
+{
+  public:
+    MTLControlMeshDisplay(id<MTLDevice> device, MTLRenderPipelineDescriptor *pipelineDescriptor);
     ~MTLControlMeshDisplay() = default;
 
-    void Draw(id<MTLRenderCommandEncoder> encoder, 
-    		  id<MTLBuffer> vertexBuffer,
-              const float *modelViewProjectionMatrix);
+    void Draw(id<MTLRenderCommandEncoder> encoder, id<MTLBuffer> vertexBuffer, const float *modelViewProjectionMatrix);
 
     void SetTopology(OpenSubdiv::Far::TopologyLevel const &level);
 
@@ -44,19 +43,19 @@ public:
     bool GetVerticesDisplay() const { return _displayVertices; }
     void SetVerticesDisplay(bool display) { _displayVertices = display; }
 
-private:
-    bool createProgram(MTLRenderPipelineDescriptor* pipelineDescriptor);
+  private:
+    bool createProgram(MTLRenderPipelineDescriptor *pipelineDescriptor);
 
     bool _displayEdges;
     bool _displayVertices;
 
     id<MTLDevice> _device;
 
-    int _numEdges, _numPoints;
+    int                        _numEdges, _numPoints;
     id<MTLRenderPipelineState> _renderPipelineState;
-    id<MTLBuffer> _vertexSharpnessBuffer;
-    id<MTLBuffer> _edgeSharpnessBuffer;
-    id<MTLBuffer> _edgeIndicesBuffer;
+    id<MTLBuffer>              _vertexSharpnessBuffer;
+    id<MTLBuffer>              _edgeSharpnessBuffer;
+    id<MTLBuffer>              _edgeIndicesBuffer;
 };
 
-#endif  // OPENSUBDIV_EXAMPLES_MTL_CONTROL_MESH_DISPLAY_H
+#endif // OPENSUBDIV_EXAMPLES_MTL_CONTROL_MESH_DISPLAY_H

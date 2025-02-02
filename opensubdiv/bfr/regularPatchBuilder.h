@@ -25,37 +25,40 @@
 #ifndef OPENSUBDIV3_REGULAR_PATCH_BUILDER_H
 #define OPENSUBDIV3_REGULAR_PATCH_BUILDER_H
 
-#include "../version.h"
-
 #include "../bfr/faceSurface.h"
 #include "../far/patchDescriptor.h"
+#include "../version.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Bfr {
+namespace Bfr
+{
 
 //
 //  RegularPatchBuilder ...
 //
-class RegularPatchBuilder {
-public:
+class RegularPatchBuilder
+{
+  public:
     typedef FaceSurface::Index Index;
 
-public:
-    RegularPatchBuilder(FaceSurface const & surfaceDescription);
-    ~RegularPatchBuilder() { }
+  public:
+    RegularPatchBuilder(FaceSurface const &surfaceDescription);
+    ~RegularPatchBuilder() {}
 
     //  Debugging...
     void print(Index const cvIndices[] = 0) const;
 
-public:
+  public:
     //  Methods to query the number and indices of control vertices:
     int GetNumControlVertices() const { return _patchSize; }
 
     int GatherControlVertexIndices(Index cvIndices[]) const;
 
-public:
+  public:
     //  Methods to query patch properties:
     bool IsQuadPatch() const { return _isQuad; }
     bool IsBoundaryPatch() const { return _isBoundary; }
@@ -65,18 +68,13 @@ public:
     //  Note the bit-mask here is specific for use with Far::PatchParam
     int GetPatchParamBoundaryMask() const { return _boundaryMask; }
 
-public:
+  public:
     //  Static methods for use without a FaceSurface:
-    static int GetPatchSize(int regFaceSize) {
-        return (regFaceSize == 4) ? 16 : 12;
-    }
-    static Far::PatchDescriptor::Type GetPatchType(int regFaceSize) {
-        return (regFaceSize == 4) ? Far::PatchDescriptor::REGULAR :
-                                    Far::PatchDescriptor::LOOP;
-    }
-    static int GetBoundaryMask(int regFaceSize, Index const patchPoints[]);
+    static int                        GetPatchSize(int regFaceSize) { return (regFaceSize == 4) ? 16 : 12; }
+    static Far::PatchDescriptor::Type GetPatchType(int regFaceSize) { return (regFaceSize == 4) ? Far::PatchDescriptor::REGULAR : Far::PatchDescriptor::LOOP; }
+    static int                        GetBoundaryMask(int regFaceSize, Index const patchPoints[]);
 
-private:
+  private:
     //  Internal methods for assembling quad and tri patches:
     void gatherInteriorPatchPoints4(Index cvIndices[]) const;
     void gatherBoundaryPatchPoints4(Index cvIndices[]) const;
@@ -84,11 +82,11 @@ private:
     void gatherInteriorPatchPoints3(Index cvIndices[]) const;
     void gatherBoundaryPatchPoints3(Index cvIndices[]) const;
 
-private:
+  private:
     //  Private members:
-    FaceSurface const & _surface;
+    FaceSurface const &_surface;
 
-    unsigned int _isQuad     : 1;
+    unsigned int _isQuad : 1;
     unsigned int _isBoundary : 1;
     int          _boundaryMask;
     int          _patchSize;

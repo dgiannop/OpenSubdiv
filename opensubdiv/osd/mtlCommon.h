@@ -32,15 +32,19 @@
 @protocol MTLDevice;
 @protocol MTLCommandQueue;
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Osd {
+namespace Osd
+{
 
-class MTLContext {
-public:
-        id<MTLDevice> device = nullptr;
-        id<MTLCommandQueue> commandQueue = nullptr;
+class MTLContext
+{
+  public:
+    id<MTLDevice>       device       = nullptr;
+    id<MTLCommandQueue> commandQueue = nullptr;
 };
 
 } // end namespace Osd
@@ -50,4 +54,4 @@ using namespace OPENSUBDIV_VERSION;
 
 } // end namespace OpenSubdiv
 
-#endif //OPENSUBDIV3_OSD_MTL_COMMON_H
+#endif // OPENSUBDIV3_OSD_MTL_COMMON_H

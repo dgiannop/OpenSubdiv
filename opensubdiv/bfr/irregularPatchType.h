@@ -25,14 +25,17 @@
 #ifndef OPENSUBDIV3_BFR_IRREGULAR_PATCH_TYPE_H
 #define OPENSUBDIV3_BFR_IRREGULAR_PATCH_TYPE_H
 
-#include "../version.h"
-
 #include <memory>
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+#include "../version.h"
 
-namespace Bfr {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
+
+namespace Bfr
+{
 
 //
 //  This header was intended to contain an abstract class providing the
@@ -45,11 +48,12 @@ namespace Bfr {
 //
 class PatchTree;
 
-namespace internal {
+namespace internal
+{
 
-    typedef PatchTree IrregularPatchType;
+typedef PatchTree IrregularPatchType;
 
-    typedef std::shared_ptr<const IrregularPatchType> IrregularPatchSharedPtr;
+typedef std::shared_ptr<const IrregularPatchType> IrregularPatchSharedPtr;
 
 } // end namespace internal
 

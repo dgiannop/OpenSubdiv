@@ -24,17 +24,19 @@
 #ifndef OPENSUBDIV3_FAR_TOPOLOGY_REFINER_FACTORY_H
 #define OPENSUBDIV3_FAR_TOPOLOGY_REFINER_FACTORY_H
 
-#include "../version.h"
-
-#include "../far/topologyRefiner.h"
-#include "../far/error.h"
-
 #include <cassert>
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+#include "../far/error.h"
+#include "../far/topologyRefiner.h"
+#include "../version.h"
 
-namespace Far {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
+
+namespace Far
+{
 
 ///\brief Private base class of Factories for constructing TopologyRefiners
 ///
@@ -44,22 +46,20 @@ namespace Far {
 /// to inherit the details related to assembly and validation provided here that are
 /// independent of the subclass' mesh type.
 //
-class TopologyRefinerFactoryBase {
-protected:
-
+class TopologyRefinerFactoryBase
+{
+  protected:
     //
     //  Protected methods invoked by the subclass template to verify and process each
     //  stage of construction implemented by the subclass:
     //
     typedef Vtr::internal::Level::ValidationCallback TopologyCallback;
 
-    static bool prepareComponentTopologySizing(TopologyRefiner& refiner);
-    static bool prepareComponentTopologyAssignment(TopologyRefiner& refiner, bool fullValidation,
-                                                   TopologyCallback callback, void const * callbackData);
-    static bool prepareComponentTagsAndSharpness(TopologyRefiner& refiner);
-    static bool prepareFaceVaryingChannels(TopologyRefiner& refiner);
+    static bool prepareComponentTopologySizing(TopologyRefiner &refiner);
+    static bool prepareComponentTopologyAssignment(TopologyRefiner &refiner, bool fullValidation, TopologyCallback callback, void const *callbackData);
+    static bool prepareComponentTagsAndSharpness(TopologyRefiner &refiner);
+    static bool prepareFaceVaryingChannels(TopologyRefiner &refiner);
 };
-
 
 ///\brief Factory for constructing TopologyRefiners from specific mesh classes.
 ///
@@ -74,26 +74,21 @@ protected:
 /// combines methods independent of MESH from the base class with those specialized here for
 /// class MESH.
 ///
-template <class MESH>
-class TopologyRefinerFactory : public TopologyRefinerFactoryBase {
-
-public:
-
+template <class MESH> class TopologyRefinerFactory : public TopologyRefinerFactoryBase
+{
+  public:
     /// \brief Options related to the construction of each TopologyRefiner.
     ///
-    struct Options {
+    struct Options
+    {
+        Options(Sdc::SchemeType sdcType = Sdc::SCHEME_CATMARK, Sdc::Options sdcOptions = Sdc::Options()) : schemeType(sdcType), schemeOptions(sdcOptions), validateFullTopology(false) {}
 
-        Options(Sdc::SchemeType sdcType = Sdc::SCHEME_CATMARK, Sdc::Options sdcOptions = Sdc::Options()) :
-            schemeType(sdcType),
-            schemeOptions(sdcOptions),
-            validateFullTopology(false) { }
-
-        Sdc::SchemeType schemeType;             ///< The subdivision scheme type identifier
-        Sdc::Options    schemeOptions;          ///< The full set of options for the scheme,
-                                                ///< e.g. boundary interpolation rules...
-        unsigned int validateFullTopology : 1;  ///< Apply more extensive validation of
-                                                ///< the constructed topology -- intended
-                                                ///< for debugging.
+        Sdc::SchemeType schemeType;            ///< The subdivision scheme type identifier
+        Sdc::Options    schemeOptions;         ///< The full set of options for the scheme,
+                                               ///< e.g. boundary interpolation rules...
+        unsigned int validateFullTopology : 1; ///< Apply more extensive validation of
+                                               ///< the constructed topology -- intended
+                                               ///< for debugging.
     };
 
     /// \brief Instantiates a TopologyRefiner from client-provided topological
@@ -110,7 +105,7 @@ public:
     ///
     /// @return           A new instance of TopologyRefiner or 0 for failure
     ///
-    static TopologyRefiner* Create(MESH const& mesh, Options options = Options());
+    static TopologyRefiner *Create(MESH const &mesh, Options options = Options());
 
     /// \brief Instantiates a TopologyRefiner from the base level of an
     ///        existing instance.
@@ -125,9 +120,9 @@ public:
     ///
     /// @return           A new instance of TopologyRefiner or 0 for failure
     ///
-    static TopologyRefiner* Create(TopologyRefiner const & baseLevel);
+    static TopologyRefiner *Create(TopologyRefiner const &baseLevel);
 
-protected:
+  protected:
     typedef Vtr::internal::Level::TopologyError TopologyError;
 
     //@{
@@ -148,24 +143,24 @@ protected:
     ///
 
     /// \brief  Specify the number of vertices, faces, face-vertices, etc.
-    static bool resizeComponentTopology(TopologyRefiner& newRefiner, MESH const& mesh);
+    static bool resizeComponentTopology(TopologyRefiner &newRefiner, MESH const &mesh);
 
     /// \brief  Specify the relationships between vertices, faces, etc. ie the
     /// face-vertices, vertex-faces, edge-vertices, etc.
-    static bool assignComponentTopology(TopologyRefiner& newRefiner, MESH const& mesh);
+    static bool assignComponentTopology(TopologyRefiner &newRefiner, MESH const &mesh);
 
     /// \brief  (Optional) Specify edge or vertex sharpness or face holes
-    static bool assignComponentTags(TopologyRefiner& newRefiner, MESH const& mesh);
+    static bool assignComponentTags(TopologyRefiner &newRefiner, MESH const &mesh);
 
     /// \brief  (Optional) Specify face-varying data per face
-    static bool assignFaceVaryingTopology(TopologyRefiner& newRefiner, MESH const& mesh);
+    static bool assignFaceVaryingTopology(TopologyRefiner &newRefiner, MESH const &mesh);
 
     /// \brief  (Optional) Control run-time topology validation and error reporting
-    static void reportInvalidTopology(TopologyError errCode, char const * msg, MESH const& mesh);
+    static void reportInvalidTopology(TopologyError errCode, char const *msg, MESH const &mesh);
 
     //@}
 
-protected:
+  protected:
     //@{
     ///  @name  Base level assembly methods to be used within resizeComponentTopology()
     ///
@@ -186,29 +181,29 @@ protected:
     ///
 
     /// \brief Specify the number of vertices to be accommodated
-    static void setNumBaseVertices(TopologyRefiner & newRefiner, int count);
+    static void setNumBaseVertices(TopologyRefiner &newRefiner, int count);
 
     /// \brief Specify the number of faces to be accommodated
-    static void setNumBaseFaces(TopologyRefiner & newRefiner, int count);
+    static void setNumBaseFaces(TopologyRefiner &newRefiner, int count);
 
     /// \brief Specify the number of edges to be accommodated
-    static void setNumBaseEdges(TopologyRefiner & newRefiner, int count);
+    static void setNumBaseEdges(TopologyRefiner &newRefiner, int count);
 
     /// \brief Specify the number of vertices incident each face
-    static void setNumBaseFaceVertices(TopologyRefiner & newRefiner, Index f, int count);
+    static void setNumBaseFaceVertices(TopologyRefiner &newRefiner, Index f, int count);
 
     /// \brief Specify the number of faces incident each edge
-    static void setNumBaseEdgeFaces(TopologyRefiner & newRefiner, Index e, int count);
+    static void setNumBaseEdgeFaces(TopologyRefiner &newRefiner, Index e, int count);
 
     /// \brief Specify the number of faces incident each vertex
-    static void setNumBaseVertexFaces(TopologyRefiner & newRefiner, Index v, int count);
+    static void setNumBaseVertexFaces(TopologyRefiner &newRefiner, Index v, int count);
 
     /// \brief Specify the number of edges incident each vertex
-    static void setNumBaseVertexEdges(TopologyRefiner & newRefiner, Index v, int count);
+    static void setNumBaseVertexEdges(TopologyRefiner &newRefiner, Index v, int count);
 
-    static int getNumBaseVertices(TopologyRefiner const & newRefiner);
-    static int getNumBaseFaces(TopologyRefiner const & newRefiner);
-    static int getNumBaseEdges(TopologyRefiner const & newRefiner);
+    static int getNumBaseVertices(TopologyRefiner const &newRefiner);
+    static int getNumBaseFaces(TopologyRefiner const &newRefiner);
+    static int getNumBaseEdges(TopologyRefiner const &newRefiner);
     //@}
 
     //@{
@@ -236,38 +231,38 @@ protected:
     ///
 
     /// \brief Assign the vertices incident each face
-    static IndexArray getBaseFaceVertices(TopologyRefiner & newRefiner, Index f);
+    static IndexArray getBaseFaceVertices(TopologyRefiner &newRefiner, Index f);
 
     /// \brief Assign the edges incident each face
-    static IndexArray getBaseFaceEdges(TopologyRefiner & newRefiner,    Index f);
+    static IndexArray getBaseFaceEdges(TopologyRefiner &newRefiner, Index f);
 
     /// \brief Assign the vertices incident each edge
-    static IndexArray getBaseEdgeVertices(TopologyRefiner & newRefiner, Index e);
+    static IndexArray getBaseEdgeVertices(TopologyRefiner &newRefiner, Index e);
 
     /// \brief Assign the faces incident each edge
-    static IndexArray getBaseEdgeFaces(TopologyRefiner & newRefiner,    Index e);
+    static IndexArray getBaseEdgeFaces(TopologyRefiner &newRefiner, Index e);
 
     /// \brief Assign the faces incident each vertex
-    static IndexArray getBaseVertexFaces(TopologyRefiner & newRefiner,  Index v);
+    static IndexArray getBaseVertexFaces(TopologyRefiner &newRefiner, Index v);
 
     /// \brief Assign the edges incident each vertex
-    static IndexArray getBaseVertexEdges(TopologyRefiner & newRefiner,  Index v);
+    static IndexArray getBaseVertexEdges(TopologyRefiner &newRefiner, Index v);
 
     /// \brief Assign the local indices of a vertex within each of its incident faces
-    static LocalIndexArray getBaseVertexFaceLocalIndices(TopologyRefiner & newRefiner, Index v);
+    static LocalIndexArray getBaseVertexFaceLocalIndices(TopologyRefiner &newRefiner, Index v);
     /// \brief Assign the local indices of a vertex within each of its incident edges
-    static LocalIndexArray getBaseVertexEdgeLocalIndices(TopologyRefiner & newRefiner, Index v);
+    static LocalIndexArray getBaseVertexEdgeLocalIndices(TopologyRefiner &newRefiner, Index v);
     /// \brief Assign the local indices of an edge within each of its incident faces
-    static LocalIndexArray getBaseEdgeFaceLocalIndices(TopologyRefiner & newRefiner, Index e);
+    static LocalIndexArray getBaseEdgeFaceLocalIndices(TopologyRefiner &newRefiner, Index e);
 
     /// \brief Determine all local indices by inspection (only for pure manifold meshes)
-    static void populateBaseLocalIndices(TopologyRefiner & newRefiner);
+    static void populateBaseLocalIndices(TopologyRefiner &newRefiner);
 
     /// \brief Tag an edge as non-manifold
-    static void setBaseEdgeNonManifold(TopologyRefiner & newRefiner, Index e, bool b);
+    static void setBaseEdgeNonManifold(TopologyRefiner &newRefiner, Index e, bool b);
 
     /// \brief Tag a vertex as non-manifold
-    static void setBaseVertexNonManifold(TopologyRefiner & newRefiner, Index v, bool b);
+    static void setBaseVertexNonManifold(TopologyRefiner &newRefiner, Index v, bool b);
     //@}
 
     //@{
@@ -282,16 +277,16 @@ protected:
     ///
 
     /// \brief Identify an edge to be assigned a sharpness value given a vertex pair
-    static Index findBaseEdge(TopologyRefiner const & newRefiner, Index v0, Index v1);
+    static Index findBaseEdge(TopologyRefiner const &newRefiner, Index v0, Index v1);
 
     /// \brief Assign a sharpness value to a given edge
-    static void setBaseEdgeSharpness(TopologyRefiner & newRefiner, Index e, float sharpness);
+    static void setBaseEdgeSharpness(TopologyRefiner &newRefiner, Index e, float sharpness);
 
     /// \brief Assign a sharpness value to a given vertex
-    static void setBaseVertexSharpness(TopologyRefiner & newRefiner, Index v, float sharpness);
+    static void setBaseVertexSharpness(TopologyRefiner &newRefiner, Index v, float sharpness);
 
     /// \brief Tag a face as a hole
-    static void setBaseFaceHole(TopologyRefiner & newRefiner, Index f, bool isHole);
+    static void setBaseFaceHole(TopologyRefiner &newRefiner, Index f, bool isHole);
     //@}
 
     //@{
@@ -307,23 +302,23 @@ protected:
     ///
 
     /// \brief  Create a new face-varying channel with the given number of values
-    static int createBaseFVarChannel(TopologyRefiner & newRefiner, int numValues);
+    static int createBaseFVarChannel(TopologyRefiner &newRefiner, int numValues);
 
     /// \brief  Create a new face-varying channel with the given number of values and independent interpolation options
-    static int createBaseFVarChannel(TopologyRefiner & newRefiner, int numValues, Sdc::Options const& fvarOptions);
+    static int createBaseFVarChannel(TopologyRefiner &newRefiner, int numValues, Sdc::Options const &fvarOptions);
 
     /// \brief Assign the face-varying values for the corners of each face
-    static IndexArray getBaseFaceFVarValues(TopologyRefiner & newRefiner, Index face, int channel = 0);
+    static IndexArray getBaseFaceFVarValues(TopologyRefiner &newRefiner, Index face, int channel = 0);
 
     //@}
 
-protected:
+  protected:
     //
     //  Not to be specialized:
     //
-    static bool populateBaseLevel(TopologyRefiner& refiner, MESH const& mesh, Options options);
+    static bool populateBaseLevel(TopologyRefiner &refiner, MESH const &mesh, Options options);
 
-private:
+  private:
     //
     //  An oversight in the interfaces of the error reporting function between the factory
     //  class and the Vtr::Level requires this adapter function to avoid warnings.
@@ -332,22 +327,18 @@ private:
     //  for Vtr::Level requires a pointer (void*). So this adapter with a MESH* argument is
     //  used to effectively cast the function pointer required by Vtr::Level error reporting:
     //
-    static void reportInvalidTopologyAdapter(TopologyError errCode, char const * msg, MESH const * mesh) {
-        reportInvalidTopology(errCode, msg, *mesh);
-    }
+    static void reportInvalidTopologyAdapter(TopologyError errCode, char const *msg, MESH const *mesh) { reportInvalidTopology(errCode, msg, *mesh); }
 };
-
 
 //
 //  Generic implementations:
 //
-template <class MESH>
-TopologyRefiner*
-TopologyRefinerFactory<MESH>::Create(MESH const& mesh, Options options) {
+template <class MESH> TopologyRefiner *TopologyRefinerFactory<MESH>::Create(MESH const &mesh, Options options)
+{
+    TopologyRefiner *refiner = new TopologyRefiner(options.schemeType, options.schemeOptions);
 
-    TopologyRefiner * refiner = new TopologyRefiner(options.schemeType, options.schemeOptions);
-
-    if (! populateBaseLevel(*refiner, mesh, options)) {
+    if (!populateBaseLevel(*refiner, mesh, options))
+    {
         delete refiner;
         return 0;
     }
@@ -359,17 +350,10 @@ TopologyRefinerFactory<MESH>::Create(MESH const& mesh, Options options) {
     return refiner;
 }
 
-template <class MESH>
-TopologyRefiner*
-TopologyRefinerFactory<MESH>::Create(TopologyRefiner const & source) {
+template <class MESH> TopologyRefiner *TopologyRefinerFactory<MESH>::Create(TopologyRefiner const &source) { return new TopologyRefiner(source); }
 
-    return new TopologyRefiner(source);
-}
-
-template <class MESH>
-bool
-TopologyRefinerFactory<MESH>::populateBaseLevel(TopologyRefiner& refiner, MESH const& mesh, Options options) {
-
+template <class MESH> bool TopologyRefinerFactory<MESH>::populateBaseLevel(TopologyRefiner &refiner, MESH const &mesh, Options options)
+{
     //
     //  Construction of a specialized topology refiner involves four steps, each of which
     //  involves a method specialized for MESH followed by one that takes an action in
@@ -384,8 +368,10 @@ TopologyRefinerFactory<MESH>::populateBaseLevel(TopologyRefiner& refiner, MESH c
     //  an inventory of all components and their relations that is used to allocate buffers
     //  to be efficiently populated in the subsequent topology assignment step.
     //
-    if (! resizeComponentTopology(refiner, mesh)) return false;
-    if (! prepareComponentTopologySizing(refiner)) return false;
+    if (!resizeComponentTopology(refiner, mesh))
+        return false;
+    if (!prepareComponentTopologySizing(refiner))
+        return false;
 
     //
     //  Assignment of the topology -- this is a required specialization for MESH.  If edges
@@ -395,192 +381,87 @@ TopologyRefinerFactory<MESH>::populateBaseLevel(TopologyRefiner& refiner, MESH c
     bool             validate = options.validateFullTopology;
     TopologyCallback callback = reinterpret_cast<TopologyCallback>(reportInvalidTopologyAdapter);
     void const *     userData = &mesh;
-        
-    if (! assignComponentTopology(refiner, mesh)) return false;
-    if (! prepareComponentTopologyAssignment(refiner, validate, callback, userData)) return false;
+
+    if (!assignComponentTopology(refiner, mesh))
+        return false;
+    if (!prepareComponentTopologyAssignment(refiner, validate, callback, userData))
+        return false;
 
     //
     //  User assigned and internal tagging of components -- an optional specialization for
     //  MESH.  Allows the specification of sharpness values, holes, etc.
     //
-    if (! assignComponentTags(refiner, mesh)) return false;
-    if (! prepareComponentTagsAndSharpness(refiner)) return false;
+    if (!assignComponentTags(refiner, mesh))
+        return false;
+    if (!prepareComponentTagsAndSharpness(refiner))
+        return false;
 
     //
     //  Defining channels of face-varying primvar data -- an optional specialization for MESH.
     //
-    if (! assignFaceVaryingTopology(refiner, mesh)) return false;
-    if (! prepareFaceVaryingChannels(refiner)) return false;
+    if (!assignFaceVaryingTopology(refiner, mesh))
+        return false;
+    if (!prepareFaceVaryingChannels(refiner))
+        return false;
 
     return true;
 }
 
-template <class MESH>
-inline void
-TopologyRefinerFactory<MESH>::setNumBaseFaces(TopologyRefiner & newRefiner, int count) {
-    newRefiner._levels[0]->resizeFaces(count);
-}
-template <class MESH>
-inline void
-TopologyRefinerFactory<MESH>::setNumBaseEdges(TopologyRefiner & newRefiner, int count) {
-    newRefiner._levels[0]->resizeEdges(count);
-}
-template <class MESH>
-inline void
-TopologyRefinerFactory<MESH>::setNumBaseVertices(TopologyRefiner & newRefiner, int count) {
-    newRefiner._levels[0]->resizeVertices(count);
-}
+template <class MESH> inline void TopologyRefinerFactory<MESH>::setNumBaseFaces(TopologyRefiner &newRefiner, int count) { newRefiner._levels[0]->resizeFaces(count); }
+template <class MESH> inline void TopologyRefinerFactory<MESH>::setNumBaseEdges(TopologyRefiner &newRefiner, int count) { newRefiner._levels[0]->resizeEdges(count); }
+template <class MESH> inline void TopologyRefinerFactory<MESH>::setNumBaseVertices(TopologyRefiner &newRefiner, int count) { newRefiner._levels[0]->resizeVertices(count); }
 
-template <class MESH>
-inline int
-TopologyRefinerFactory<MESH>::getNumBaseFaces(TopologyRefiner const & newRefiner) {
-    return newRefiner._levels[0]->getNumFaces();
-}
-template <class MESH>
-inline int
-TopologyRefinerFactory<MESH>::getNumBaseEdges(TopologyRefiner const & newRefiner) {
-    return newRefiner._levels[0]->getNumEdges();
-}
-template <class MESH>
-inline int
-TopologyRefinerFactory<MESH>::getNumBaseVertices(TopologyRefiner const & newRefiner) {
-    return newRefiner._levels[0]->getNumVertices();
-}
+template <class MESH> inline int TopologyRefinerFactory<MESH>::getNumBaseFaces(TopologyRefiner const &newRefiner) { return newRefiner._levels[0]->getNumFaces(); }
+template <class MESH> inline int TopologyRefinerFactory<MESH>::getNumBaseEdges(TopologyRefiner const &newRefiner) { return newRefiner._levels[0]->getNumEdges(); }
+template <class MESH> inline int TopologyRefinerFactory<MESH>::getNumBaseVertices(TopologyRefiner const &newRefiner) { return newRefiner._levels[0]->getNumVertices(); }
 
-template <class MESH>
-inline void
-TopologyRefinerFactory<MESH>::setNumBaseFaceVertices(TopologyRefiner & newRefiner, Index f, int count) {
+template <class MESH> inline void TopologyRefinerFactory<MESH>::setNumBaseFaceVertices(TopologyRefiner &newRefiner, Index f, int count)
+{
     newRefiner._levels[0]->resizeFaceVertices(f, count);
     newRefiner._hasIrregFaces = newRefiner._hasIrregFaces || (count != newRefiner._regFaceSize);
 }
-template <class MESH>
-inline void
-TopologyRefinerFactory<MESH>::setNumBaseEdgeFaces(TopologyRefiner & newRefiner, Index e, int count) {
-    newRefiner._levels[0]->resizeEdgeFaces(e, count);
-}
-template <class MESH>
-inline void
-TopologyRefinerFactory<MESH>::setNumBaseVertexFaces(TopologyRefiner & newRefiner, Index v, int count) {
-    newRefiner._levels[0]->resizeVertexFaces(v, count);
-}
-template <class MESH>
-inline void
-TopologyRefinerFactory<MESH>::setNumBaseVertexEdges(TopologyRefiner & newRefiner, Index v, int count) {
-    newRefiner._levels[0]->resizeVertexEdges(v, count);
-}
+template <class MESH> inline void TopologyRefinerFactory<MESH>::setNumBaseEdgeFaces(TopologyRefiner &newRefiner, Index e, int count) { newRefiner._levels[0]->resizeEdgeFaces(e, count); }
+template <class MESH> inline void TopologyRefinerFactory<MESH>::setNumBaseVertexFaces(TopologyRefiner &newRefiner, Index v, int count) { newRefiner._levels[0]->resizeVertexFaces(v, count); }
+template <class MESH> inline void TopologyRefinerFactory<MESH>::setNumBaseVertexEdges(TopologyRefiner &newRefiner, Index v, int count) { newRefiner._levels[0]->resizeVertexEdges(v, count); }
 
-template <class MESH>
-inline IndexArray
-TopologyRefinerFactory<MESH>::getBaseFaceVertices(TopologyRefiner & newRefiner, Index f) {
-    return newRefiner._levels[0]->getFaceVertices(f);
-}
-template <class MESH>
-inline IndexArray
-TopologyRefinerFactory<MESH>::getBaseFaceEdges(TopologyRefiner & newRefiner,    Index f) {
-    return newRefiner._levels[0]->getFaceEdges(f);
-}
-template <class MESH>
-inline IndexArray
-TopologyRefinerFactory<MESH>::getBaseEdgeVertices(TopologyRefiner & newRefiner, Index e) {
-    return newRefiner._levels[0]->getEdgeVertices(e);
-}
-template <class MESH>
-inline IndexArray
-TopologyRefinerFactory<MESH>::getBaseEdgeFaces(TopologyRefiner & newRefiner,    Index e) {
-    return newRefiner._levels[0]->getEdgeFaces(e);
-}
-template <class MESH>
-inline IndexArray
-TopologyRefinerFactory<MESH>::getBaseVertexFaces(TopologyRefiner & newRefiner,  Index v) {
-    return newRefiner._levels[0]->getVertexFaces(v);
-}
-template <class MESH>
-inline IndexArray
-TopologyRefinerFactory<MESH>::getBaseVertexEdges(TopologyRefiner & newRefiner,  Index v) {
-    return newRefiner._levels[0]->getVertexEdges(v);
-}
+template <class MESH> inline IndexArray TopologyRefinerFactory<MESH>::getBaseFaceVertices(TopologyRefiner &newRefiner, Index f) { return newRefiner._levels[0]->getFaceVertices(f); }
+template <class MESH> inline IndexArray TopologyRefinerFactory<MESH>::getBaseFaceEdges(TopologyRefiner &newRefiner, Index f) { return newRefiner._levels[0]->getFaceEdges(f); }
+template <class MESH> inline IndexArray TopologyRefinerFactory<MESH>::getBaseEdgeVertices(TopologyRefiner &newRefiner, Index e) { return newRefiner._levels[0]->getEdgeVertices(e); }
+template <class MESH> inline IndexArray TopologyRefinerFactory<MESH>::getBaseEdgeFaces(TopologyRefiner &newRefiner, Index e) { return newRefiner._levels[0]->getEdgeFaces(e); }
+template <class MESH> inline IndexArray TopologyRefinerFactory<MESH>::getBaseVertexFaces(TopologyRefiner &newRefiner, Index v) { return newRefiner._levels[0]->getVertexFaces(v); }
+template <class MESH> inline IndexArray TopologyRefinerFactory<MESH>::getBaseVertexEdges(TopologyRefiner &newRefiner, Index v) { return newRefiner._levels[0]->getVertexEdges(v); }
 
-template <class MESH>
-inline LocalIndexArray
-TopologyRefinerFactory<MESH>::getBaseEdgeFaceLocalIndices(TopologyRefiner & newRefiner, Index e)   {
-    return newRefiner._levels[0]->getEdgeFaceLocalIndices(e);
-}
-template <class MESH>
-inline LocalIndexArray
-TopologyRefinerFactory<MESH>::getBaseVertexFaceLocalIndices(TopologyRefiner & newRefiner, Index v) {
-    return newRefiner._levels[0]->getVertexFaceLocalIndices(v);
-}
-template <class MESH>
-inline LocalIndexArray
-TopologyRefinerFactory<MESH>::getBaseVertexEdgeLocalIndices(TopologyRefiner & newRefiner, Index v) {
-    return newRefiner._levels[0]->getVertexEdgeLocalIndices(v);
-}
+template <class MESH> inline LocalIndexArray TopologyRefinerFactory<MESH>::getBaseEdgeFaceLocalIndices(TopologyRefiner &newRefiner, Index e) { return newRefiner._levels[0]->getEdgeFaceLocalIndices(e); }
+template <class MESH> inline LocalIndexArray TopologyRefinerFactory<MESH>::getBaseVertexFaceLocalIndices(TopologyRefiner &newRefiner, Index v) { return newRefiner._levels[0]->getVertexFaceLocalIndices(v); }
+template <class MESH> inline LocalIndexArray TopologyRefinerFactory<MESH>::getBaseVertexEdgeLocalIndices(TopologyRefiner &newRefiner, Index v) { return newRefiner._levels[0]->getVertexEdgeLocalIndices(v); }
 
-template <class MESH>
-inline Index
-TopologyRefinerFactory<MESH>::findBaseEdge(TopologyRefiner const & newRefiner, Index v0, Index v1) {
-    return newRefiner._levels[0]->findEdge(v0, v1);
-}
+template <class MESH> inline Index TopologyRefinerFactory<MESH>::findBaseEdge(TopologyRefiner const &newRefiner, Index v0, Index v1) { return newRefiner._levels[0]->findEdge(v0, v1); }
 
-template <class MESH>
-inline void
-TopologyRefinerFactory<MESH>::populateBaseLocalIndices(TopologyRefiner & newRefiner) {
-    newRefiner._levels[0]->populateLocalIndices();
-}
+template <class MESH> inline void TopologyRefinerFactory<MESH>::populateBaseLocalIndices(TopologyRefiner &newRefiner) { newRefiner._levels[0]->populateLocalIndices(); }
 
-template <class MESH>
-inline void
-TopologyRefinerFactory<MESH>::setBaseEdgeNonManifold(TopologyRefiner & newRefiner, Index e, bool b) {
-    newRefiner._levels[0]->setEdgeNonManifold(e, b);
-}
-template <class MESH>
-inline void
-TopologyRefinerFactory<MESH>::setBaseVertexNonManifold(TopologyRefiner & newRefiner, Index v, bool b) {
-    newRefiner._levels[0]->setVertexNonManifold(v, b);
-}
+template <class MESH> inline void TopologyRefinerFactory<MESH>::setBaseEdgeNonManifold(TopologyRefiner &newRefiner, Index e, bool b) { newRefiner._levels[0]->setEdgeNonManifold(e, b); }
+template <class MESH> inline void TopologyRefinerFactory<MESH>::setBaseVertexNonManifold(TopologyRefiner &newRefiner, Index v, bool b) { newRefiner._levels[0]->setVertexNonManifold(v, b); }
 
-template <class MESH>
-inline void
-TopologyRefinerFactory<MESH>::setBaseEdgeSharpness(TopologyRefiner & newRefiner, Index e, float s)   {
-    newRefiner._levels[0]->getEdgeSharpness(e) = s;
-}
-template <class MESH>
-inline void
-TopologyRefinerFactory<MESH>::setBaseVertexSharpness(TopologyRefiner & newRefiner, Index v, float s) {
-    newRefiner._levels[0]->getVertexSharpness(v) = s;
-}
-template <class MESH>
-inline void
-TopologyRefinerFactory<MESH>::setBaseFaceHole(TopologyRefiner & newRefiner, Index f, bool b) {
+template <class MESH> inline void TopologyRefinerFactory<MESH>::setBaseEdgeSharpness(TopologyRefiner &newRefiner, Index e, float s) { newRefiner._levels[0]->getEdgeSharpness(e) = s; }
+template <class MESH> inline void TopologyRefinerFactory<MESH>::setBaseVertexSharpness(TopologyRefiner &newRefiner, Index v, float s) { newRefiner._levels[0]->getVertexSharpness(v) = s; }
+template <class MESH> inline void TopologyRefinerFactory<MESH>::setBaseFaceHole(TopologyRefiner &newRefiner, Index f, bool b)
+{
     newRefiner._levels[0]->setFaceHole(f, b);
     newRefiner._hasHoles = newRefiner._hasHoles || b;
 }
 
-template <class MESH>
-inline int
-TopologyRefinerFactory<MESH>::createBaseFVarChannel(TopologyRefiner & newRefiner, int numValues) {
-    return newRefiner._levels[0]->createFVarChannel(numValues, newRefiner._subdivOptions);
-}
-template <class MESH>
-inline int
-TopologyRefinerFactory<MESH>::createBaseFVarChannel(TopologyRefiner & newRefiner, int numValues, Sdc::Options const& fvarOptions) {
+template <class MESH> inline int TopologyRefinerFactory<MESH>::createBaseFVarChannel(TopologyRefiner &newRefiner, int numValues) { return newRefiner._levels[0]->createFVarChannel(numValues, newRefiner._subdivOptions); }
+template <class MESH> inline int TopologyRefinerFactory<MESH>::createBaseFVarChannel(TopologyRefiner &newRefiner, int numValues, Sdc::Options const &fvarOptions)
+{
     Sdc::Options newOptions = newRefiner._subdivOptions;
     newOptions.SetFVarLinearInterpolation(fvarOptions.GetFVarLinearInterpolation());
     return newRefiner._levels[0]->createFVarChannel(numValues, newOptions);
 }
-template <class MESH>
-inline IndexArray
-TopologyRefinerFactory<MESH>::getBaseFaceFVarValues(TopologyRefiner & newRefiner, Index face, int channel) {
-    return newRefiner._levels[0]->getFaceFVarValues(face, channel);
-}
+template <class MESH> inline IndexArray TopologyRefinerFactory<MESH>::getBaseFaceFVarValues(TopologyRefiner &newRefiner, Index face, int channel) { return newRefiner._levels[0]->getFaceFVarValues(face, channel); }
 
-
-template <class MESH>
-bool
-TopologyRefinerFactory<MESH>::resizeComponentTopology(TopologyRefiner& /* refiner */, MESH const& /* mesh */) {
-
-    Error(FAR_RUNTIME_ERROR,
-        "Failure in TopologyRefinerFactory<>::resizeComponentTopology() -- no specialization provided.");
+template <class MESH> bool TopologyRefinerFactory<MESH>::resizeComponentTopology(TopologyRefiner & /* refiner */, MESH const & /* mesh */)
+{
+    Error(FAR_RUNTIME_ERROR, "Failure in TopologyRefinerFactory<>::resizeComponentTopology() -- no specialization provided.");
 
     //
     //  Sizing the topology tables:
@@ -616,12 +497,9 @@ TopologyRefinerFactory<MESH>::resizeComponentTopology(TopologyRefiner& /* refine
     return false;
 }
 
-template <class MESH>
-bool
-TopologyRefinerFactory<MESH>::assignComponentTopology(TopologyRefiner& /* refiner */, MESH const& /* mesh */) {
-
-    Error(FAR_RUNTIME_ERROR,
-        "Failure in TopologyRefinerFactory<>::assignComponentTopology() -- no specialization provided.");
+template <class MESH> bool TopologyRefinerFactory<MESH>::assignComponentTopology(TopologyRefiner & /* refiner */, MESH const & /* mesh */)
+{
+    Error(FAR_RUNTIME_ERROR, "Failure in TopologyRefinerFactory<>::assignComponentTopology() -- no specialization provided.");
 
     //
     //  Assigning the topology tables:
@@ -669,10 +547,8 @@ TopologyRefinerFactory<MESH>::assignComponentTopology(TopologyRefiner& /* refine
     return false;
 }
 
-template <class MESH>
-bool
-TopologyRefinerFactory<MESH>::assignFaceVaryingTopology(TopologyRefiner& /* refiner */, MESH const& /* mesh */) {
-
+template <class MESH> bool TopologyRefinerFactory<MESH>::assignFaceVaryingTopology(TopologyRefiner & /* refiner */, MESH const & /* mesh */)
+{
     //
     //  Optional assigning face-varying topology tables:
     //
@@ -685,10 +561,8 @@ TopologyRefinerFactory<MESH>::assignFaceVaryingTopology(TopologyRefiner& /* refi
     return true;
 }
 
-template <class MESH>
-bool
-TopologyRefinerFactory<MESH>::assignComponentTags(TopologyRefiner& /* refiner */, MESH const& /* mesh */) {
-
+template <class MESH> bool TopologyRefinerFactory<MESH>::assignComponentTags(TopologyRefiner & /* refiner */, MESH const & /* mesh */)
+{
     //
     //  Optional tagging:
     //      This is where any additional feature tags -- sharpness, holes, etc. -- can be
@@ -702,11 +576,8 @@ TopologyRefinerFactory<MESH>::assignComponentTags(TopologyRefiner& /* refiner */
     return true;
 }
 
-template <class MESH>
-void
-TopologyRefinerFactory<MESH>::reportInvalidTopology(
-    TopologyError /* errCode */, char const * /* msg */, MESH const& /* mesh */) {
-
+template <class MESH> void TopologyRefinerFactory<MESH>::reportInvalidTopology(TopologyError /* errCode */, char const * /* msg */, MESH const & /* mesh */)
+{
     //
     //  Optional topology validation error reporting:
     //      This method is called whenever the factory encounters topology validation

@@ -25,15 +25,17 @@
 #define OPENSUBDIV3_VTR_TRI_REFINEMENT_H
 
 #include "../version.h"
-
 #include "../vtr/refinement.h"
 
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Vtr {
-namespace internal {
+namespace Vtr
+{
+namespace internal
+{
 
 //
 //  TriRefinement:
@@ -41,13 +43,13 @@ namespace internal {
 //  It provides the configuration of parent-to-child components and the population of
 //  all required topological relations in order to complete a valid Refinement.
 //
-class TriRefinement : public Refinement {
-
-public:
-    TriRefinement(Level const & parent, Level & child, Sdc::Options const & options);
+class TriRefinement : public Refinement
+{
+  public:
+    TriRefinement(Level const &parent, Level &child, Sdc::Options const &options);
     ~TriRefinement();
 
-protected:
+  protected:
     //
     //  Virtual methods to complete the configuration of the parent-to-child mapping:
     //
@@ -87,7 +89,7 @@ protected:
     void populateVertexEdgesFromParentEdges();
     void populateVertexEdgesFromParentVertices();
 
-private:
+  private:
     //
     //  Unlike the quad-split, which can share some vectors with the parent Level since
     //  child components correspond to face-vertices, the tri-split must define its

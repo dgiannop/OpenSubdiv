@@ -25,19 +25,23 @@
 #ifndef OPENSUBDIV3_OSD_CPU_EVALUATOR_H
 #define OPENSUBDIV3_OSD_CPU_EVALUATOR_H
 
-#include "../version.h"
-#include "../osd/bufferDescriptor.h"
-#include "../osd/types.h"
-
 #include <cstddef>
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+#include "../osd/bufferDescriptor.h"
+#include "../osd/types.h"
+#include "../version.h"
 
-namespace Osd {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-class CpuEvaluator {
-public:
+namespace Osd
+{
+
+class CpuEvaluator
+{
+  public:
     /// ----------------------------------------------------------------------
     ///
     ///   Stencil evaluations with StencilTable
@@ -69,25 +73,15 @@ public:
     /// @param deviceContext  not used in the cpu kernel
     ///
     template <typename SRC_BUFFER, typename DST_BUFFER, typename STENCIL_TABLE>
-    static bool EvalStencils(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        STENCIL_TABLE const *stencilTable,
-        const CpuEvaluator *instance = NULL,
-        void * deviceContext = NULL) {
-
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
+    static bool EvalStencils(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, STENCIL_TABLE const *stencilTable, const CpuEvaluator *instance = NULL, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
         if (stencilTable->GetNumStencils() == 0)
             return false;
 
-        return EvalStencils(srcBuffer->BindCpuBuffer(), srcDesc,
-                            dstBuffer->BindCpuBuffer(), dstDesc,
-                            &stencilTable->GetSizes()[0],
-                            &stencilTable->GetOffsets()[0],
-                            &stencilTable->GetControlIndices()[0],
-                            &stencilTable->GetWeights()[0],
+        return EvalStencils(srcBuffer->BindCpuBuffer(), srcDesc, dstBuffer->BindCpuBuffer(), dstDesc, &stencilTable->GetSizes()[0], &stencilTable->GetOffsets()[0], &stencilTable->GetControlIndices()[0], &stencilTable->GetWeights()[0],
                             /*start = */ 0,
                             /*end   = */ stencilTable->GetNumStencils());
     }
@@ -118,14 +112,7 @@ public:
     ///
     /// @param end            end index of stencil table
     ///
-    static bool EvalStencils(
-        const float *src, BufferDescriptor const &srcDesc,
-        float *dst,       BufferDescriptor const &dstDesc,
-        const int * sizes,
-        const int * offsets,
-        const int * indices,
-        const float * weights,
-        int start, int end);
+    static bool EvalStencils(const float *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, const int *sizes, const int *offsets, const int *indices, const float *weights, int start, int end);
 
     /// \brief Generic static eval stencils function with derivatives.
     ///        This function has a same signature as other device kernels
@@ -165,28 +152,14 @@ public:
     /// @param deviceContext  not used in the cpu kernel
     ///
     template <typename SRC_BUFFER, typename DST_BUFFER, typename STENCIL_TABLE>
-    static bool EvalStencils(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        STENCIL_TABLE const *stencilTable,
-        const CpuEvaluator *instance = NULL,
-        void * deviceContext = NULL) {
+    static bool EvalStencils(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                             STENCIL_TABLE const *stencilTable, const CpuEvaluator *instance = NULL, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
-
-        return EvalStencils(srcBuffer->BindCpuBuffer(), srcDesc,
-                            dstBuffer->BindCpuBuffer(), dstDesc,
-                            duBuffer->BindCpuBuffer(),  duDesc,
-                            dvBuffer->BindCpuBuffer(),  dvDesc,
-                            &stencilTable->GetSizes()[0],
-                            &stencilTable->GetOffsets()[0],
-                            &stencilTable->GetControlIndices()[0],
-                            &stencilTable->GetWeights()[0],
-                            &stencilTable->GetDuWeights()[0],
-                            &stencilTable->GetDvWeights()[0],
+        return EvalStencils(srcBuffer->BindCpuBuffer(), srcDesc, dstBuffer->BindCpuBuffer(), dstDesc, duBuffer->BindCpuBuffer(), duDesc, dvBuffer->BindCpuBuffer(), dvDesc, &stencilTable->GetSizes()[0], &stencilTable->GetOffsets()[0],
+                            &stencilTable->GetControlIndices()[0], &stencilTable->GetWeights()[0], &stencilTable->GetDuWeights()[0], &stencilTable->GetDvWeights()[0],
                             /*start = */ 0,
                             /*end   = */ stencilTable->GetNumStencils());
     }
@@ -231,18 +204,8 @@ public:
     ///
     /// @param end            end index of stencil table
     ///
-    static bool EvalStencils(
-        const float *src, BufferDescriptor const &srcDesc,
-        float *dst,       BufferDescriptor const &dstDesc,
-        float *du,        BufferDescriptor const &duDesc,
-        float *dv,        BufferDescriptor const &dvDesc,
-        const int * sizes,
-        const int * offsets,
-        const int * indices,
-        const float * weights,
-        const float * duWeights,
-        const float * dvWeights,
-        int start, int end);
+    static bool EvalStencils(const float *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, float *du, BufferDescriptor const &duDesc, float *dv, BufferDescriptor const &dvDesc, const int *sizes, const int *offsets,
+                             const int *indices, const float *weights, const float *duWeights, const float *dvWeights, int start, int end);
 
     /// \brief Generic static eval stencils function with derivatives.
     ///        This function has a same signature as other device kernels
@@ -300,37 +263,16 @@ public:
     /// @param deviceContext  not used in the cpu kernel
     ///
     template <typename SRC_BUFFER, typename DST_BUFFER, typename STENCIL_TABLE>
-    static bool EvalStencils(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        STENCIL_TABLE const *stencilTable,
-        const CpuEvaluator *instance = NULL,
-        void * deviceContext = NULL) {
+    static bool EvalStencils(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                             DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, STENCIL_TABLE const *stencilTable,
+                             const CpuEvaluator *instance = NULL, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
-
-        return EvalStencils(srcBuffer->BindCpuBuffer(), srcDesc,
-                            dstBuffer->BindCpuBuffer(), dstDesc,
-                            duBuffer->BindCpuBuffer(),  duDesc,
-                            dvBuffer->BindCpuBuffer(),  dvDesc,
-                            duuBuffer->BindCpuBuffer(), duuDesc,
-                            duvBuffer->BindCpuBuffer(), duvDesc,
-                            dvvBuffer->BindCpuBuffer(), dvvDesc,
-                            &stencilTable->GetSizes()[0],
-                            &stencilTable->GetOffsets()[0],
-                            &stencilTable->GetControlIndices()[0],
-                            &stencilTable->GetWeights()[0],
-                            &stencilTable->GetDuWeights()[0],
-                            &stencilTable->GetDvWeights()[0],
-                            &stencilTable->GetDuuWeights()[0],
-                            &stencilTable->GetDuvWeights()[0],
-                            &stencilTable->GetDvvWeights()[0],
+        return EvalStencils(srcBuffer->BindCpuBuffer(), srcDesc, dstBuffer->BindCpuBuffer(), dstDesc, duBuffer->BindCpuBuffer(), duDesc, dvBuffer->BindCpuBuffer(), dvDesc, duuBuffer->BindCpuBuffer(), duuDesc, duvBuffer->BindCpuBuffer(), duvDesc,
+                            dvvBuffer->BindCpuBuffer(), dvvDesc, &stencilTable->GetSizes()[0], &stencilTable->GetOffsets()[0], &stencilTable->GetControlIndices()[0], &stencilTable->GetWeights()[0], &stencilTable->GetDuWeights()[0],
+                            &stencilTable->GetDvWeights()[0], &stencilTable->GetDuuWeights()[0], &stencilTable->GetDuvWeights()[0], &stencilTable->GetDvvWeights()[0],
                             /*start = */ 0,
                             /*end   = */ stencilTable->GetNumStencils());
     }
@@ -396,24 +338,9 @@ public:
     ///
     /// @param end            end index of stencil table
     ///
-    static bool EvalStencils(
-        const float *src, BufferDescriptor const &srcDesc,
-        float *dst,       BufferDescriptor const &dstDesc,
-        float *du,        BufferDescriptor const &duDesc,
-        float *dv,        BufferDescriptor const &dvDesc,
-        float *duu,       BufferDescriptor const &duuDesc,
-        float *duv,       BufferDescriptor const &duvDesc,
-        float *dvv,       BufferDescriptor const &dvvDesc,
-        const int * sizes,
-        const int * offsets,
-        const int * indices,
-        const float * weights,
-        const float * duWeights,
-        const float * dvWeights,
-        const float * duuWeights,
-        const float * duvWeights,
-        const float * dvvWeights,
-        int start, int end);
+    static bool EvalStencils(const float *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, float *du, BufferDescriptor const &duDesc, float *dv, BufferDescriptor const &dvDesc, float *duu, BufferDescriptor const &duuDesc,
+                             float *duv, BufferDescriptor const &duvDesc, float *dvv, BufferDescriptor const &dvvDesc, const int *sizes, const int *offsets, const int *indices, const float *weights, const float *duWeights, const float *dvWeights,
+                             const float *duuWeights, const float *duvWeights, const float *dvvWeights, int start, int end);
 
     /// ----------------------------------------------------------------------
     ///
@@ -449,26 +376,14 @@ public:
     ///
     /// @param deviceContext    not used in the cpu evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatches(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        CpuEvaluator const *instance = NULL,
-        void * deviceContext = NULL) {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatches(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, CpuEvaluator const *instance = NULL,
+                            void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
-
-        return EvalPatches(srcBuffer->BindCpuBuffer(), srcDesc,
-                           dstBuffer->BindCpuBuffer(), dstDesc,
-                           numPatchCoords,
-                           (const PatchCoord*)patchCoords->BindCpuBuffer(),
-                           patchTable->GetPatchArrayBuffer(),
-                           patchTable->GetPatchIndexBuffer(),
+        return EvalPatches(srcBuffer->BindCpuBuffer(), srcDesc, dstBuffer->BindCpuBuffer(), dstDesc, numPatchCoords, (const PatchCoord *)patchCoords->BindCpuBuffer(), patchTable->GetPatchArrayBuffer(), patchTable->GetPatchIndexBuffer(),
                            patchTable->GetPatchParamBuffer());
     }
 
@@ -512,36 +427,20 @@ public:
     ///
     /// @param deviceContext    not used in the cpu evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatches(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        CpuEvaluator const *instance = NULL,
-        void * deviceContext = NULL) {
-
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatches(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                            int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, CpuEvaluator const *instance = NULL, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
         // XXX: PatchCoords is somewhat abusing vertex primvar buffer interop.
         //      ideally all buffer classes should have templated by datatype
         //      so that downcast isn't needed there.
         //      (e.g. Osd::CpuBuffer<PatchCoord> )
         //
-        return EvalPatches(srcBuffer->BindCpuBuffer(), srcDesc,
-                           dstBuffer->BindCpuBuffer(), dstDesc,
-                           duBuffer->BindCpuBuffer(),  duDesc,
-                           dvBuffer->BindCpuBuffer(),  dvDesc,
-                           numPatchCoords,
-                           (const PatchCoord*)patchCoords->BindCpuBuffer(),
-                           patchTable->GetPatchArrayBuffer(),
-                           patchTable->GetPatchIndexBuffer(),
-                           patchTable->GetPatchParamBuffer());
+        return EvalPatches(srcBuffer->BindCpuBuffer(), srcDesc, dstBuffer->BindCpuBuffer(), dstDesc, duBuffer->BindCpuBuffer(), duDesc, dvBuffer->BindCpuBuffer(), dvDesc, numPatchCoords, (const PatchCoord *)patchCoords->BindCpuBuffer(),
+                           patchTable->GetPatchArrayBuffer(), patchTable->GetPatchIndexBuffer(), patchTable->GetPatchParamBuffer());
     }
 
     /// \brief Generic limit eval function with derivatives. This function has
@@ -602,42 +501,21 @@ public:
     ///
     /// @param deviceContext    not used in the cpu evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatches(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        CpuEvaluator const *instance = NULL,
-        void * deviceContext = NULL) {
-
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatches(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                            DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords,
+                            PATCH_TABLE *patchTable, CpuEvaluator const *instance = NULL, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
         // XXX: PatchCoords is somewhat abusing vertex primvar buffer interop.
         //      ideally all buffer classes should have templated by datatype
         //      so that downcast isn't needed there.
         //      (e.g. Osd::CpuBuffer<PatchCoord> )
         //
-        return EvalPatches(srcBuffer->BindCpuBuffer(), srcDesc,
-                           dstBuffer->BindCpuBuffer(), dstDesc,
-                           duBuffer->BindCpuBuffer(),  duDesc,
-                           dvBuffer->BindCpuBuffer(),  dvDesc,
-                           duuBuffer->BindCpuBuffer(), duuDesc,
-                           duvBuffer->BindCpuBuffer(), duvDesc,
-                           dvvBuffer->BindCpuBuffer(), dvvDesc,
-                           numPatchCoords,
-                           (const PatchCoord*)patchCoords->BindCpuBuffer(),
-                           patchTable->GetPatchArrayBuffer(),
-                           patchTable->GetPatchIndexBuffer(),
-                           patchTable->GetPatchParamBuffer());
+        return EvalPatches(srcBuffer->BindCpuBuffer(), srcDesc, dstBuffer->BindCpuBuffer(), dstDesc, duBuffer->BindCpuBuffer(), duDesc, dvBuffer->BindCpuBuffer(), dvDesc, duuBuffer->BindCpuBuffer(), duuDesc, duvBuffer->BindCpuBuffer(), duvDesc,
+                           dvvBuffer->BindCpuBuffer(), dvvDesc, numPatchCoords, (const PatchCoord *)patchCoords->BindCpuBuffer(), patchTable->GetPatchArrayBuffer(), patchTable->GetPatchIndexBuffer(), patchTable->GetPatchParamBuffer());
     }
 
     /// \brief Static limit eval function. It takes an array of PatchCoord
@@ -667,14 +545,8 @@ public:
     /// @param patchParamBuffer an array of Osd::PatchParam struct
     ///                         indexed by PatchCoord::patchIndex
     ///
-    static bool EvalPatches(
-        const float *src, BufferDescriptor const &srcDesc,
-        float *dst,       BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        const PatchCoord *patchCoords,
-        const PatchArray *patchArrays,
-        const int *patchIndexBuffer,
-        const PatchParam *patchParamBuffer);
+    static bool EvalPatches(const float *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, int numPatchCoords, const PatchCoord *patchCoords, const PatchArray *patchArrays, const int *patchIndexBuffer,
+                            const PatchParam *patchParamBuffer);
 
     /// \brief Static limit eval function. It takes an array of PatchCoord
     ///        and evaluate limit values on given PatchTable.
@@ -713,16 +585,8 @@ public:
     /// @param patchParamBuffer an array of Osd::PatchParam struct
     ///                         indexed by PatchCoord::patchIndex
     ///
-    static bool EvalPatches(
-        const float *src, BufferDescriptor const &srcDesc,
-        float *dst,       BufferDescriptor const &dstDesc,
-        float *du,        BufferDescriptor const &duDesc,
-        float *dv,        BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PatchCoord const *patchCoords,
-        PatchArray const *patchArrays,
-        const int *patchIndexBuffer,
-        PatchParam const *patchParamBuffer);
+    static bool EvalPatches(const float *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, float *du, BufferDescriptor const &duDesc, float *dv, BufferDescriptor const &dvDesc, int numPatchCoords,
+                            PatchCoord const *patchCoords, PatchArray const *patchArrays, const int *patchIndexBuffer, PatchParam const *patchParamBuffer);
 
     /// \brief Static limit eval function. It takes an array of PatchCoord
     ///        and evaluate limit values on given PatchTable.
@@ -776,19 +640,9 @@ public:
     /// @param patchParamBuffer an array of Osd::PatchParam struct
     ///                         indexed by PatchCoord::patchIndex
     ///
-    static bool EvalPatches(
-        const float *src, BufferDescriptor const &srcDesc,
-        float *dst,       BufferDescriptor const &dstDesc,
-        float *du,        BufferDescriptor const &duDesc,
-        float *dv,        BufferDescriptor const &dvDesc,
-        float *duu,       BufferDescriptor const &duuDesc,
-        float *duv,       BufferDescriptor const &duvDesc,
-        float *dvv,       BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PatchCoord const *patchCoords,
-        PatchArray const *patchArrays,
-        const int *patchIndexBuffer,
-        PatchParam const *patchParamBuffer);
+    static bool EvalPatches(const float *src, BufferDescriptor const &srcDesc, float *dst, BufferDescriptor const &dstDesc, float *du, BufferDescriptor const &duDesc, float *dv, BufferDescriptor const &dvDesc, float *duu, BufferDescriptor const &duuDesc,
+                            float *duv, BufferDescriptor const &duvDesc, float *dvv, BufferDescriptor const &dvvDesc, int numPatchCoords, PatchCoord const *patchCoords, PatchArray const *patchArrays, const int *patchIndexBuffer,
+                            PatchParam const *patchParamBuffer);
 
     /// \brief Generic limit eval function. This function has a same
     ///        signature as other device kernels have so that it can be called
@@ -818,26 +672,14 @@ public:
     ///
     /// @param deviceContext    not used in the cpu evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatchesVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        CpuEvaluator const *instance = NULL,
-        void * deviceContext = NULL) {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatchesVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable,
+                                   CpuEvaluator const *instance = NULL, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
-
-        return EvalPatches(srcBuffer->BindCpuBuffer(), srcDesc,
-                           dstBuffer->BindCpuBuffer(), dstDesc,
-                           numPatchCoords,
-                           (const PatchCoord*)patchCoords->BindCpuBuffer(),
-                           patchTable->GetVaryingPatchArrayBuffer(),
-                           patchTable->GetVaryingPatchIndexBuffer(),
+        return EvalPatches(srcBuffer->BindCpuBuffer(), srcDesc, dstBuffer->BindCpuBuffer(), dstDesc, numPatchCoords, (const PatchCoord *)patchCoords->BindCpuBuffer(), patchTable->GetVaryingPatchArrayBuffer(), patchTable->GetVaryingPatchIndexBuffer(),
                            patchTable->GetPatchParamBuffer());
     }
 
@@ -881,31 +723,15 @@ public:
     ///
     /// @param deviceContext    not used in the cpu evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatchesVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        CpuEvaluator const *instance = NULL,
-        void * deviceContext = NULL) {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatchesVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                                   int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, CpuEvaluator const *instance = NULL, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
-
-        return EvalPatches(srcBuffer->BindCpuBuffer(), srcDesc,
-                           dstBuffer->BindCpuBuffer(), dstDesc,
-                           duBuffer->BindCpuBuffer(),  duDesc,
-                           dvBuffer->BindCpuBuffer(),  dvDesc,
-                           numPatchCoords,
-                           (const PatchCoord*)patchCoords->BindCpuBuffer(),
-                           patchTable->GetVaryingPatchArrayBuffer(),
-                           patchTable->GetVaryingPatchIndexBuffer(),
-                           patchTable->GetPatchParamBuffer());
+        return EvalPatches(srcBuffer->BindCpuBuffer(), srcDesc, dstBuffer->BindCpuBuffer(), dstDesc, duBuffer->BindCpuBuffer(), duDesc, dvBuffer->BindCpuBuffer(), dvDesc, numPatchCoords, (const PatchCoord *)patchCoords->BindCpuBuffer(),
+                           patchTable->GetVaryingPatchArrayBuffer(), patchTable->GetVaryingPatchIndexBuffer(), patchTable->GetPatchParamBuffer());
     }
 
     /// \brief Generic limit eval function. This function has a same
@@ -966,37 +792,16 @@ public:
     ///
     /// @param deviceContext    not used in the cpu evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatchesVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        CpuEvaluator const *instance = NULL,
-        void * deviceContext = NULL) {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatchesVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                                   DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords,
+                                   PATCH_TABLE *patchTable, CpuEvaluator const *instance = NULL, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
-
-        return EvalPatches(srcBuffer->BindCpuBuffer(), srcDesc,
-                           dstBuffer->BindCpuBuffer(), dstDesc,
-                           duBuffer->BindCpuBuffer(),  duDesc,
-                           dvBuffer->BindCpuBuffer(),  dvDesc,
-                           duuBuffer->BindCpuBuffer(), duuDesc,
-                           duvBuffer->BindCpuBuffer(), duvDesc,
-                           dvvBuffer->BindCpuBuffer(), dvvDesc,
-                           numPatchCoords,
-                           (const PatchCoord*)patchCoords->BindCpuBuffer(),
-                           patchTable->GetVaryingPatchArrayBuffer(),
-                           patchTable->GetVaryingPatchIndexBuffer(),
-                           patchTable->GetPatchParamBuffer());
+        return EvalPatches(srcBuffer->BindCpuBuffer(), srcDesc, dstBuffer->BindCpuBuffer(), dstDesc, duBuffer->BindCpuBuffer(), duDesc, dvBuffer->BindCpuBuffer(), dvDesc, duuBuffer->BindCpuBuffer(), duuDesc, duvBuffer->BindCpuBuffer(), duvDesc,
+                           dvvBuffer->BindCpuBuffer(), dvvDesc, numPatchCoords, (const PatchCoord *)patchCoords->BindCpuBuffer(), patchTable->GetVaryingPatchArrayBuffer(), patchTable->GetVaryingPatchIndexBuffer(), patchTable->GetPatchParamBuffer());
     }
 
     /// \brief Generic limit eval function. This function has a same
@@ -1029,28 +834,15 @@ public:
     ///
     /// @param deviceContext    not used in the cpu evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatchesFaceVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        int fvarChannel,
-        CpuEvaluator const *instance = NULL,
-        void * deviceContext = NULL) {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatchesFaceVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, int fvarChannel,
+                                       CpuEvaluator const *instance = NULL, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
-
-        return EvalPatches(srcBuffer->BindCpuBuffer(), srcDesc,
-                           dstBuffer->BindCpuBuffer(), dstDesc,
-                           numPatchCoords,
-                           (const PatchCoord*)patchCoords->BindCpuBuffer(),
-                           patchTable->GetFVarPatchArrayBuffer(fvarChannel),
-                           patchTable->GetFVarPatchIndexBuffer(fvarChannel),
-                           patchTable->GetFVarPatchParamBuffer(fvarChannel));
+        return EvalPatches(srcBuffer->BindCpuBuffer(), srcDesc, dstBuffer->BindCpuBuffer(), dstDesc, numPatchCoords, (const PatchCoord *)patchCoords->BindCpuBuffer(), patchTable->GetFVarPatchArrayBuffer(fvarChannel),
+                           patchTable->GetFVarPatchIndexBuffer(fvarChannel), patchTable->GetFVarPatchParamBuffer(fvarChannel));
     }
 
     /// \brief Generic limit eval function. This function has a same
@@ -1095,32 +887,15 @@ public:
     ///
     /// @param deviceContext    not used in the cpu evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatchesFaceVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        int fvarChannel,
-        CpuEvaluator const *instance = NULL,
-        void * deviceContext = NULL) {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatchesFaceVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer,
+                                       BufferDescriptor const &dvDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, int fvarChannel, CpuEvaluator const *instance = NULL, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
-
-        return EvalPatches(srcBuffer->BindCpuBuffer(), srcDesc,
-                           dstBuffer->BindCpuBuffer(), dstDesc,
-                           duBuffer->BindCpuBuffer(),  duDesc,
-                           dvBuffer->BindCpuBuffer(),  dvDesc,
-                           numPatchCoords,
-                           (const PatchCoord*)patchCoords->BindCpuBuffer(),
-                           patchTable->GetFVarPatchArrayBuffer(fvarChannel),
-                           patchTable->GetFVarPatchIndexBuffer(fvarChannel),
-                           patchTable->GetFVarPatchParamBuffer(fvarChannel));
+        return EvalPatches(srcBuffer->BindCpuBuffer(), srcDesc, dstBuffer->BindCpuBuffer(), dstDesc, duBuffer->BindCpuBuffer(), duDesc, dvBuffer->BindCpuBuffer(), dvDesc, numPatchCoords, (const PatchCoord *)patchCoords->BindCpuBuffer(),
+                           patchTable->GetFVarPatchArrayBuffer(fvarChannel), patchTable->GetFVarPatchIndexBuffer(fvarChannel), patchTable->GetFVarPatchParamBuffer(fvarChannel));
     }
 
     /// \brief Generic limit eval function. This function has a same
@@ -1183,37 +958,16 @@ public:
     ///
     /// @param deviceContext    not used in the cpu evaluator
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    static bool EvalPatchesFaceVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        int fvarChannel,
-        CpuEvaluator const *instance = NULL,
-        void * deviceContext = NULL) {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    static bool EvalPatchesFaceVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer,
+                                       BufferDescriptor const &dvDesc, DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
+                                       int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, int fvarChannel, CpuEvaluator const *instance = NULL, void *deviceContext = NULL)
+    {
+        (void)instance;      // unused
+        (void)deviceContext; // unused
 
-        (void)instance;       // unused
-        (void)deviceContext;  // unused
-
-        return EvalPatches(srcBuffer->BindCpuBuffer(), srcDesc,
-                           dstBuffer->BindCpuBuffer(), dstDesc,
-                           duBuffer->BindCpuBuffer(),  duDesc,
-                           dvBuffer->BindCpuBuffer(),  dvDesc,
-                           duuBuffer->BindCpuBuffer(), duuDesc,
-                           duvBuffer->BindCpuBuffer(), duvDesc,
-                           dvvBuffer->BindCpuBuffer(), dvvDesc,
-                           numPatchCoords,
-                           (const PatchCoord*)patchCoords->BindCpuBuffer(),
-                           patchTable->GetFVarPatchArrayBuffer(fvarChannel),
-                           patchTable->GetFVarPatchIndexBuffer(fvarChannel),
+        return EvalPatches(srcBuffer->BindCpuBuffer(), srcDesc, dstBuffer->BindCpuBuffer(), dstDesc, duBuffer->BindCpuBuffer(), duDesc, dvBuffer->BindCpuBuffer(), dvDesc, duuBuffer->BindCpuBuffer(), duuDesc, duvBuffer->BindCpuBuffer(), duvDesc,
+                           dvvBuffer->BindCpuBuffer(), dvvDesc, numPatchCoords, (const PatchCoord *)patchCoords->BindCpuBuffer(), patchTable->GetFVarPatchArrayBuffer(fvarChannel), patchTable->GetFVarPatchIndexBuffer(fvarChannel),
                            patchTable->GetFVarPatchParamBuffer(fvarChannel));
     }
 
@@ -1224,18 +978,17 @@ public:
     /// ----------------------------------------------------------------------
 
     /// \brief synchronize all asynchronous computation invoked on this device.
-    static void Synchronize(void * /*deviceContext = NULL*/) {
+    static void Synchronize(void * /*deviceContext = NULL*/)
+    {
         // nothing.
     }
 };
 
+} // end namespace Osd
 
-}  // end namespace Osd
-
-}  // end namespace OPENSUBDIV_VERSION
+} // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;
 
-}  // end namespace OpenSubdiv
+} // end namespace OpenSubdiv
 
-
-#endif  // OPENSUBDIV3_OSD_CPU_EVALUATOR_H
+#endif // OPENSUBDIV3_OSD_CPU_EVALUATOR_H

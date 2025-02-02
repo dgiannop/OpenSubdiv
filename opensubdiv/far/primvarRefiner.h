@@ -24,42 +24,43 @@
 #ifndef OPENSUBDIV3_FAR_PRIMVAR_REFINER_H
 #define OPENSUBDIV3_FAR_PRIMVAR_REFINER_H
 
-#include "../version.h"
+#include <cassert>
 
-#include "../sdc/types.h"
-#include "../sdc/options.h"
-#include "../sdc/bilinearScheme.h"
-#include "../sdc/catmarkScheme.h"
-#include "../sdc/loopScheme.h"
-#include "../vtr/level.h"
-#include "../vtr/fvarLevel.h"
-#include "../vtr/refinement.h"
-#include "../vtr/fvarRefinement.h"
-#include "../vtr/stackBuffer.h"
-#include "../vtr/componentInterfaces.h"
-#include "../far/types.h"
 #include "../far/error.h"
 #include "../far/topologyLevel.h"
 #include "../far/topologyRefiner.h"
+#include "../far/types.h"
+#include "../sdc/bilinearScheme.h"
+#include "../sdc/catmarkScheme.h"
+#include "../sdc/loopScheme.h"
+#include "../sdc/options.h"
+#include "../sdc/types.h"
+#include "../version.h"
+#include "../vtr/componentInterfaces.h"
+#include "../vtr/fvarLevel.h"
+#include "../vtr/fvarRefinement.h"
+#include "../vtr/level.h"
+#include "../vtr/refinement.h"
+#include "../vtr/stackBuffer.h"
 
-#include <cassert>
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Far {
+namespace Far
+{
 
 ///
 ///  \brief Applies refinement operations to generic primvar data.
 ///
-template <typename REAL>
-class PrimvarRefinerReal {
+template <typename REAL> class PrimvarRefinerReal
+{
+  public:
+    PrimvarRefinerReal(TopologyRefiner const &refiner) : _refiner(refiner) {}
+    ~PrimvarRefinerReal() {}
 
-public:
-    PrimvarRefinerReal(TopologyRefiner const & refiner) : _refiner(refiner) { }
-    ~PrimvarRefinerReal() { }
-
-    TopologyRefiner const & GetTopologyRefiner() const { return _refiner; }
+    TopologyRefiner const &GetTopologyRefiner() const { return _refiner; }
 
     //@{
     ///  @name Primvar data interpolation
@@ -110,7 +111,7 @@ public:
     ///
     /// @param dst    Destination primvar buffer (\ref templating refined vertex data)
     ///
-    template <class T, class U> void Interpolate(int level, T const & src, U & dst) const;
+    template <class T, class U> void Interpolate(int level, T const &src, U &dst) const;
 
     /// \brief Apply only varying interpolation weights to a primvar buffer
     ///        for a single level of refinement.
@@ -127,7 +128,7 @@ public:
     ///
     /// @param dst    Destination primvar buffer (\ref templating refined vertex data)
     ///
-    template <class T, class U> void InterpolateVarying(int level, T const & src, U & dst) const;
+    template <class T, class U> void InterpolateVarying(int level, T const &src, U &dst) const;
 
     /// \brief Refine uniform (per-face) primvar data between levels.
     ///
@@ -145,7 +146,7 @@ public:
     ///
     /// @param dst    Destination primvar buffer
     ///
-    template <class T, class U> void InterpolateFaceUniform(int level, T const & src, U & dst) const;
+    template <class T, class U> void InterpolateFaceUniform(int level, T const &src, U &dst) const;
 
     /// \brief Apply face-varying interpolation weights to a primvar buffer
     ///        associated with a particular face-varying channel.
@@ -158,8 +159,7 @@ public:
     /// The destination buffer must allocate an array of data for all the refined values,
     /// i.e. at least refiner.GetLevel(level).GetNumFVarValues(channel).
     ///
-    template <class T, class U> void InterpolateFaceVarying(int level, T const & src, U & dst, int channel = 0) const;
-
+    template <class T, class U> void InterpolateFaceVarying(int level, T const &src, U &dst, int channel = 0) const;
 
     /// \brief Apply limit weights to a primvar buffer
     ///
@@ -172,21 +172,20 @@ public:
     ///
     /// @param dstPos  Destination primvar buffer (data at the limit)
     ///
-    template <class T, class U> void Limit(T const & src, U & dstPos) const;
+    template <class T, class U> void Limit(T const &src, U &dstPos) const;
 
-    template <class T, class U, class U1, class U2>
-    void Limit(T const & src, U & dstPos, U1 & dstTan1, U2 & dstTan2) const;
+    template <class T, class U, class U1, class U2> void Limit(T const &src, U &dstPos, U1 &dstTan1, U2 &dstTan2) const;
 
-    template <class T, class U> void LimitFaceVarying(T const & src, U & dst, int channel = 0) const;
+    template <class T, class U> void LimitFaceVarying(T const &src, U &dst, int channel = 0) const;
 
     //@}
 
-private:
+  private:
     typedef REAL Weight;
 
     //  Non-copyable:
-    PrimvarRefinerReal(PrimvarRefinerReal const & src) : _refiner(src._refiner) { }
-    PrimvarRefinerReal & operator=(PrimvarRefinerReal const &) { return *this; }
+    PrimvarRefinerReal(PrimvarRefinerReal const &src) : _refiner(src._refiner) {}
+    PrimvarRefinerReal &operator=(PrimvarRefinerReal const &) { return *this; }
 
     template <Sdc::SchemeType SCHEME, class T, class U> void interpFromFaces(int, T const &, U &) const;
     template <Sdc::SchemeType SCHEME, class T, class U> void interpFromEdges(int, T const &, U &) const;
@@ -196,56 +195,51 @@ private:
     template <Sdc::SchemeType SCHEME, class T, class U> void interpFVarFromEdges(int, T const &, U &, int) const;
     template <Sdc::SchemeType SCHEME, class T, class U> void interpFVarFromVerts(int, T const &, U &, int) const;
 
-    template <Sdc::SchemeType SCHEME, class T, class U, class U1, class U2>
-    void limit(T const & src, U & pos, U1 * tan1, U2 * tan2) const;
+    template <Sdc::SchemeType SCHEME, class T, class U, class U1, class U2> void limit(T const &src, U &pos, U1 *tan1, U2 *tan2) const;
 
-    template <Sdc::SchemeType SCHEME, class T, class U>
-    void limitFVar(T const & src, U & dst, int channel) const;
+    template <Sdc::SchemeType SCHEME, class T, class U> void limitFVar(T const &src, U &dst, int channel) const;
 
-private:
-    TopologyRefiner const &  _refiner;
+  private:
+    TopologyRefiner const &_refiner;
 
-private:
+  private:
     //
     //  Local class to fulfill interface for <typename MASK> in the Scheme mask queries:
     //
-    class Mask {
-    public:
-        typedef REAL Weight;  //  Also part of the expected interface
+    class Mask
+    {
+      public:
+        typedef REAL Weight; //  Also part of the expected interface
 
-    public:
-        Mask(Weight* v, Weight* e, Weight* f) : 
-            _vertWeights(v), _edgeWeights(e), _faceWeights(f),
-            _vertCount(0), _edgeCount(0), _faceCount(0), 
-            _faceWeightsForFaceCenters(false)
-        { }
+      public:
+        Mask(Weight *v, Weight *e, Weight *f) : _vertWeights(v), _edgeWeights(e), _faceWeights(f), _vertCount(0), _edgeCount(0), _faceCount(0), _faceWeightsForFaceCenters(false) {}
 
-        ~Mask() { }
+        ~Mask() {}
 
-    public:  //  Generic interface expected of <typename MASK>:
+      public: //  Generic interface expected of <typename MASK>:
         int GetNumVertexWeights() const { return _vertCount; }
-        int GetNumEdgeWeights()   const { return _edgeCount; }
-        int GetNumFaceWeights()   const { return _faceCount; }
+        int GetNumEdgeWeights() const { return _edgeCount; }
+        int GetNumFaceWeights() const { return _faceCount; }
 
         void SetNumVertexWeights(int count) { _vertCount = count; }
-        void SetNumEdgeWeights(  int count) { _edgeCount = count; }
-        void SetNumFaceWeights(  int count) { _faceCount = count; }
+        void SetNumEdgeWeights(int count) { _edgeCount = count; }
+        void SetNumFaceWeights(int count) { _faceCount = count; }
 
-        Weight const& VertexWeight(int index) const { return _vertWeights[index]; }
-        Weight const& EdgeWeight(  int index) const { return _edgeWeights[index]; }
-        Weight const& FaceWeight(  int index) const { return _faceWeights[index]; }
+        Weight const &VertexWeight(int index) const { return _vertWeights[index]; }
+        Weight const &EdgeWeight(int index) const { return _edgeWeights[index]; }
+        Weight const &FaceWeight(int index) const { return _faceWeights[index]; }
 
-        Weight& VertexWeight(int index) { return _vertWeights[index]; }
-        Weight& EdgeWeight(  int index) { return _edgeWeights[index]; }
-        Weight& FaceWeight(  int index) { return _faceWeights[index]; }
+        Weight &VertexWeight(int index) { return _vertWeights[index]; }
+        Weight &EdgeWeight(int index) { return _edgeWeights[index]; }
+        Weight &FaceWeight(int index) { return _faceWeights[index]; }
 
-        bool AreFaceWeightsForFaceCenters() const  { return _faceWeightsForFaceCenters; }
+        bool AreFaceWeightsForFaceCenters() const { return _faceWeightsForFaceCenters; }
         void SetFaceWeightsForFaceCenters(bool on) { _faceWeightsForFaceCenters = on; }
 
-    private:
-        Weight* _vertWeights;
-        Weight* _edgeWeights;
-        Weight* _faceWeights;
+      private:
+        Weight *_vertWeights;
+        Weight *_edgeWeights;
+        Weight *_faceWeights;
 
         int _vertCount;
         int _edgeCount;
@@ -255,20 +249,17 @@ private:
     };
 };
 
-
 //
 //  Public entry points to the methods.  Queries of the scheme type and its
 //  use as a template parameter in subsequent implementation will be factored
 //  out of a later release:
 //
-template <typename REAL>
-template <class T, class U>
-inline void
-PrimvarRefinerReal<REAL>::Interpolate(int level, T const & src, U & dst) const {
+template <typename REAL> template <class T, class U> inline void PrimvarRefinerReal<REAL>::Interpolate(int level, T const &src, U &dst) const
+{
+    assert(level > 0 && level <= (int)_refiner._refinements.size());
 
-    assert(level>0 && level<=(int)_refiner._refinements.size());
-
-    switch (_refiner._subdivType) {
+    switch (_refiner._subdivType)
+    {
     case Sdc::SCHEME_CATMARK:
         interpFromFaces<Sdc::SCHEME_CATMARK>(level, src, dst);
         interpFromEdges<Sdc::SCHEME_CATMARK>(level, src, dst);
@@ -287,14 +278,12 @@ PrimvarRefinerReal<REAL>::Interpolate(int level, T const & src, U & dst) const {
     }
 }
 
-template <typename REAL>
-template <class T, class U>
-inline void
-PrimvarRefinerReal<REAL>::InterpolateFaceVarying(int level, T const & src, U & dst, int channel) const {
+template <typename REAL> template <class T, class U> inline void PrimvarRefinerReal<REAL>::InterpolateFaceVarying(int level, T const &src, U &dst, int channel) const
+{
+    assert(level > 0 && level <= (int)_refiner._refinements.size());
 
-    assert(level>0 && level<=(int)_refiner._refinements.size());
-
-    switch (_refiner._subdivType) {
+    switch (_refiner._subdivType)
+    {
     case Sdc::SCHEME_CATMARK:
         interpFVarFromFaces<Sdc::SCHEME_CATMARK>(level, src, dst, channel);
         interpFVarFromEdges<Sdc::SCHEME_CATMARK>(level, src, dst, channel);
@@ -313,44 +302,40 @@ PrimvarRefinerReal<REAL>::InterpolateFaceVarying(int level, T const & src, U & d
     }
 }
 
-template <typename REAL>
-template <class T, class U>
-inline void
-PrimvarRefinerReal<REAL>::Limit(T const & src, U & dst) const {
-
-    if (_refiner.getLevel(_refiner.GetMaxLevel()).getNumVertexEdgesTotal() == 0) {
-        Error(FAR_RUNTIME_ERROR,
-            "Failure in PrimvarRefiner::Limit() -- "
-            "last level of refinement does not include full topology.");
+template <typename REAL> template <class T, class U> inline void PrimvarRefinerReal<REAL>::Limit(T const &src, U &dst) const
+{
+    if (_refiner.getLevel(_refiner.GetMaxLevel()).getNumVertexEdgesTotal() == 0)
+    {
+        Error(FAR_RUNTIME_ERROR, "Failure in PrimvarRefiner::Limit() -- "
+                                 "last level of refinement does not include full topology.");
         return;
     }
 
-    switch (_refiner._subdivType) {
+    switch (_refiner._subdivType)
+    {
     case Sdc::SCHEME_CATMARK:
-        limit<Sdc::SCHEME_CATMARK>(src, dst, (U*)0, (U*)0);
+        limit<Sdc::SCHEME_CATMARK>(src, dst, (U *)0, (U *)0);
         break;
     case Sdc::SCHEME_LOOP:
-        limit<Sdc::SCHEME_LOOP>(src, dst, (U*)0, (U*)0);
+        limit<Sdc::SCHEME_LOOP>(src, dst, (U *)0, (U *)0);
         break;
     case Sdc::SCHEME_BILINEAR:
-        limit<Sdc::SCHEME_BILINEAR>(src, dst, (U*)0, (U*)0);
+        limit<Sdc::SCHEME_BILINEAR>(src, dst, (U *)0, (U *)0);
         break;
     }
 }
 
-template <typename REAL>
-template <class T, class U, class U1, class U2>
-inline void
-PrimvarRefinerReal<REAL>::Limit(T const & src, U & dstPos, U1 & dstTan1, U2 & dstTan2) const {
-
-    if (_refiner.getLevel(_refiner.GetMaxLevel()).getNumVertexEdgesTotal() == 0) {
-        Error(FAR_RUNTIME_ERROR,
-            "Failure in PrimvarRefiner::Limit() -- "
-            "last level of refinement does not include full topology.");
+template <typename REAL> template <class T, class U, class U1, class U2> inline void PrimvarRefinerReal<REAL>::Limit(T const &src, U &dstPos, U1 &dstTan1, U2 &dstTan2) const
+{
+    if (_refiner.getLevel(_refiner.GetMaxLevel()).getNumVertexEdgesTotal() == 0)
+    {
+        Error(FAR_RUNTIME_ERROR, "Failure in PrimvarRefiner::Limit() -- "
+                                 "last level of refinement does not include full topology.");
         return;
     }
 
-    switch (_refiner._subdivType) {
+    switch (_refiner._subdivType)
+    {
     case Sdc::SCHEME_CATMARK:
         limit<Sdc::SCHEME_CATMARK>(src, dstPos, &dstTan1, &dstTan2);
         break;
@@ -363,19 +348,17 @@ PrimvarRefinerReal<REAL>::Limit(T const & src, U & dstPos, U1 & dstTan1, U2 & ds
     }
 }
 
-template <typename REAL>
-template <class T, class U>
-inline void
-PrimvarRefinerReal<REAL>::LimitFaceVarying(T const & src, U & dst, int channel) const {
-
-    if (_refiner.getLevel(_refiner.GetMaxLevel()).getNumVertexEdgesTotal() == 0) {
-        Error(FAR_RUNTIME_ERROR,
-            "Failure in PrimvarRefiner::LimitFaceVarying() -- "
-            "last level of refinement does not include full topology.");
+template <typename REAL> template <class T, class U> inline void PrimvarRefinerReal<REAL>::LimitFaceVarying(T const &src, U &dst, int channel) const
+{
+    if (_refiner.getLevel(_refiner.GetMaxLevel()).getNumVertexEdgesTotal() == 0)
+    {
+        Error(FAR_RUNTIME_ERROR, "Failure in PrimvarRefiner::LimitFaceVarying() -- "
+                                 "last level of refinement does not include full topology.");
         return;
     }
 
-    switch (_refiner._subdivType) {
+    switch (_refiner._subdivType)
+    {
     case Sdc::SCHEME_CATMARK:
         limitFVar<Sdc::SCHEME_CATMARK>(src, dst, channel);
         break;
@@ -388,62 +371,57 @@ PrimvarRefinerReal<REAL>::LimitFaceVarying(T const & src, U & dst, int channel) 
     }
 }
 
-template <typename REAL>
-template <class T, class U>
-inline void
-PrimvarRefinerReal<REAL>::InterpolateFaceUniform(int level, T const & src, U & dst) const {
+template <typename REAL> template <class T, class U> inline void PrimvarRefinerReal<REAL>::InterpolateFaceUniform(int level, T const &src, U &dst) const
+{
+    assert(level > 0 && level <= (int)_refiner._refinements.size());
 
-    assert(level>0 && level<=(int)_refiner._refinements.size());
+    Vtr::internal::Refinement const &refinement = _refiner.getRefinement(level - 1);
+    Vtr::internal::Level const &     child      = refinement.child();
 
-    Vtr::internal::Refinement const & refinement = _refiner.getRefinement(level-1);
-    Vtr::internal::Level const & child = refinement.child();
-
-    for (int cFace = 0; cFace < child.getNumFaces(); ++cFace) {
-
+    for (int cFace = 0; cFace < child.getNumFaces(); ++cFace)
+    {
         Vtr::Index pFace = refinement.getChildFaceParentFace(cFace);
 
         dst[cFace] = src[pFace];
     }
 }
 
-template <typename REAL>
-template <class T, class U>
-inline void
-PrimvarRefinerReal<REAL>::InterpolateVarying(int level, T const & src, U & dst) const {
+template <typename REAL> template <class T, class U> inline void PrimvarRefinerReal<REAL>::InterpolateVarying(int level, T const &src, U &dst) const
+{
+    assert(level > 0 && level <= (int)_refiner._refinements.size());
 
-    assert(level>0 && level<=(int)_refiner._refinements.size());
-
-    Vtr::internal::Refinement const & refinement = _refiner.getRefinement(level-1);
-    Vtr::internal::Level const &      parent     = refinement.parent();
+    Vtr::internal::Refinement const &refinement = _refiner.getRefinement(level - 1);
+    Vtr::internal::Level const &     parent     = refinement.parent();
 
     //
     //  Group values to interpolate based on origin -- note that there may
     //  be none originating from faces:
     //
-    if (refinement.getNumChildVerticesFromFaces() > 0) {
-
-        for (int face = 0; face < parent.getNumFaces(); ++face) {
-
+    if (refinement.getNumChildVerticesFromFaces() > 0)
+    {
+        for (int face = 0; face < parent.getNumFaces(); ++face)
+        {
             Vtr::Index cVert = refinement.getFaceChildVertex(face);
-            if (Vtr::IndexIsValid(cVert)) {
-
+            if (Vtr::IndexIsValid(cVert))
+            {
                 //  Apply the weights to the parent face's vertices:
                 ConstIndexArray fVerts = parent.getFaceVertices(face);
 
-                Weight fVaryingWeight = 1.0f / (Weight) fVerts.size();
+                Weight fVaryingWeight = 1.0f / (Weight)fVerts.size();
 
                 dst[cVert].Clear();
-                for (int i = 0; i < fVerts.size(); ++i) {
+                for (int i = 0; i < fVerts.size(); ++i)
+                {
                     dst[cVert].AddWithWeight(src[fVerts[i]], fVaryingWeight);
                 }
             }
         }
     }
-    for (int edge = 0; edge < parent.getNumEdges(); ++edge) {
-
+    for (int edge = 0; edge < parent.getNumEdges(); ++edge)
+    {
         Vtr::Index cVert = refinement.getEdgeChildVertex(edge);
-        if (Vtr::IndexIsValid(cVert)) {
-
+        if (Vtr::IndexIsValid(cVert))
+        {
             //  Apply the weights to the parent edges's vertices
             ConstIndexArray eVerts = parent.getEdgeVertices(edge);
 
@@ -452,11 +430,11 @@ PrimvarRefinerReal<REAL>::InterpolateVarying(int level, T const & src, U & dst) 
             dst[cVert].AddWithWeight(src[eVerts[1]], 0.5f);
         }
     }
-    for (int vert = 0; vert < parent.getNumVertices(); ++vert) {
-
+    for (int vert = 0; vert < parent.getNumVertices(); ++vert)
+    {
         Vtr::Index cVert = refinement.getVertexChildVertex(vert);
-        if (Vtr::IndexIsValid(cVert)) {
-
+        if (Vtr::IndexIsValid(cVert))
+        {
             //  Essentially copy the parent vertex:
             dst[cVert].Clear();
             dst[cVert].AddWithWeight(src[vert], 1.0f);
@@ -464,27 +442,24 @@ PrimvarRefinerReal<REAL>::InterpolateVarying(int level, T const & src, U & dst) 
     }
 }
 
-
 //
 //  Internal implementation methods -- grouping vertices to be interpolated
 //  based on the type of parent component from which they originated:
 //
-template <typename REAL>
-template <Sdc::SchemeType SCHEME, class T, class U>
-inline void
-PrimvarRefinerReal<REAL>::interpFromFaces(int level, T const & src, U & dst) const {
+template <typename REAL> template <Sdc::SchemeType SCHEME, class T, class U> inline void PrimvarRefinerReal<REAL>::interpFromFaces(int level, T const &src, U &dst) const
+{
+    Vtr::internal::Refinement const &refinement = _refiner.getRefinement(level - 1);
+    Vtr::internal::Level const &     parent     = refinement.parent();
 
-    Vtr::internal::Refinement const & refinement = _refiner.getRefinement(level-1);
-    Vtr::internal::Level const &      parent     = refinement.parent();
-
-    if (refinement.getNumChildVerticesFromFaces() == 0) return;
+    if (refinement.getNumChildVerticesFromFaces() == 0)
+        return;
 
     Sdc::Scheme<SCHEME> scheme(_refiner._subdivOptions);
 
-    Vtr::internal::StackBuffer<Weight,16> fVertWeights(parent.getMaxValence());
+    Vtr::internal::StackBuffer<Weight, 16> fVertWeights(parent.getMaxValence());
 
-    for (int face = 0; face < parent.getNumFaces(); ++face) {
-
+    for (int face = 0; face < parent.getNumFaces(); ++face)
+    {
         Vtr::Index cVert = refinement.getFaceChildVertex(face);
         if (!Vtr::IndexIsValid(cVert))
             continue;
@@ -492,7 +467,7 @@ PrimvarRefinerReal<REAL>::interpFromFaces(int level, T const & src, U & dst) con
         //  Declare and compute mask weights for this vertex relative to its parent face:
         ConstIndexArray fVerts = parent.getFaceVertices(face);
 
-        Mask fMask(fVertWeights, 0, 0);
+        Mask                         fMask(fVertWeights, 0, 0);
         Vtr::internal::FaceInterface fHood(fVerts.size());
 
         scheme.ComputeFaceVertexMask(fHood, fMask);
@@ -500,38 +475,34 @@ PrimvarRefinerReal<REAL>::interpFromFaces(int level, T const & src, U & dst) con
         //  Apply the weights to the parent face's vertices:
         dst[cVert].Clear();
 
-        for (int i = 0; i < fVerts.size(); ++i) {
-
+        for (int i = 0; i < fVerts.size(); ++i)
+        {
             dst[cVert].AddWithWeight(src[fVerts[i]], fVertWeights[i]);
         }
     }
 }
 
-template <typename REAL>
-template <Sdc::SchemeType SCHEME, class T, class U>
-inline void
-PrimvarRefinerReal<REAL>::interpFromEdges(int level, T const & src, U & dst) const {
-
-    Vtr::internal::Refinement const & refinement = _refiner.getRefinement(level-1);
-    Vtr::internal::Level const &      parent     = refinement.parent();
-    Vtr::internal::Level const &      child      = refinement.child();
+template <typename REAL> template <Sdc::SchemeType SCHEME, class T, class U> inline void PrimvarRefinerReal<REAL>::interpFromEdges(int level, T const &src, U &dst) const
+{
+    Vtr::internal::Refinement const &refinement = _refiner.getRefinement(level - 1);
+    Vtr::internal::Level const &     parent     = refinement.parent();
+    Vtr::internal::Level const &     child      = refinement.child();
 
     Sdc::Scheme<SCHEME> scheme(_refiner._subdivOptions);
 
     Vtr::internal::EdgeInterface eHood(parent);
 
-    Weight                               eVertWeights[2];
-    Vtr::internal::StackBuffer<Weight,8> eFaceWeights(parent.getMaxEdgeFaces());
+    Weight                                eVertWeights[2];
+    Vtr::internal::StackBuffer<Weight, 8> eFaceWeights(parent.getMaxEdgeFaces());
 
-    for (int edge = 0; edge < parent.getNumEdges(); ++edge) {
-
+    for (int edge = 0; edge < parent.getNumEdges(); ++edge)
+    {
         Vtr::Index cVert = refinement.getEdgeChildVertex(edge);
         if (!Vtr::IndexIsValid(cVert))
             continue;
 
         //  Declare and compute mask weights for this vertex relative to its parent edge:
-        ConstIndexArray eVerts = parent.getEdgeVertices(edge),
-                        eFaces = parent.getEdgeFaces(edge);
+        ConstIndexArray eVerts = parent.getEdgeVertices(edge), eFaces = parent.getEdgeFaces(edge);
 
         Mask eMask(eVertWeights, 0, eFaceWeights);
 
@@ -548,26 +519,30 @@ PrimvarRefinerReal<REAL>::interpFromEdges(int level, T const & src, U & dst) con
         dst[cVert].AddWithWeight(src[eVerts[0]], eVertWeights[0]);
         dst[cVert].AddWithWeight(src[eVerts[1]], eVertWeights[1]);
 
-        if (eMask.GetNumFaceWeights() > 0) {
-
-            for (int i = 0; i < eFaces.size(); ++i) {
-
-                if (eMask.AreFaceWeightsForFaceCenters()) {
+        if (eMask.GetNumFaceWeights() > 0)
+        {
+            for (int i = 0; i < eFaces.size(); ++i)
+            {
+                if (eMask.AreFaceWeightsForFaceCenters())
+                {
                     assert(refinement.getNumChildVerticesFromFaces() > 0);
                     Vtr::Index cVertOfFace = refinement.getFaceChildVertex(eFaces[i]);
 
                     assert(Vtr::IndexIsValid(cVertOfFace));
                     dst[cVert].AddWithWeight(dst[cVertOfFace], eFaceWeights[i]);
-                } else {
-                    Vtr::Index            pFace      = eFaces[i];
-                    ConstIndexArray pFaceEdges = parent.getFaceEdges(pFace),
-                                    pFaceVerts = parent.getFaceVertices(pFace);
+                }
+                else
+                {
+                    Vtr::Index      pFace      = eFaces[i];
+                    ConstIndexArray pFaceEdges = parent.getFaceEdges(pFace), pFaceVerts = parent.getFaceVertices(pFace);
 
                     int eInFace = 0;
-                    for ( ; pFaceEdges[eInFace] != edge; ++eInFace ) ;
+                    for (; pFaceEdges[eInFace] != edge; ++eInFace)
+                        ;
 
                     int vInFace = eInFace + 2;
-                    if (vInFace >= pFaceVerts.size()) vInFace -= pFaceVerts.size();
+                    if (vInFace >= pFaceVerts.size())
+                        vInFace -= pFaceVerts.size();
 
                     Vtr::Index pVertNext = pFaceVerts[vInFace];
                     dst[cVert].AddWithWeight(src[pVertNext], eFaceWeights[i]);
@@ -577,34 +552,28 @@ PrimvarRefinerReal<REAL>::interpFromEdges(int level, T const & src, U & dst) con
     }
 }
 
-template <typename REAL>
-template <Sdc::SchemeType SCHEME, class T, class U>
-inline void
-PrimvarRefinerReal<REAL>::interpFromVerts(int level, T const & src, U & dst) const {
-
-    Vtr::internal::Refinement const & refinement = _refiner.getRefinement(level-1);
-    Vtr::internal::Level const &      parent     = refinement.parent();
-    Vtr::internal::Level const &      child      = refinement.child();
+template <typename REAL> template <Sdc::SchemeType SCHEME, class T, class U> inline void PrimvarRefinerReal<REAL>::interpFromVerts(int level, T const &src, U &dst) const
+{
+    Vtr::internal::Refinement const &refinement = _refiner.getRefinement(level - 1);
+    Vtr::internal::Level const &     parent     = refinement.parent();
+    Vtr::internal::Level const &     child      = refinement.child();
 
     Sdc::Scheme<SCHEME> scheme(_refiner._subdivOptions);
 
     Vtr::internal::VertexInterface vHood(parent, child);
 
-    Vtr::internal::StackBuffer<Weight,32> weightBuffer(2*parent.getMaxValence());
+    Vtr::internal::StackBuffer<Weight, 32> weightBuffer(2 * parent.getMaxValence());
 
-    for (int vert = 0; vert < parent.getNumVertices(); ++vert) {
-
+    for (int vert = 0; vert < parent.getNumVertices(); ++vert)
+    {
         Vtr::Index cVert = refinement.getVertexChildVertex(vert);
         if (!Vtr::IndexIsValid(cVert))
             continue;
 
         //  Declare and compute mask weights for this vertex relative to its parent edge:
-        ConstIndexArray vEdges = parent.getVertexEdges(vert),
-                        vFaces = parent.getVertexFaces(vert);
+        ConstIndexArray vEdges = parent.getVertexEdges(vert), vFaces = parent.getVertexFaces(vert);
 
-        Weight   vVertWeight,
-               * vEdgeWeights = weightBuffer,
-               * vFaceWeights = vEdgeWeights + vEdges.size();
+        Weight vVertWeight, *vEdgeWeights = weightBuffer, *vFaceWeights = vEdgeWeights + vEdges.size();
 
         Mask vMask(&vVertWeight, vEdgeWeights, vFaceWeights);
 
@@ -623,22 +592,23 @@ PrimvarRefinerReal<REAL>::interpFromVerts(int level, T const & src, U & dst) con
         //  vertex weight last.
         dst[cVert].Clear();
 
-        if (vMask.GetNumFaceWeights() > 0) {
+        if (vMask.GetNumFaceWeights() > 0)
+        {
             assert(vMask.AreFaceWeightsForFaceCenters());
 
-            for (int i = 0; i < vFaces.size(); ++i) {
-
+            for (int i = 0; i < vFaces.size(); ++i)
+            {
                 Vtr::Index cVertOfFace = refinement.getFaceChildVertex(vFaces[i]);
                 assert(Vtr::IndexIsValid(cVertOfFace));
                 dst[cVert].AddWithWeight(dst[cVertOfFace], vFaceWeights[i]);
             }
         }
-        if (vMask.GetNumEdgeWeights() > 0) {
-
-            for (int i = 0; i < vEdges.size(); ++i) {
-
-                ConstIndexArray eVerts = parent.getEdgeVertices(vEdges[i]);
-                Vtr::Index pVertOppositeEdge = (eVerts[0] == vert) ? eVerts[1] : eVerts[0];
+        if (vMask.GetNumEdgeWeights() > 0)
+        {
+            for (int i = 0; i < vEdges.size(); ++i)
+            {
+                ConstIndexArray eVerts            = parent.getEdgeVertices(vEdges[i]);
+                Vtr::Index      pVertOppositeEdge = (eVerts[0] == vert) ? eVerts[1] : eVerts[0];
 
                 dst[cVert].AddWithWeight(src[pVertOppositeEdge], vEdgeWeights[i]);
             }
@@ -647,31 +617,28 @@ PrimvarRefinerReal<REAL>::interpFromVerts(int level, T const & src, U & dst) con
     }
 }
 
-
 //
 // Internal face-varying implementation details:
 //
-template <typename REAL>
-template <Sdc::SchemeType SCHEME, class T, class U>
-inline void
-PrimvarRefinerReal<REAL>::interpFVarFromFaces(int level, T const & src, U & dst, int channel) const {
+template <typename REAL> template <Sdc::SchemeType SCHEME, class T, class U> inline void PrimvarRefinerReal<REAL>::interpFVarFromFaces(int level, T const &src, U &dst, int channel) const
+{
+    Vtr::internal::Refinement const &refinement = _refiner.getRefinement(level - 1);
 
-    Vtr::internal::Refinement const & refinement = _refiner.getRefinement(level-1);
-
-    if (refinement.getNumChildVerticesFromFaces() == 0) return;
+    if (refinement.getNumChildVerticesFromFaces() == 0)
+        return;
 
     Sdc::Scheme<SCHEME> scheme(_refiner._subdivOptions);
 
-    Vtr::internal::Level const & parentLevel = refinement.parent();
-    Vtr::internal::Level const & childLevel  = refinement.child();
+    Vtr::internal::Level const &parentLevel = refinement.parent();
+    Vtr::internal::Level const &childLevel  = refinement.child();
 
-    Vtr::internal::FVarLevel const & parentFVar = parentLevel.getFVarLevel(channel);
-    Vtr::internal::FVarLevel const & childFVar  = childLevel.getFVarLevel(channel);
+    Vtr::internal::FVarLevel const &parentFVar = parentLevel.getFVarLevel(channel);
+    Vtr::internal::FVarLevel const &childFVar  = childLevel.getFVarLevel(channel);
 
-    Vtr::internal::StackBuffer<Weight,16> fValueWeights(parentLevel.getMaxValence());
+    Vtr::internal::StackBuffer<Weight, 16> fValueWeights(parentLevel.getMaxValence());
 
-    for (int face = 0; face < parentLevel.getNumFaces(); ++face) {
-
+    for (int face = 0; face < parentLevel.getNumFaces(); ++face)
+    {
         Vtr::Index cVert = refinement.getFaceChildVertex(face);
         if (!Vtr::IndexIsValid(cVert))
             continue;
@@ -686,7 +653,7 @@ PrimvarRefinerReal<REAL>::interpFVarFromFaces(int level, T const & src, U & dst,
         //  Declare and compute mask weights for this vertex relative to its parent face:
         ConstIndexArray fValues = parentFVar.getFaceValues(face);
 
-        Mask fMask(fValueWeights, 0, 0);
+        Mask                         fMask(fValueWeights, 0, 0);
         Vtr::internal::FaceInterface fHood(fValues.size());
 
         scheme.ComputeFaceVertexMask(fHood, fMask);
@@ -694,39 +661,38 @@ PrimvarRefinerReal<REAL>::interpFVarFromFaces(int level, T const & src, U & dst,
         //  Apply the weights to the parent face's vertices:
         dst[cVertValue].Clear();
 
-        for (int i = 0; i < fValues.size(); ++i) {
+        for (int i = 0; i < fValues.size(); ++i)
+        {
             dst[cVertValue].AddWithWeight(src[fValues[i]], fValueWeights[i]);
         }
     }
 }
 
-template <typename REAL>
-template <Sdc::SchemeType SCHEME, class T, class U>
-inline void
-PrimvarRefinerReal<REAL>::interpFVarFromEdges(int level, T const & src, U & dst, int channel) const {
-
-    Vtr::internal::Refinement const & refinement = _refiner.getRefinement(level-1);
+template <typename REAL> template <Sdc::SchemeType SCHEME, class T, class U> inline void PrimvarRefinerReal<REAL>::interpFVarFromEdges(int level, T const &src, U &dst, int channel) const
+{
+    Vtr::internal::Refinement const &refinement = _refiner.getRefinement(level - 1);
 
     Sdc::Scheme<SCHEME> scheme(_refiner._subdivOptions);
 
-    Vtr::internal::Level const & parentLevel = refinement.parent();
-    Vtr::internal::Level const & childLevel  = refinement.child();
+    Vtr::internal::Level const &parentLevel = refinement.parent();
+    Vtr::internal::Level const &childLevel  = refinement.child();
 
-    Vtr::internal::FVarRefinement const & refineFVar = refinement.getFVarRefinement(channel);
-    Vtr::internal::FVarLevel const &      parentFVar = parentLevel.getFVarLevel(channel);
-    Vtr::internal::FVarLevel const &      childFVar  = childLevel.getFVarLevel(channel);
+    Vtr::internal::FVarRefinement const &refineFVar = refinement.getFVarRefinement(channel);
+    Vtr::internal::FVarLevel const &     parentFVar = parentLevel.getFVarLevel(channel);
+    Vtr::internal::FVarLevel const &     childFVar  = childLevel.getFVarLevel(channel);
 
     //
     //  Allocate and initialize (if linearly interpolated) interpolation weights for
     //  the edge mask:
     //
-    Weight                               eVertWeights[2];
-    Vtr::internal::StackBuffer<Weight,8> eFaceWeights(parentLevel.getMaxEdgeFaces());
+    Weight                                eVertWeights[2];
+    Vtr::internal::StackBuffer<Weight, 8> eFaceWeights(parentLevel.getMaxEdgeFaces());
 
     Mask eMask(eVertWeights, 0, eFaceWeights);
 
     bool isLinearFVar = parentFVar.isLinear() || (_refiner._subdivType == Sdc::SCHEME_BILINEAR);
-    if (isLinearFVar) {
+    if (isLinearFVar)
+    {
         eMask.SetNumVertexWeights(2);
         eMask.SetNumEdgeWeights(0);
         eMask.SetNumFaceWeights(0);
@@ -737,8 +703,8 @@ PrimvarRefinerReal<REAL>::interpFVarFromEdges(int level, T const & src, U & dst,
 
     Vtr::internal::EdgeInterface eHood(parentLevel);
 
-    for (int edge = 0; edge < parentLevel.getNumEdges(); ++edge) {
-
+    for (int edge = 0; edge < parentLevel.getNumEdges(); ++edge)
+    {
         Vtr::Index cVert = refinement.getEdgeChildVertex(edge);
         if (!Vtr::IndexIsValid(cVert))
             continue;
@@ -746,15 +712,16 @@ PrimvarRefinerReal<REAL>::interpFVarFromEdges(int level, T const & src, U & dst,
         ConstIndexArray cVertValues = childFVar.getVertexValues(cVert);
 
         bool fvarEdgeVertMatchesVertex = childFVar.valueTopologyMatches(cVertValues[0]);
-        if (fvarEdgeVertMatchesVertex) {
+        if (fvarEdgeVertMatchesVertex)
+        {
             //
             //  If smoothly interpolated, compute new weights for the edge mask:
             //
-            if (!isLinearFVar) {
+            if (!isLinearFVar)
+            {
                 eHood.SetIndex(edge);
 
-                Sdc::Crease::Rule pRule = (parentLevel.getEdgeSharpness(edge) > 0.0f)
-                                        ? Sdc::Crease::RULE_CREASE : Sdc::Crease::RULE_SMOOTH;
+                Sdc::Crease::Rule pRule = (parentLevel.getEdgeSharpness(edge) > 0.0f) ? Sdc::Crease::RULE_CREASE : Sdc::Crease::RULE_SMOOTH;
                 Sdc::Crease::Rule cRule = childLevel.getVertexRule(cVert);
 
                 scheme.ComputeEdgeVertexMask(eHood, eMask, pRule, cRule);
@@ -790,36 +757,42 @@ PrimvarRefinerReal<REAL>::interpFVarFromEdges(int level, T const & src, U & dst,
             dst[cVertValue].AddWithWeight(src[eVertValues[0]], eVertWeights[0]);
             dst[cVertValue].AddWithWeight(src[eVertValues[1]], eVertWeights[1]);
 
-            if (eMask.GetNumFaceWeights() > 0) {
+            if (eMask.GetNumFaceWeights() > 0)
+            {
+                ConstIndexArray eFaces = parentLevel.getEdgeFaces(edge);
 
-                ConstIndexArray  eFaces = parentLevel.getEdgeFaces(edge);
-
-                for (int i = 0; i < eFaces.size(); ++i) {
-                    if (eMask.AreFaceWeightsForFaceCenters()) {
-
+                for (int i = 0; i < eFaces.size(); ++i)
+                {
+                    if (eMask.AreFaceWeightsForFaceCenters())
+                    {
                         Vtr::Index cVertOfFace = refinement.getFaceChildVertex(eFaces[i]);
                         assert(Vtr::IndexIsValid(cVertOfFace));
 
                         Vtr::Index cValueOfFace = childFVar.getVertexValueOffset(cVertOfFace);
                         dst[cVertValue].AddWithWeight(dst[cValueOfFace], eFaceWeights[i]);
-                    } else {
-                        Vtr::Index            pFace      = eFaces[i];
-                        ConstIndexArray pFaceEdges = parentLevel.getFaceEdges(pFace),
-                                        pFaceVerts = parentLevel.getFaceVertices(pFace);
+                    }
+                    else
+                    {
+                        Vtr::Index      pFace      = eFaces[i];
+                        ConstIndexArray pFaceEdges = parentLevel.getFaceEdges(pFace), pFaceVerts = parentLevel.getFaceVertices(pFace);
 
                         int eInFace = 0;
-                        for ( ; pFaceEdges[eInFace] != edge; ++eInFace ) ;
+                        for (; pFaceEdges[eInFace] != edge; ++eInFace)
+                            ;
 
                         //  Edge "i" spans vertices [i,i+1] so we want i+2...
                         int vInFace = eInFace + 2;
-                        if (vInFace >= pFaceVerts.size()) vInFace -= pFaceVerts.size();
+                        if (vInFace >= pFaceVerts.size())
+                            vInFace -= pFaceVerts.size();
 
                         Vtr::Index pValueNext = parentFVar.getFaceValues(pFace)[vInFace];
                         dst[cVertValue].AddWithWeight(src[pValueNext], eFaceWeights[i]);
                     }
                 }
             }
-        } else {
+        }
+        else
+        {
             //
             //  Mismatched edge-verts should just be linearly interpolated between the pairs of
             //  values for each sibling of the child edge-vertex -- the question is:  which face
@@ -828,9 +801,10 @@ PrimvarRefinerReal<REAL>::interpFVarFromEdges(int level, T const & src, U & dst,
             //  In the manifold case, the sibling and edge-face indices will correspond.  We
             //  will eventually need to update this to account for > 3 incident faces.
             //
-            for (int i = 0; i < cVertValues.size(); ++i) {
+            for (int i = 0; i < cVertValues.size(); ++i)
+            {
                 Vtr::Index eVertValues[2];
-                int      eFaceIndex = refineFVar.getChildValueParentSource(cVert, i);
+                int        eFaceIndex = refineFVar.getChildValueParentSource(cVert, i);
                 assert(eFaceIndex == i);
 
                 parentFVar.getEdgeFaceValues(edge, eFaceIndex, eVertValues);
@@ -845,47 +819,45 @@ PrimvarRefinerReal<REAL>::interpFVarFromEdges(int level, T const & src, U & dst,
     }
 }
 
-template <typename REAL>
-template <Sdc::SchemeType SCHEME, class T, class U>
-inline void
-PrimvarRefinerReal<REAL>::interpFVarFromVerts(int level, T const & src, U & dst, int channel) const {
-
-    Vtr::internal::Refinement const & refinement = _refiner.getRefinement(level-1);
+template <typename REAL> template <Sdc::SchemeType SCHEME, class T, class U> inline void PrimvarRefinerReal<REAL>::interpFVarFromVerts(int level, T const &src, U &dst, int channel) const
+{
+    Vtr::internal::Refinement const &refinement = _refiner.getRefinement(level - 1);
 
     Sdc::Scheme<SCHEME> scheme(_refiner._subdivOptions);
 
-    Vtr::internal::Level const & parentLevel = refinement.parent();
-    Vtr::internal::Level const & childLevel  = refinement.child();
+    Vtr::internal::Level const &parentLevel = refinement.parent();
+    Vtr::internal::Level const &childLevel  = refinement.child();
 
-    Vtr::internal::FVarRefinement const & refineFVar = refinement.getFVarRefinement(channel);
-    Vtr::internal::FVarLevel const &      parentFVar = parentLevel.getFVarLevel(channel);
-    Vtr::internal::FVarLevel const &      childFVar  = childLevel.getFVarLevel(channel);
+    Vtr::internal::FVarRefinement const &refineFVar = refinement.getFVarRefinement(channel);
+    Vtr::internal::FVarLevel const &     parentFVar = parentLevel.getFVarLevel(channel);
+    Vtr::internal::FVarLevel const &     childFVar  = childLevel.getFVarLevel(channel);
 
     bool isLinearFVar = parentFVar.isLinear() || (_refiner._subdivType == Sdc::SCHEME_BILINEAR);
 
-    Vtr::internal::StackBuffer<Weight,32> weightBuffer(2*parentLevel.getMaxValence());
+    Vtr::internal::StackBuffer<Weight, 32> weightBuffer(2 * parentLevel.getMaxValence());
 
-    Vtr::internal::StackBuffer<Vtr::Index,16> vEdgeValues(parentLevel.getMaxValence());
+    Vtr::internal::StackBuffer<Vtr::Index, 16> vEdgeValues(parentLevel.getMaxValence());
 
     Vtr::internal::VertexInterface vHood(parentLevel, childLevel);
 
-    for (int vert = 0; vert < parentLevel.getNumVertices(); ++vert) {
-
+    for (int vert = 0; vert < parentLevel.getNumVertices(); ++vert)
+    {
         Vtr::Index cVert = refinement.getVertexChildVertex(vert);
         if (!Vtr::IndexIsValid(cVert))
             continue;
 
-        ConstIndexArray pVertValues = parentFVar.getVertexValues(vert),
-                        cVertValues = childFVar.getVertexValues(cVert);
+        ConstIndexArray pVertValues = parentFVar.getVertexValues(vert), cVertValues = childFVar.getVertexValues(cVert);
 
         bool fvarVertVertMatchesVertex = childFVar.valueTopologyMatches(cVertValues[0]);
-        if (isLinearFVar && fvarVertVertMatchesVertex) {
+        if (isLinearFVar && fvarVertVertMatchesVertex)
+        {
             dst[cVertValues[0]].Clear();
             dst[cVertValues[0]].AddWithWeight(src[pVertValues[0]], 1.0f);
             continue;
         }
 
-        if (fvarVertVertMatchesVertex) {
+        if (fvarVertVertMatchesVertex)
+        {
             //
             //  Declare and compute mask weights for this vertex relative to its parent edge:
             //
@@ -894,9 +866,9 @@ PrimvarRefinerReal<REAL>::interpFVarFromVerts(int level, T const & src, U & dst,
             //
             ConstIndexArray vEdges = parentLevel.getVertexEdges(vert);
 
-            Weight   vVertWeight;
-            Weight * vEdgeWeights = weightBuffer;
-            Weight * vFaceWeights = vEdgeWeights + vEdges.size();
+            Weight  vVertWeight;
+            Weight *vEdgeWeights = weightBuffer;
+            Weight *vFaceWeights = vEdgeWeights + vEdges.size();
 
             Mask vMask(&vVertWeight, vEdgeWeights, vFaceWeights);
 
@@ -935,30 +907,34 @@ PrimvarRefinerReal<REAL>::interpFVarFromVerts(int level, T const & src, U & dst,
             Vtr::Index cVertValue = cVertValues[0];
 
             dst[cVertValue].Clear();
-            if (vMask.GetNumFaceWeights() > 0) {
+            if (vMask.GetNumFaceWeights() > 0)
+            {
                 assert(vMask.AreFaceWeightsForFaceCenters());
 
                 ConstIndexArray vFaces = parentLevel.getVertexFaces(vert);
 
-                for (int i = 0; i < vFaces.size(); ++i) {
-
-                    Vtr::Index cVertOfFace  = refinement.getFaceChildVertex(vFaces[i]);
+                for (int i = 0; i < vFaces.size(); ++i)
+                {
+                    Vtr::Index cVertOfFace = refinement.getFaceChildVertex(vFaces[i]);
                     assert(Vtr::IndexIsValid(cVertOfFace));
 
                     Vtr::Index cValueOfFace = childFVar.getVertexValueOffset(cVertOfFace);
                     dst[cVertValue].AddWithWeight(dst[cValueOfFace], vFaceWeights[i]);
                 }
             }
-            if (vMask.GetNumEdgeWeights() > 0) {
-
+            if (vMask.GetNumEdgeWeights() > 0)
+            {
                 parentFVar.getVertexEdgeValues(vert, vEdgeValues);
 
-                for (int i = 0; i < vEdges.size(); ++i) {
+                for (int i = 0; i < vEdges.size(); ++i)
+                {
                     dst[cVertValue].AddWithWeight(src[vEdgeValues[i]], vEdgeWeights[i]);
                 }
             }
             dst[cVertValue].AddWithWeight(src[pVertValue], vVertWeight);
-        } else {
+        }
+        else
+        {
             //
             //  Each FVar value associated with a vertex will be either a corner or a crease,
             //  or potentially in transition from corner to crease:
@@ -969,22 +945,26 @@ PrimvarRefinerReal<REAL>::interpFVarFromVerts(int level, T const & src, U & dst,
             Vtr::internal::FVarLevel::ConstValueTagArray pValueTags = parentFVar.getVertexValueTags(vert);
             Vtr::internal::FVarLevel::ConstValueTagArray cValueTags = childFVar.getVertexValueTags(cVert);
 
-            for (int cSiblingIndex = 0; cSiblingIndex < cVertValues.size(); ++cSiblingIndex) {
+            for (int cSiblingIndex = 0; cSiblingIndex < cVertValues.size(); ++cSiblingIndex)
+            {
                 int pSiblingIndex = refineFVar.getChildValueParentSource(cVert, cSiblingIndex);
                 assert(pSiblingIndex == cSiblingIndex);
 
                 typedef Vtr::internal::FVarLevel::Sibling SiblingIntType;
 
-                SiblingIntType cSibling = (SiblingIntType) cSiblingIndex;
-                SiblingIntType pSibling = (SiblingIntType) pSiblingIndex;
+                SiblingIntType cSibling = (SiblingIntType)cSiblingIndex;
+                SiblingIntType pSibling = (SiblingIntType)pSiblingIndex;
 
                 Vtr::Index pVertValue = pVertValues[pSibling];
                 Vtr::Index cVertValue = cVertValues[cSibling];
 
                 dst[cVertValue].Clear();
-                if (isLinearFVar || cValueTags[cSibling].isCorner()) {
+                if (isLinearFVar || cValueTags[cSibling].isCorner())
+                {
                     dst[cVertValue].AddWithWeight(src[pVertValue], 1.0f);
-                } else {
+                }
+                else
+                {
                     //
                     //  We have either a crease or a transition from corner to crease -- in
                     //  either case, we need the end values for the full/fractional crease:
@@ -1000,10 +980,9 @@ PrimvarRefinerReal<REAL>::interpFVarFromVerts(int level, T const & src, U & dst,
                     //  of the other sibling (dependent-sharp) use the fractional weight from that
                     //  other sibling (should only occur when there are 2):
                     //
-                    if (pValueTags[pSibling].isSemiSharp()) {
-                        Weight wCorner = pValueTags[pSibling].isDepSharp()
-                                      ? refineFVar.getFractionalWeight(vert, !pSibling, cVert, !cSibling)
-                                      : refineFVar.getFractionalWeight(vert, pSibling, cVert, cSibling);
+                    if (pValueTags[pSibling].isSemiSharp())
+                    {
+                        Weight wCorner = pValueTags[pSibling].isDepSharp() ? refineFVar.getFractionalWeight(vert, !pSibling, cVert, !cSibling) : refineFVar.getFractionalWeight(vert, pSibling, cVert, cSibling);
                         Weight wCrease = 1.0f - wCorner;
 
                         vWeight = wCrease * 0.75f + wCorner;
@@ -1018,33 +997,24 @@ PrimvarRefinerReal<REAL>::interpFVarFromVerts(int level, T const & src, U & dst,
     }
 }
 
-template <typename REAL>
-template <Sdc::SchemeType SCHEME, class T, class U, class U1, class U2>
-inline void
-PrimvarRefinerReal<REAL>::limit(T const & src, U & dstPos, U1 * dstTan1Ptr, U2 * dstTan2Ptr) const {
-
+template <typename REAL> template <Sdc::SchemeType SCHEME, class T, class U, class U1, class U2> inline void PrimvarRefinerReal<REAL>::limit(T const &src, U &dstPos, U1 *dstTan1Ptr, U2 *dstTan2Ptr) const
+{
     Sdc::Scheme<SCHEME> scheme(_refiner._subdivOptions);
 
-    Vtr::internal::Level const & level = _refiner.getLevel(_refiner.GetMaxLevel());
+    Vtr::internal::Level const &level = _refiner.getLevel(_refiner.GetMaxLevel());
 
     int  maxWeightsPerMask = 1 + 2 * level.getMaxValence();
-    bool hasTangents = (dstTan1Ptr && dstTan2Ptr);
-    int  numMasks = 1 + (hasTangents ? 2 : 0);
+    bool hasTangents       = (dstTan1Ptr && dstTan2Ptr);
+    int  numMasks          = 1 + (hasTangents ? 2 : 0);
 
-    Vtr::internal::StackBuffer<Index,33> indexBuffer(maxWeightsPerMask);
-    Vtr::internal::StackBuffer<Weight,99> weightBuffer(numMasks * maxWeightsPerMask);
+    Vtr::internal::StackBuffer<Index, 33>  indexBuffer(maxWeightsPerMask);
+    Vtr::internal::StackBuffer<Weight, 99> weightBuffer(numMasks * maxWeightsPerMask);
 
-    Weight * vPosWeights = weightBuffer,
-           * ePosWeights = vPosWeights + 1,
-           * fPosWeights = ePosWeights + level.getMaxValence();
-    Weight * vTan1Weights = vPosWeights + maxWeightsPerMask,
-           * eTan1Weights = ePosWeights + maxWeightsPerMask,
-           * fTan1Weights = fPosWeights + maxWeightsPerMask;
-    Weight * vTan2Weights = vTan1Weights + maxWeightsPerMask,
-           * eTan2Weights = eTan1Weights + maxWeightsPerMask,
-           * fTan2Weights = fTan1Weights + maxWeightsPerMask;
+    Weight *vPosWeights = weightBuffer, *ePosWeights = vPosWeights + 1, *fPosWeights = ePosWeights + level.getMaxValence();
+    Weight *vTan1Weights = vPosWeights + maxWeightsPerMask, *eTan1Weights = ePosWeights + maxWeightsPerMask, *fTan1Weights = fPosWeights + maxWeightsPerMask;
+    Weight *vTan2Weights = vTan1Weights + maxWeightsPerMask, *eTan2Weights = eTan1Weights + maxWeightsPerMask, *fTan2Weights = fTan1Weights + maxWeightsPerMask;
 
-    Mask posMask( vPosWeights,  ePosWeights,  fPosWeights);
+    Mask posMask(vPosWeights, ePosWeights, fPosWeights);
     Mask tan1Mask(vTan1Weights, eTan1Weights, fTan1Weights);
     Mask tan2Mask(vTan2Weights, eTan2Weights, fTan2Weights);
 
@@ -1052,16 +1022,19 @@ PrimvarRefinerReal<REAL>::limit(T const & src, U & dstPos, U1 * dstTan1Ptr, U2 *
     //  this mask type was intended for another purpose.  Consider one for the limit:
     Vtr::internal::VertexInterface vHood(level, level);
 
-    for (int vert = 0; vert < level.getNumVertices(); ++vert) {
+    for (int vert = 0; vert < level.getNumVertices(); ++vert)
+    {
         ConstIndexArray vEdges = level.getVertexEdges(vert);
 
         //  Incomplete vertices (present in sparse refinement) do not have their full
         //  topological neighborhood to determine a proper limit -- just leave the
         //  vertex at the refined location and continue to the next:
-        if (level.getVertexTag(vert)._incomplete || (vEdges.size() == 0)) {
+        if (level.getVertexTag(vert)._incomplete || (vEdges.size() == 0))
+        {
             dstPos[vert].Clear();
             dstPos[vert].AddWithWeight(src[vert], 1.0);
-            if (hasTangents) {
+            if (hasTangents)
+            {
                 (*dstTan1Ptr)[vert].Clear();
                 (*dstTan2Ptr)[vert].Clear();
             }
@@ -1078,9 +1051,12 @@ PrimvarRefinerReal<REAL>::limit(T const & src, U & dstPos, U1 * dstTan1Ptr, U2 *
         //  This is a bit obscure -- child vertex index will be ignored here
         vHood.SetIndex(vert, vert);
 
-        if (hasTangents) {
+        if (hasTangents)
+        {
             scheme.ComputeVertexLimitMask(vHood, posMask, tan1Mask, tan2Mask, vRule);
-        } else {
+        }
+        else
+        {
             scheme.ComputeVertexLimitMask(vHood, posMask, vRule);
         }
 
@@ -1088,23 +1064,27 @@ PrimvarRefinerReal<REAL>::limit(T const & src, U & dstPos, U1 * dstTan1Ptr, U2 *
         //  Gather the neighboring vertices of this vertex -- the vertices opposite its
         //  incident edges, and the opposite vertices of its incident faces:
         //
-        Index * eIndices = indexBuffer;
-        Index * fIndices = indexBuffer + vEdges.size();
+        Index *eIndices = indexBuffer;
+        Index *fIndices = indexBuffer + vEdges.size();
 
-        for (int i = 0; i < vEdges.size(); ++i) {
+        for (int i = 0; i < vEdges.size(); ++i)
+        {
             ConstIndexArray eVerts = level.getEdgeVertices(vEdges[i]);
 
             eIndices[i] = (eVerts[0] == vert) ? eVerts[1] : eVerts[0];
         }
-        if (posMask.GetNumFaceWeights() || (hasTangents && tan1Mask.GetNumFaceWeights())) {
-            ConstIndexArray      vFaces = level.getVertexFaces(vert);
+        if (posMask.GetNumFaceWeights() || (hasTangents && tan1Mask.GetNumFaceWeights()))
+        {
+            ConstIndexArray      vFaces  = level.getVertexFaces(vert);
             ConstLocalIndexArray vInFace = level.getVertexFaceLocalIndices(vert);
 
-            for (int i = 0; i < vFaces.size(); ++i) {
+            for (int i = 0; i < vFaces.size(); ++i)
+            {
                 ConstIndexArray fVerts = level.getFaceVertices(vFaces[i]);
 
                 LocalIndex vOppInFace = (vInFace[i] + 2);
-                if (vOppInFace >= fVerts.size()) vOppInFace -= (LocalIndex)fVerts.size();
+                if (vOppInFace >= fVerts.size())
+                    vOppInFace -= (LocalIndex)fVerts.size();
 
                 fIndices[i] = level.getFaceVertices(vFaces[i])[vOppInFace];
             }
@@ -1117,33 +1097,38 @@ PrimvarRefinerReal<REAL>::limit(T const & src, U & dstPos, U1 * dstTan1Ptr, U2 *
         //  by the edge-weights and the vertex weight last.
         //
         dstPos[vert].Clear();
-        for (int i = 0; i < posMask.GetNumFaceWeights(); ++i) {
+        for (int i = 0; i < posMask.GetNumFaceWeights(); ++i)
+        {
             dstPos[vert].AddWithWeight(src[fIndices[i]], fPosWeights[i]);
         }
-        for (int i = 0; i < posMask.GetNumEdgeWeights(); ++i) {
+        for (int i = 0; i < posMask.GetNumEdgeWeights(); ++i)
+        {
             dstPos[vert].AddWithWeight(src[eIndices[i]], ePosWeights[i]);
         }
         dstPos[vert].AddWithWeight(src[vert], vPosWeights[0]);
 
         //
-        //  Apply the tangent masks -- both will have the same number of weights and 
+        //  Apply the tangent masks -- both will have the same number of weights and
         //  indices (one tangent may be "padded" to accommodate the other), but these
         //  may differ from those of the position:
         //
-        if (hasTangents) {
+        if (hasTangents)
+        {
             assert(tan1Mask.GetNumFaceWeights() == tan2Mask.GetNumFaceWeights());
             assert(tan1Mask.GetNumEdgeWeights() == tan2Mask.GetNumEdgeWeights());
 
-            U1 & dstTan1 = *dstTan1Ptr;
-            U2 & dstTan2 = *dstTan2Ptr;
+            U1 &dstTan1 = *dstTan1Ptr;
+            U2 &dstTan2 = *dstTan2Ptr;
 
             dstTan1[vert].Clear();
             dstTan2[vert].Clear();
-            for (int i = 0; i < tan1Mask.GetNumFaceWeights(); ++i) {
+            for (int i = 0; i < tan1Mask.GetNumFaceWeights(); ++i)
+            {
                 dstTan1[vert].AddWithWeight(src[fIndices[i]], fTan1Weights[i]);
                 dstTan2[vert].AddWithWeight(src[fIndices[i]], fTan2Weights[i]);
             }
-            for (int i = 0; i < tan1Mask.GetNumEdgeWeights(); ++i) {
+            for (int i = 0; i < tan1Mask.GetNumEdgeWeights(); ++i)
+            {
                 dstTan1[vert].AddWithWeight(src[eIndices[i]], eTan1Weights[i]);
                 dstTan2[vert].AddWithWeight(src[eIndices[i]], eTan2Weights[i]);
             }
@@ -1153,26 +1138,23 @@ PrimvarRefinerReal<REAL>::limit(T const & src, U & dstPos, U1 * dstTan1Ptr, U2 *
     }
 }
 
-template <typename REAL>
-template <Sdc::SchemeType SCHEME, class T, class U>
-inline void
-PrimvarRefinerReal<REAL>::limitFVar(T const & src, U & dst, int channel) const {
-
+template <typename REAL> template <Sdc::SchemeType SCHEME, class T, class U> inline void PrimvarRefinerReal<REAL>::limitFVar(T const &src, U &dst, int channel) const
+{
     Sdc::Scheme<SCHEME> scheme(_refiner._subdivOptions);
 
-    Vtr::internal::Level const &      level       = _refiner.getLevel(_refiner.GetMaxLevel());
-    Vtr::internal::FVarLevel const &  fvarChannel = level.getFVarLevel(channel);
+    Vtr::internal::Level const &    level       = _refiner.getLevel(_refiner.GetMaxLevel());
+    Vtr::internal::FVarLevel const &fvarChannel = level.getFVarLevel(channel);
 
     int maxWeightsPerMask = 1 + 2 * level.getMaxValence();
 
-    Vtr::internal::StackBuffer<Weight,33> weightBuffer(maxWeightsPerMask);
-    Vtr::internal::StackBuffer<Index,16> vEdgeBuffer(level.getMaxValence());
+    Vtr::internal::StackBuffer<Weight, 33> weightBuffer(maxWeightsPerMask);
+    Vtr::internal::StackBuffer<Index, 16>  vEdgeBuffer(level.getMaxValence());
 
     //  This is a bit obscure -- assign both parent and child as last level
     Vtr::internal::VertexInterface vHood(level, level);
 
-    for (int vert = 0; vert < level.getNumVertices(); ++vert) {
-
+    for (int vert = 0; vert < level.getNumVertices(); ++vert)
+    {
         ConstIndexArray vEdges  = level.getVertexEdges(vert);
         ConstIndexArray vValues = fvarChannel.getVertexValues(vert);
 
@@ -1183,8 +1165,10 @@ PrimvarRefinerReal<REAL>::limitFVar(T const & src, U & dst, int channel) const {
         //  The same can be done if the face-varying channel is purely linear.
         //
         bool isIncomplete = (level.getVertexTag(vert)._incomplete || (vEdges.size() == 0));
-        if (isIncomplete || fvarChannel.isLinear()) {
-            for (int i = 0; i < vValues.size(); ++i) {
+        if (isIncomplete || fvarChannel.isLinear())
+        {
+            for (int i = 0; i < vValues.size(); ++i)
+            {
                 Vtr::Index vValue = vValues[i];
 
                 dst[vValue].Clear();
@@ -1194,13 +1178,11 @@ PrimvarRefinerReal<REAL>::limitFVar(T const & src, U & dst, int channel) const {
         }
 
         bool fvarVertMatchesVertex = fvarChannel.valueTopologyMatches(vValues[0]);
-        if (fvarVertMatchesVertex) {
-
+        if (fvarVertMatchesVertex)
+        {
             //  Assign the mask weights to the common buffer and compute the mask:
             //
-            Weight * vWeights = weightBuffer,
-                   * eWeights = vWeights + 1,
-                   * fWeights = eWeights + vEdges.size();
+            Weight *vWeights = weightBuffer, *eWeights = vWeights + 1, *fWeights = eWeights + vEdges.size();
 
             Mask vMask(vWeights, eWeights, fWeights);
 
@@ -1214,58 +1196,69 @@ PrimvarRefinerReal<REAL>::limitFVar(T const & src, U & dst, int channel) const {
             Vtr::Index vValue = vValues[0];
 
             dst[vValue].Clear();
-            if (vMask.GetNumFaceWeights() > 0) {
+            if (vMask.GetNumFaceWeights() > 0)
+            {
                 assert(!vMask.AreFaceWeightsForFaceCenters());
 
-                ConstIndexArray      vFaces = level.getVertexFaces(vert);
+                ConstIndexArray      vFaces  = level.getVertexFaces(vert);
                 ConstLocalIndexArray vInFace = level.getVertexFaceLocalIndices(vert);
 
-                for (int i = 0; i < vFaces.size(); ++i) {
+                for (int i = 0; i < vFaces.size(); ++i)
+                {
                     ConstIndexArray faceValues = fvarChannel.getFaceValues(vFaces[i]);
-                    LocalIndex vOppInFace = vInFace[i] + 2;
-                    if (vOppInFace >= faceValues.size()) vOppInFace -= faceValues.size();
+                    LocalIndex      vOppInFace = vInFace[i] + 2;
+                    if (vOppInFace >= faceValues.size())
+                        vOppInFace -= faceValues.size();
 
                     Index vValueOppositeFace = faceValues[vOppInFace];
 
                     dst[vValue].AddWithWeight(src[vValueOppositeFace], fWeights[i]);
                 }
             }
-            if (vMask.GetNumEdgeWeights() > 0) {
-                Index * vEdgeValues = vEdgeBuffer;
+            if (vMask.GetNumEdgeWeights() > 0)
+            {
+                Index *vEdgeValues = vEdgeBuffer;
                 fvarChannel.getVertexEdgeValues(vert, vEdgeValues);
 
-                for (int i = 0; i < vEdges.size(); ++i) {
+                for (int i = 0; i < vEdges.size(); ++i)
+                {
                     dst[vValue].AddWithWeight(src[vEdgeValues[i]], eWeights[i]);
                 }
             }
             dst[vValue].AddWithWeight(src[vValue], vWeights[0]);
-        } else {
+        }
+        else
+        {
             //
             //  Sibling FVar values associated with a vertex will be either a corner or a crease:
             //
-            for (int i = 0; i < vValues.size(); ++i) {
+            for (int i = 0; i < vValues.size(); ++i)
+            {
                 Vtr::Index vValue = vValues[i];
 
                 dst[vValue].Clear();
-                if (fvarChannel.getValueTag(vValue).isCorner()) {
+                if (fvarChannel.getValueTag(vValue).isCorner())
+                {
                     dst[vValue].AddWithWeight(src[vValue], 1.0f);
-                } else {
+                }
+                else
+                {
                     Index vEndValues[2];
                     fvarChannel.getVertexCreaseEndValues(vert, i, vEndValues);
 
-                    dst[vValue].AddWithWeight(src[vEndValues[0]], 1.0f/6.0f);
-                    dst[vValue].AddWithWeight(src[vEndValues[1]], 1.0f/6.0f);
-                    dst[vValue].AddWithWeight(src[vValue], 2.0f/3.0f);
+                    dst[vValue].AddWithWeight(src[vEndValues[0]], 1.0f / 6.0f);
+                    dst[vValue].AddWithWeight(src[vEndValues[1]], 1.0f / 6.0f);
+                    dst[vValue].AddWithWeight(src[vValue], 2.0f / 3.0f);
                 }
             }
         }
     }
 }
 
-class PrimvarRefiner : public PrimvarRefinerReal<float> {
-public:
-    PrimvarRefiner(TopologyRefiner const & refiner)
-        : PrimvarRefinerReal<float>(refiner) { }
+class PrimvarRefiner : public PrimvarRefinerReal<float>
+{
+  public:
+    PrimvarRefiner(TopologyRefiner const &refiner) : PrimvarRefinerReal<float>(refiner) {}
 };
 
 } // end namespace Far

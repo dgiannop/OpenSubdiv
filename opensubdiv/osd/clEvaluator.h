@@ -25,22 +25,25 @@
 #ifndef OPENSUBDIV3_OSD_CL_EVALUATOR_H
 #define OPENSUBDIV3_OSD_CL_EVALUATOR_H
 
-#include "../version.h"
-
+#include "../osd/bufferDescriptor.h"
 #include "../osd/opencl.h"
 #include "../osd/types.h"
-#include "../osd/bufferDescriptor.h"
+#include "../version.h"
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Far {
-    class PatchTable;
-    class StencilTable;
-    class LimitStencilTable;
-}
+namespace Far
+{
+class PatchTable;
+class StencilTable;
+class LimitStencilTable;
+} // namespace Far
 
-namespace Osd {
+namespace Osd
+{
 
 /// \brief OpenCL stencil table
 ///
@@ -49,40 +52,30 @@ namespace Osd {
 /// CLCompute consumes this table to apply stencils
 ///
 ///
-class CLStencilTable {
-public:
-    template <typename DEVICE_CONTEXT>
-    static CLStencilTable *Create(Far::StencilTable const *stencilTable,
-                                  DEVICE_CONTEXT context) {
-        return new CLStencilTable(stencilTable, context->GetContext());
-    }
+class CLStencilTable
+{
+  public:
+    template <typename DEVICE_CONTEXT> static CLStencilTable *Create(Far::StencilTable const *stencilTable, DEVICE_CONTEXT context) { return new CLStencilTable(stencilTable, context->GetContext()); }
 
-    template <typename DEVICE_CONTEXT>
-    static CLStencilTable *Create(
-        Far::LimitStencilTable const *limitStencilTable,
-        DEVICE_CONTEXT context) {
-        return new CLStencilTable(limitStencilTable, context->GetContext());
-    }
+    template <typename DEVICE_CONTEXT> static CLStencilTable *Create(Far::LimitStencilTable const *limitStencilTable, DEVICE_CONTEXT context) { return new CLStencilTable(limitStencilTable, context->GetContext()); }
 
-    CLStencilTable(Far::StencilTable const *stencilTable,
-                   cl_context clContext);
-    CLStencilTable(Far::LimitStencilTable const *limitStencilTable,
-                   cl_context clContext);
+    CLStencilTable(Far::StencilTable const *stencilTable, cl_context clContext);
+    CLStencilTable(Far::LimitStencilTable const *limitStencilTable, cl_context clContext);
     ~CLStencilTable();
 
     // interfaces needed for CLComputeKernel
-    cl_mem GetSizesBuffer()      const { return _sizes; }
-    cl_mem GetOffsetsBuffer()    const { return _offsets; }
-    cl_mem GetIndicesBuffer()    const { return _indices; }
-    cl_mem GetWeightsBuffer()    const { return _weights; }
-    cl_mem GetDuWeightsBuffer()  const { return _duWeights; }
-    cl_mem GetDvWeightsBuffer()  const { return _dvWeights; }
+    cl_mem GetSizesBuffer() const { return _sizes; }
+    cl_mem GetOffsetsBuffer() const { return _offsets; }
+    cl_mem GetIndicesBuffer() const { return _indices; }
+    cl_mem GetWeightsBuffer() const { return _weights; }
+    cl_mem GetDuWeightsBuffer() const { return _duWeights; }
+    cl_mem GetDvWeightsBuffer() const { return _dvWeights; }
     cl_mem GetDuuWeightsBuffer() const { return _duuWeights; }
     cl_mem GetDuvWeightsBuffer() const { return _duvWeights; }
     cl_mem GetDvvWeightsBuffer() const { return _dvvWeights; }
-    int GetNumStencils()         const { return _numStencils; }
+    int    GetNumStencils() const { return _numStencils; }
 
-private:
+  private:
     cl_mem _sizes;
     cl_mem _offsets;
     cl_mem _indices;
@@ -92,33 +85,24 @@ private:
     cl_mem _duuWeights;
     cl_mem _duvWeights;
     cl_mem _dvvWeights;
-    int _numStencils;
+    int    _numStencils;
 };
 
 // ---------------------------------------------------------------------------
 
-class CLEvaluator {
-public:
+class CLEvaluator
+{
+  public:
     typedef bool Instantiatable;
 
     /// Generic creator template.
-    template <typename DEVICE_CONTEXT>
-    static CLEvaluator *Create(BufferDescriptor const &srcDesc,
-                               BufferDescriptor const &dstDesc,
-                               BufferDescriptor const &duDesc,
-                               BufferDescriptor const &dvDesc,
-                               DEVICE_CONTEXT deviceContext) {
-        return Create(srcDesc, dstDesc, duDesc, dvDesc,
-                      deviceContext->GetContext(),
-                      deviceContext->GetCommandQueue());
+    template <typename DEVICE_CONTEXT> static CLEvaluator *Create(BufferDescriptor const &srcDesc, BufferDescriptor const &dstDesc, BufferDescriptor const &duDesc, BufferDescriptor const &dvDesc, DEVICE_CONTEXT deviceContext)
+    {
+        return Create(srcDesc, dstDesc, duDesc, dvDesc, deviceContext->GetContext(), deviceContext->GetCommandQueue());
     }
 
-    static CLEvaluator * Create(BufferDescriptor const &srcDesc,
-                                BufferDescriptor const &dstDesc,
-                                BufferDescriptor const &duDesc,
-                                BufferDescriptor const &dvDesc,
-                                cl_context clContext,
-                                cl_command_queue clCommandQueue) {
+    static CLEvaluator *Create(BufferDescriptor const &srcDesc, BufferDescriptor const &dstDesc, BufferDescriptor const &duDesc, BufferDescriptor const &dvDesc, cl_context clContext, cl_command_queue clCommandQueue)
+    {
         CLEvaluator *instance = new CLEvaluator(clContext, clCommandQueue);
         if (instance->Compile(srcDesc, dstDesc, duDesc, dvDesc))
             return instance;
@@ -128,32 +112,17 @@ public:
 
     /// Generic creator template.
     template <typename DEVICE_CONTEXT>
-    static CLEvaluator *Create(BufferDescriptor const &srcDesc,
-                               BufferDescriptor const &dstDesc,
-                               BufferDescriptor const &duDesc,
-                               BufferDescriptor const &dvDesc,
-                               BufferDescriptor const &duuDesc,
-                               BufferDescriptor const &duvDesc,
-                               BufferDescriptor const &dvvDesc,
-                               DEVICE_CONTEXT deviceContext) {
-        return Create(srcDesc, dstDesc, duDesc, dvDesc,
-                      duuDesc, duvDesc, dvvDesc,
-                      deviceContext->GetContext(),
-                      deviceContext->GetCommandQueue());
+    static CLEvaluator *Create(BufferDescriptor const &srcDesc, BufferDescriptor const &dstDesc, BufferDescriptor const &duDesc, BufferDescriptor const &dvDesc, BufferDescriptor const &duuDesc, BufferDescriptor const &duvDesc,
+                               BufferDescriptor const &dvvDesc, DEVICE_CONTEXT deviceContext)
+    {
+        return Create(srcDesc, dstDesc, duDesc, dvDesc, duuDesc, duvDesc, dvvDesc, deviceContext->GetContext(), deviceContext->GetCommandQueue());
     }
 
-    static CLEvaluator * Create(BufferDescriptor const &srcDesc,
-                                BufferDescriptor const &dstDesc,
-                                BufferDescriptor const &duDesc,
-                                BufferDescriptor const &dvDesc,
-                                BufferDescriptor const &duuDesc,
-                                BufferDescriptor const &duvDesc,
-                                BufferDescriptor const &dvvDesc,
-                                cl_context clContext,
-                                cl_command_queue clCommandQueue) {
+    static CLEvaluator *Create(BufferDescriptor const &srcDesc, BufferDescriptor const &dstDesc, BufferDescriptor const &duDesc, BufferDescriptor const &dvDesc, BufferDescriptor const &duuDesc, BufferDescriptor const &duvDesc,
+                               BufferDescriptor const &dvvDesc, cl_context clContext, cl_command_queue clCommandQueue)
+    {
         CLEvaluator *instance = new CLEvaluator(clContext, clCommandQueue);
-        if (instance->Compile(srcDesc, dstDesc, duDesc, dvDesc,
-                              duuDesc, duvDesc, dvvDesc))
+        if (instance->Compile(srcDesc, dstDesc, duDesc, dvDesc, duuDesc, duvDesc, dvvDesc))
             return instance;
         delete instance;
         return NULL;
@@ -214,34 +183,21 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename STENCIL_TABLE, typename DEVICE_CONTEXT>
-    static bool EvalStencils(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        STENCIL_TABLE const *stencilTable,
-        CLEvaluator const *instance,
-        DEVICE_CONTEXT deviceContext,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) {
-
-        if (instance) {
-            return instance->EvalStencils(srcBuffer, srcDesc,
-                                          dstBuffer, dstDesc,
-                                          stencilTable,
-                                          numStartEvents, startEvents, endEvent);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename STENCIL_TABLE, typename DEVICE_CONTEXT>
+    static bool EvalStencils(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, STENCIL_TABLE const *stencilTable, CLEvaluator const *instance, DEVICE_CONTEXT deviceContext,
+                             unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalStencils(srcBuffer, srcDesc, dstBuffer, dstDesc, stencilTable, numStartEvents, startEvents, endEvent);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            instance = Create(srcDesc, dstDesc,
-                              BufferDescriptor(),
-                              BufferDescriptor(),
-                              deviceContext);
-            if (instance) {
-                bool r = instance->EvalStencils(srcBuffer, srcDesc,
-                                                dstBuffer, dstDesc,
-                                                stencilTable,
-                                                numStartEvents, startEvents, endEvent);
+            instance = Create(srcDesc, dstDesc, BufferDescriptor(), BufferDescriptor(), deviceContext);
+            if (instance)
+            {
+                bool r = instance->EvalStencils(srcBuffer, srcDesc, dstBuffer, dstDesc, stencilTable, numStartEvents, startEvents, endEvent);
                 delete instance;
                 return r;
             }
@@ -304,38 +260,21 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename STENCIL_TABLE, typename DEVICE_CONTEXT>
-    static bool EvalStencils(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        STENCIL_TABLE const *stencilTable,
-        CLEvaluator const *instance,
-        DEVICE_CONTEXT deviceContext,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) {
-
-        if (instance) {
-            return instance->EvalStencils(srcBuffer, srcDesc,
-                                          dstBuffer, dstDesc,
-                                          duBuffer,  duDesc,
-                                          dvBuffer,  dvDesc,
-                                          stencilTable,
-                                          numStartEvents, startEvents, endEvent);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename STENCIL_TABLE, typename DEVICE_CONTEXT>
+    static bool EvalStencils(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                             STENCIL_TABLE const *stencilTable, CLEvaluator const *instance, DEVICE_CONTEXT deviceContext, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalStencils(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, stencilTable, numStartEvents, startEvents, endEvent);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            instance = Create(srcDesc, dstDesc, duDesc, dvDesc,
-                              deviceContext);
-            if (instance) {
-                bool r = instance->EvalStencils(srcBuffer, srcDesc,
-                                                dstBuffer, dstDesc,
-                                                duBuffer,  duDesc,
-                                                dvBuffer,  dvDesc,
-                                                stencilTable,
-                                                numStartEvents, startEvents, endEvent);
+            instance = Create(srcDesc, dstDesc, duDesc, dvDesc, deviceContext);
+            if (instance)
+            {
+                bool r = instance->EvalStencils(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, stencilTable, numStartEvents, startEvents, endEvent);
                 delete instance;
                 return r;
             }
@@ -416,49 +355,22 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename STENCIL_TABLE, typename DEVICE_CONTEXT>
-    static bool EvalStencils(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        STENCIL_TABLE const *stencilTable,
-        CLEvaluator const *instance,
-        DEVICE_CONTEXT deviceContext,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) {
-
-        if (instance) {
-            return instance->EvalStencils(srcBuffer, srcDesc,
-                                          dstBuffer, dstDesc,
-                                          duBuffer,  duDesc,
-                                          dvBuffer,  dvDesc,
-                                          duuBuffer, duuDesc,
-                                          duvBuffer, duvDesc,
-                                          dvvBuffer, dvvDesc,
-                                          stencilTable,
-                                          numStartEvents, startEvents, endEvent);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename STENCIL_TABLE, typename DEVICE_CONTEXT>
+    static bool EvalStencils(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                             DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, STENCIL_TABLE const *stencilTable,
+                             CLEvaluator const *instance, DEVICE_CONTEXT deviceContext, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalStencils(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, duuBuffer, duuDesc, duvBuffer, duvDesc, dvvBuffer, dvvDesc, stencilTable, numStartEvents, startEvents, endEvent);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            instance = Create(srcDesc, dstDesc,
-                              duDesc, dvDesc,
-                              duuDesc, duvDesc, dvvDesc,
-                              deviceContext);
-            if (instance) {
-                bool r = instance->EvalStencils(srcBuffer, srcDesc,
-                                                dstBuffer, dstDesc,
-                                                duBuffer,  duDesc,
-                                                dvBuffer,  dvDesc,
-                                                duuBuffer, duuDesc,
-                                                duvBuffer, duvDesc,
-                                                dvvBuffer, dvvDesc,
-                                                stencilTable,
-                                                numStartEvents, startEvents, endEvent);
+            instance = Create(srcDesc, dstDesc, duDesc, dvDesc, duuDesc, duvDesc, dvvDesc, deviceContext);
+            if (instance)
+            {
+                bool r = instance->EvalStencils(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, duuBuffer, duuDesc, duvBuffer, duvDesc, dvvBuffer, dvvDesc, stencilTable, numStartEvents, startEvents, endEvent);
                 delete instance;
                 return r;
             }
@@ -497,22 +409,11 @@ public:
     ///                       clReleaseEvent().  NULL if not required.
     ///
     template <typename SRC_BUFFER, typename DST_BUFFER, typename STENCIL_TABLE>
-    bool EvalStencils(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        STENCIL_TABLE const *stencilTable,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) const {
-        return EvalStencils(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc,
-                            dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc,
-                            stencilTable->GetSizesBuffer(),
-                            stencilTable->GetOffsetsBuffer(),
-                            stencilTable->GetIndicesBuffer(),
-                            stencilTable->GetWeightsBuffer(),
-                            0,
-                            stencilTable->GetNumStencils(),
-                            numStartEvents, startEvents, endEvent);
+    bool EvalStencils(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, STENCIL_TABLE const *stencilTable, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL,
+                      cl_event *endEvent = NULL) const
+    {
+        return EvalStencils(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc, dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc, stencilTable->GetSizesBuffer(), stencilTable->GetOffsetsBuffer(), stencilTable->GetIndicesBuffer(),
+                            stencilTable->GetWeightsBuffer(), 0, stencilTable->GetNumStencils(), numStartEvents, startEvents, endEvent);
     }
 
     /// \brief Generic stencil function.
@@ -558,28 +459,12 @@ public:
     ///                       clReleaseEvent().  NULL if not required.
     ///
     template <typename SRC_BUFFER, typename DST_BUFFER, typename STENCIL_TABLE>
-    bool EvalStencils(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        STENCIL_TABLE const *stencilTable,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) const {
-        return EvalStencils(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc,
-                            dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc,
-                            duBuffer->BindCLBuffer(_clCommandQueue), duDesc,
-                            dvBuffer->BindCLBuffer(_clCommandQueue), dvDesc,
-                            stencilTable->GetSizesBuffer(),
-                            stencilTable->GetOffsetsBuffer(),
-                            stencilTable->GetIndicesBuffer(),
-                            stencilTable->GetWeightsBuffer(),
-                            stencilTable->GetDuWeightsBuffer(),
-                            stencilTable->GetDvWeightsBuffer(),
-                            0,
-                            stencilTable->GetNumStencils(),
-                            numStartEvents, startEvents, endEvent);
+    bool EvalStencils(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                      STENCIL_TABLE const *stencilTable, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL) const
+    {
+        return EvalStencils(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc, dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc, duBuffer->BindCLBuffer(_clCommandQueue), duDesc, dvBuffer->BindCLBuffer(_clCommandQueue), dvDesc,
+                            stencilTable->GetSizesBuffer(), stencilTable->GetOffsetsBuffer(), stencilTable->GetIndicesBuffer(), stencilTable->GetWeightsBuffer(), stencilTable->GetDuWeightsBuffer(), stencilTable->GetDvWeightsBuffer(), 0,
+                            stencilTable->GetNumStencils(), numStartEvents, startEvents, endEvent);
     }
 
     /// \brief Generic stencil function.
@@ -643,52 +528,20 @@ public:
     ///                       clReleaseEvent().  NULL if not required.
     ///
     template <typename SRC_BUFFER, typename DST_BUFFER, typename STENCIL_TABLE>
-    bool EvalStencils(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        STENCIL_TABLE const *stencilTable,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) const {
-        return EvalStencils(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc,
-                            dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc,
-                            duBuffer->BindCLBuffer(_clCommandQueue), duDesc,
-                            dvBuffer->BindCLBuffer(_clCommandQueue), dvDesc,
-                            duuBuffer->BindCLBuffer(_clCommandQueue), duuDesc,
-                            duvBuffer->BindCLBuffer(_clCommandQueue), duvDesc,
-                            dvvBuffer->BindCLBuffer(_clCommandQueue), dvvDesc,
-                            stencilTable->GetSizesBuffer(),
-                            stencilTable->GetOffsetsBuffer(),
-                            stencilTable->GetIndicesBuffer(),
-                            stencilTable->GetWeightsBuffer(),
-                            stencilTable->GetDuWeightsBuffer(),
-                            stencilTable->GetDvWeightsBuffer(),
-                            stencilTable->GetDuuWeightsBuffer(),
-                            stencilTable->GetDuvWeightsBuffer(),
-                            stencilTable->GetDvvWeightsBuffer(),
-                            0,
-                            stencilTable->GetNumStencils(),
-                            numStartEvents, startEvents, endEvent);
+    bool EvalStencils(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                      DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, STENCIL_TABLE const *stencilTable,
+                      unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL) const
+    {
+        return EvalStencils(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc, dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc, duBuffer->BindCLBuffer(_clCommandQueue), duDesc, dvBuffer->BindCLBuffer(_clCommandQueue), dvDesc,
+                            duuBuffer->BindCLBuffer(_clCommandQueue), duuDesc, duvBuffer->BindCLBuffer(_clCommandQueue), duvDesc, dvvBuffer->BindCLBuffer(_clCommandQueue), dvvDesc, stencilTable->GetSizesBuffer(), stencilTable->GetOffsetsBuffer(),
+                            stencilTable->GetIndicesBuffer(), stencilTable->GetWeightsBuffer(), stencilTable->GetDuWeightsBuffer(), stencilTable->GetDvWeightsBuffer(), stencilTable->GetDuuWeightsBuffer(), stencilTable->GetDuvWeightsBuffer(),
+                            stencilTable->GetDvvWeightsBuffer(), 0, stencilTable->GetNumStencils(), numStartEvents, startEvents, endEvent);
     }
 
     /// Dispatch the CL compute kernel asynchronously.
     /// returns false if the kernel hasn't been compiled yet.
-    bool EvalStencils(cl_mem src, BufferDescriptor const &srcDesc,
-                      cl_mem dst, BufferDescriptor const &dstDesc,
-                      cl_mem sizes,
-                      cl_mem offsets,
-                      cl_mem indices,
-                      cl_mem weights,
-                      int start,
-                      int end,
-                      unsigned int numStartEvents=0,
-                      const cl_event* startEvents=NULL,
-                      cl_event* endEvent=NULL) const;
+    bool EvalStencils(cl_mem src, BufferDescriptor const &srcDesc, cl_mem dst, BufferDescriptor const &dstDesc, cl_mem sizes, cl_mem offsets, cl_mem indices, cl_mem weights, int start, int end, unsigned int numStartEvents = 0,
+                      const cl_event *startEvents = NULL, cl_event *endEvent = NULL) const;
 
     /// \brief Dispatch the CL compute kernel asynchronously.
     /// returns false if the kernel hasn't been compiled yet.
@@ -738,21 +591,8 @@ public:
     ///                         reference count and should be released via
     ///                         clReleaseEvent().  NULL if not required.
     ///
-    bool EvalStencils(cl_mem src, BufferDescriptor const &srcDesc,
-                      cl_mem dst, BufferDescriptor const &dstDesc,
-                      cl_mem du,  BufferDescriptor const &duDesc,
-                      cl_mem dv,  BufferDescriptor const &dvDesc,
-                      cl_mem sizes,
-                      cl_mem offsets,
-                      cl_mem indices,
-                      cl_mem weights,
-                      cl_mem duWeights,
-                      cl_mem dvWeights,
-                      int start,
-                      int end,
-                      unsigned int numStartEvents=0,
-                      const cl_event* startEvents=NULL,
-                      cl_event* endEvent=NULL) const;
+    bool EvalStencils(cl_mem src, BufferDescriptor const &srcDesc, cl_mem dst, BufferDescriptor const &dstDesc, cl_mem du, BufferDescriptor const &duDesc, cl_mem dv, BufferDescriptor const &dvDesc, cl_mem sizes, cl_mem offsets, cl_mem indices,
+                      cl_mem weights, cl_mem duWeights, cl_mem dvWeights, int start, int end, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL) const;
 
     /// \brief Dispatch the CL compute kernel asynchronously.
     /// returns false if the kernel hasn't been compiled yet.
@@ -820,27 +660,9 @@ public:
     ///                         reference count and should be released via
     ///                         clReleaseEvent().  NULL if not required.
     ///
-    bool EvalStencils(cl_mem src, BufferDescriptor const &srcDesc,
-                      cl_mem dst, BufferDescriptor const &dstDesc,
-                      cl_mem du,  BufferDescriptor const &duDesc,
-                      cl_mem dv,  BufferDescriptor const &dvDesc,
-                      cl_mem duu, BufferDescriptor const &duuDesc,
-                      cl_mem duv, BufferDescriptor const &duvDesc,
-                      cl_mem dvv, BufferDescriptor const &dvvDesc,
-                      cl_mem sizes,
-                      cl_mem offsets,
-                      cl_mem indices,
-                      cl_mem weights,
-                      cl_mem duWeights,
-                      cl_mem dvWeights,
-                      cl_mem duuWeights,
-                      cl_mem duvWeights,
-                      cl_mem dvvWeights,
-                      int start,
-                      int end,
-                      unsigned int numStartEvents=0,
-                      const cl_event* startEvents=NULL,
-                      cl_event* endEvent=NULL) const;
+    bool EvalStencils(cl_mem src, BufferDescriptor const &srcDesc, cl_mem dst, BufferDescriptor const &dstDesc, cl_mem du, BufferDescriptor const &duDesc, cl_mem dv, BufferDescriptor const &dvDesc, cl_mem duu, BufferDescriptor const &duuDesc, cl_mem duv,
+                      BufferDescriptor const &duvDesc, cl_mem dvv, BufferDescriptor const &dvvDesc, cl_mem sizes, cl_mem offsets, cl_mem indices, cl_mem weights, cl_mem duWeights, cl_mem dvWeights, cl_mem duuWeights, cl_mem duvWeights, cl_mem dvvWeights,
+                      int start, int end, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL) const;
 
     /// ----------------------------------------------------------------------
     ///
@@ -896,40 +718,22 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE,
-              typename DEVICE_CONTEXT>
-    static bool EvalPatches(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        CLEvaluator const *instance,
-        DEVICE_CONTEXT deviceContext,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) {
-
-        if (instance) {
-            return instance->EvalPatches(srcBuffer, srcDesc,
-                                         dstBuffer, dstDesc,
-                                         numPatchCoords, patchCoords,
-                                         patchTable,
-                                         numStartEvents, startEvents, endEvent);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE, typename DEVICE_CONTEXT>
+    static bool EvalPatches(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, CLEvaluator const *instance,
+                            DEVICE_CONTEXT deviceContext, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalPatches(srcBuffer, srcDesc, dstBuffer, dstDesc, numPatchCoords, patchCoords, patchTable, numStartEvents, startEvents, endEvent);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
-            instance = Create(srcDesc, dstDesc,
-                              BufferDescriptor(),
-                              BufferDescriptor(),
-                              deviceContext);
-            if (instance) {
-                bool r = instance->EvalPatches(srcBuffer, srcDesc,
-                                               dstBuffer, dstDesc,
-                                               numPatchCoords, patchCoords,
-                                               patchTable,
-                                               numStartEvents, startEvents, endEvent);
+            (void)deviceContext; // unused
+            instance = Create(srcDesc, dstDesc, BufferDescriptor(), BufferDescriptor(), deviceContext);
+            if (instance)
+            {
+                bool r = instance->EvalPatches(srcBuffer, srcDesc, dstBuffer, dstDesc, numPatchCoords, patchCoords, patchTable, numStartEvents, startEvents, endEvent);
                 delete instance;
                 return r;
             }
@@ -997,43 +801,23 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE,
-              typename DEVICE_CONTEXT>
-    static bool EvalPatches(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        CLEvaluator const *instance,
-        DEVICE_CONTEXT deviceContext,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) {
-
-        if (instance) {
-            return instance->EvalPatches(srcBuffer, srcDesc,
-                                         dstBuffer, dstDesc,
-                                         duBuffer, duDesc,
-                                         dvBuffer, dvDesc,
-                                         numPatchCoords, patchCoords,
-                                         patchTable,
-                                         numStartEvents, startEvents, endEvent);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE, typename DEVICE_CONTEXT>
+    static bool EvalPatches(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                            int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, CLEvaluator const *instance, DEVICE_CONTEXT deviceContext, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL,
+                            cl_event *endEvent = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalPatches(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, numPatchCoords, patchCoords, patchTable, numStartEvents, startEvents, endEvent);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
+            (void)deviceContext; // unused
             instance = Create(srcDesc, dstDesc, duDesc, dvDesc, deviceContext);
-            if (instance) {
-                bool r = instance->EvalPatches(srcBuffer, srcDesc,
-                                               dstBuffer, dstDesc,
-                                               duBuffer, duDesc,
-                                               dvBuffer, dvDesc,
-                                               numPatchCoords, patchCoords,
-                                               patchTable,
-                                               numStartEvents, startEvents, endEvent);
+            if (instance)
+            {
+                bool r = instance->EvalPatches(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, numPatchCoords, patchCoords, patchTable, numStartEvents, startEvents, endEvent);
                 delete instance;
                 return r;
             }
@@ -1119,55 +903,25 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE,
-              typename DEVICE_CONTEXT>
-    static bool EvalPatches(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        CLEvaluator const *instance,
-        DEVICE_CONTEXT deviceContext,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) {
-
-        if (instance) {
-            return instance->EvalPatches(srcBuffer, srcDesc,
-                                         dstBuffer, dstDesc,
-                                         duBuffer, duDesc,
-                                         dvBuffer, dvDesc,
-                                         duuBuffer, duuDesc,
-                                         duvBuffer, duvDesc,
-                                         dvvBuffer, dvvDesc,
-                                         numPatchCoords, patchCoords,
-                                         patchTable,
-                                         numStartEvents, startEvents, endEvent);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE, typename DEVICE_CONTEXT>
+    static bool EvalPatches(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                            DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords,
+                            PATCH_TABLE *patchTable, CLEvaluator const *instance, DEVICE_CONTEXT deviceContext, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalPatches(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, duuBuffer, duuDesc, duvBuffer, duvDesc, dvvBuffer, dvvDesc, numPatchCoords, patchCoords, patchTable, numStartEvents, startEvents,
+                                         endEvent);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
-            instance = Create(srcDesc, dstDesc,
-                              duDesc, dvDesc,
-                              duuDesc, duvDesc, dvvDesc,
-                              deviceContext);
-            if (instance) {
-                bool r = instance->EvalPatches(srcBuffer, srcDesc,
-                                               dstBuffer, dstDesc,
-                                               duBuffer, duDesc,
-                                               dvBuffer, dvDesc,
-                                               duuBuffer, duuDesc,
-                                               duvBuffer, duvDesc,
-                                               dvvBuffer, dvvDesc,
-                                               numPatchCoords, patchCoords,
-                                               patchTable,
-                                               numStartEvents, startEvents, endEvent);
+            (void)deviceContext; // unused
+            instance = Create(srcDesc, dstDesc, duDesc, dvDesc, duuDesc, duvDesc, dvvDesc, deviceContext);
+            if (instance)
+            {
+                bool r = instance->EvalPatches(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, duuBuffer, duuDesc, duvBuffer, duvDesc, dvvBuffer, dvvDesc, numPatchCoords, patchCoords, patchTable, numStartEvents, startEvents,
+                                               endEvent);
                 delete instance;
                 return r;
             }
@@ -1212,28 +966,12 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    bool EvalPatches(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) const {
-
-        return EvalPatches(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc,
-                           dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc,
-                           0, BufferDescriptor(),
-                           0, BufferDescriptor(),
-                           numPatchCoords,
-                           patchCoords->BindCLBuffer(_clCommandQueue),
-                           patchTable->GetPatchArrayBuffer(),
-                           patchTable->GetPatchIndexBuffer(),
-                           patchTable->GetPatchParamBuffer(),
-                           numStartEvents, startEvents, endEvent);
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    bool EvalPatches(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, unsigned int numStartEvents = 0,
+                     const cl_event *startEvents = NULL, cl_event *endEvent = NULL) const
+    {
+        return EvalPatches(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc, dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc, 0, BufferDescriptor(), 0, BufferDescriptor(), numPatchCoords, patchCoords->BindCLBuffer(_clCommandQueue),
+                           patchTable->GetPatchArrayBuffer(), patchTable->GetPatchIndexBuffer(), patchTable->GetPatchParamBuffer(), numStartEvents, startEvents, endEvent);
     }
 
     /// \brief Generic limit eval function with derivatives. This function has
@@ -1283,30 +1021,12 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    bool EvalPatches(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) const {
-
-        return EvalPatches(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc,
-                           dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc,
-                           duBuffer->BindCLBuffer(_clCommandQueue),  duDesc,
-                           dvBuffer->BindCLBuffer(_clCommandQueue),  dvDesc,
-                           numPatchCoords,
-                           patchCoords->BindCLBuffer(_clCommandQueue),
-                           patchTable->GetPatchArrayBuffer(),
-                           patchTable->GetPatchIndexBuffer(),
-                           patchTable->GetPatchParamBuffer(),
-                           numStartEvents, startEvents, endEvent);
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    bool EvalPatches(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                     int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL) const
+    {
+        return EvalPatches(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc, dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc, duBuffer->BindCLBuffer(_clCommandQueue), duDesc, dvBuffer->BindCLBuffer(_clCommandQueue), dvDesc, numPatchCoords,
+                           patchCoords->BindCLBuffer(_clCommandQueue), patchTable->GetPatchArrayBuffer(), patchTable->GetPatchIndexBuffer(), patchTable->GetPatchParamBuffer(), numStartEvents, startEvents, endEvent);
     }
 
     /// \brief Generic limit eval function with derivatives. This function has
@@ -1374,66 +1094,22 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    bool EvalPatches(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) const {
-
-        return EvalPatches(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc,
-                           dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc,
-                           duBuffer->BindCLBuffer(_clCommandQueue),  duDesc,
-                           dvBuffer->BindCLBuffer(_clCommandQueue),  dvDesc,
-                           duuBuffer->BindCLBuffer(_clCommandQueue), duuDesc,
-                           duvBuffer->BindCLBuffer(_clCommandQueue), duvDesc,
-                           dvvBuffer->BindCLBuffer(_clCommandQueue), dvvDesc,
-                           numPatchCoords,
-                           patchCoords->BindCLBuffer(_clCommandQueue),
-                           patchTable->GetPatchArrayBuffer(),
-                           patchTable->GetPatchIndexBuffer(),
-                           patchTable->GetPatchParamBuffer(),
-                           numStartEvents, startEvents, endEvent);
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    bool EvalPatches(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                     DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords,
+                     PATCH_TABLE *patchTable, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL) const
+    {
+        return EvalPatches(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc, dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc, duBuffer->BindCLBuffer(_clCommandQueue), duDesc, dvBuffer->BindCLBuffer(_clCommandQueue), dvDesc,
+                           duuBuffer->BindCLBuffer(_clCommandQueue), duuDesc, duvBuffer->BindCLBuffer(_clCommandQueue), duvDesc, dvvBuffer->BindCLBuffer(_clCommandQueue), dvvDesc, numPatchCoords, patchCoords->BindCLBuffer(_clCommandQueue),
+                           patchTable->GetPatchArrayBuffer(), patchTable->GetPatchIndexBuffer(), patchTable->GetPatchParamBuffer(), numStartEvents, startEvents, endEvent);
     }
 
-    bool EvalPatches(cl_mem src, BufferDescriptor const &srcDesc,
-                     cl_mem dst, BufferDescriptor const &dstDesc,
-                     cl_mem du,  BufferDescriptor const &duDesc,
-                     cl_mem dv,  BufferDescriptor const &dvDesc,
-                     int numPatchCoords,
-                     cl_mem patchCoordsBuffer,
-                     cl_mem patchArrayBuffer,
-                     cl_mem patchIndexBuffer,
-                     cl_mem patchParamsBuffer,
-                     unsigned int numStartEvents=0,
-                     const cl_event* startEvents=NULL,
-                     cl_event* endEvent=NULL) const;
+    bool EvalPatches(cl_mem src, BufferDescriptor const &srcDesc, cl_mem dst, BufferDescriptor const &dstDesc, cl_mem du, BufferDescriptor const &duDesc, cl_mem dv, BufferDescriptor const &dvDesc, int numPatchCoords, cl_mem patchCoordsBuffer,
+                     cl_mem patchArrayBuffer, cl_mem patchIndexBuffer, cl_mem patchParamsBuffer, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL) const;
 
-    bool EvalPatches(cl_mem src, BufferDescriptor const &srcDesc,
-                     cl_mem dst, BufferDescriptor const &dstDesc,
-                     cl_mem du,  BufferDescriptor const &duDesc,
-                     cl_mem dv,  BufferDescriptor const &dvDesc,
-                     cl_mem duu, BufferDescriptor const &duuDesc,
-                     cl_mem duv, BufferDescriptor const &duvDesc,
-                     cl_mem dvv, BufferDescriptor const &dvvDesc,
-                     int numPatchCoords,
-                     cl_mem patchCoordsBuffer,
-                     cl_mem patchArrayBuffer,
-                     cl_mem patchIndexBuffer,
-                     cl_mem patchParamsBuffer,
-                     unsigned int numStartEvents=0,
-                     const cl_event* startEvents=NULL,
-                     cl_event* endEvent=NULL) const;
+    bool EvalPatches(cl_mem src, BufferDescriptor const &srcDesc, cl_mem dst, BufferDescriptor const &dstDesc, cl_mem du, BufferDescriptor const &duDesc, cl_mem dv, BufferDescriptor const &dvDesc, cl_mem duu, BufferDescriptor const &duuDesc, cl_mem duv,
+                     BufferDescriptor const &duvDesc, cl_mem dvv, BufferDescriptor const &dvvDesc, int numPatchCoords, cl_mem patchCoordsBuffer, cl_mem patchArrayBuffer, cl_mem patchIndexBuffer, cl_mem patchParamsBuffer, unsigned int numStartEvents = 0,
+                     const cl_event *startEvents = NULL, cl_event *endEvent = NULL) const;
 
     /// \brief Generic limit eval function. This function has a same
     ///        signature as other device kernels have so that it can be called
@@ -1483,42 +1159,22 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE,
-              typename DEVICE_CONTEXT>
-    static bool EvalPatchesVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        CLEvaluator const *instance,
-        DEVICE_CONTEXT deviceContext,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) {
-
-        if (instance) {
-            return instance->EvalPatchesVarying(
-                                         srcBuffer, srcDesc,
-                                         dstBuffer, dstDesc,
-                                         numPatchCoords, patchCoords,
-                                         patchTable,
-                                         numStartEvents, startEvents, endEvent);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE, typename DEVICE_CONTEXT>
+    static bool EvalPatchesVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, CLEvaluator const *instance,
+                                   DEVICE_CONTEXT deviceContext, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalPatchesVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, numPatchCoords, patchCoords, patchTable, numStartEvents, startEvents, endEvent);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
-            instance = Create(srcDesc, dstDesc,
-                              BufferDescriptor(),
-                              BufferDescriptor(),
-                              deviceContext);
-            if (instance) {
-                bool r = instance->EvalPatchesVarying(
-                                               srcBuffer, srcDesc,
-                                               dstBuffer, dstDesc,
-                                               numPatchCoords, patchCoords,
-                                               patchTable,
-                                               numStartEvents, startEvents, endEvent);
+            (void)deviceContext; // unused
+            instance = Create(srcDesc, dstDesc, BufferDescriptor(), BufferDescriptor(), deviceContext);
+            if (instance)
+            {
+                bool r = instance->EvalPatchesVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, numPatchCoords, patchCoords, patchTable, numStartEvents, startEvents, endEvent);
                 delete instance;
                 return r;
             }
@@ -1563,28 +1219,12 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    bool EvalPatchesVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) const {
-
-        return EvalPatches(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc,
-                           dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc,
-                           0, BufferDescriptor(),
-                           0, BufferDescriptor(),
-                           numPatchCoords,
-                           patchCoords->BindCLBuffer(_clCommandQueue),
-                           patchTable->GetVaryingPatchArrayBuffer(),
-                           patchTable->GetVaryingPatchIndexBuffer(),
-                           patchTable->GetPatchParamBuffer(),
-                           numStartEvents, startEvents, endEvent);
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    bool EvalPatchesVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, unsigned int numStartEvents = 0,
+                            const cl_event *startEvents = NULL, cl_event *endEvent = NULL) const
+    {
+        return EvalPatches(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc, dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc, 0, BufferDescriptor(), 0, BufferDescriptor(), numPatchCoords, patchCoords->BindCLBuffer(_clCommandQueue),
+                           patchTable->GetVaryingPatchArrayBuffer(), patchTable->GetVaryingPatchIndexBuffer(), patchTable->GetPatchParamBuffer(), numStartEvents, startEvents, endEvent);
     }
 
     /// \brief Generic limit eval function. This function has a same
@@ -1647,47 +1287,23 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE,
-              typename DEVICE_CONTEXT>
-    static bool EvalPatchesVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        CLEvaluator const *instance,
-        DEVICE_CONTEXT deviceContext,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) {
-
-        if (instance) {
-            return instance->EvalPatchesVarying(
-                                         srcBuffer, srcDesc,
-                                         dstBuffer, dstDesc,
-                                         duBuffer, duDesc,
-                                         dvBuffer, dvDesc,
-                                         numPatchCoords, patchCoords,
-                                         patchTable,
-                                         numStartEvents, startEvents, endEvent);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE, typename DEVICE_CONTEXT>
+    static bool EvalPatchesVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                                   int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, CLEvaluator const *instance, DEVICE_CONTEXT deviceContext, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL,
+                                   cl_event *endEvent = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalPatchesVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, numPatchCoords, patchCoords, patchTable, numStartEvents, startEvents, endEvent);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
-            instance = Create(srcDesc, dstDesc,
-                              duDesc, dvDesc,
-                              deviceContext);
-            if (instance) {
-                bool r = instance->EvalPatchesVarying(
-                                               srcBuffer, srcDesc,
-                                               dstBuffer, dstDesc,
-                                               duBuffer, duDesc,
-                                               dvBuffer, dvDesc,
-                                               numPatchCoords, patchCoords,
-                                               patchTable,
-                                               numStartEvents, startEvents, endEvent);
+            (void)deviceContext; // unused
+            instance = Create(srcDesc, dstDesc, duDesc, dvDesc, deviceContext);
+            if (instance)
+            {
+                bool r = instance->EvalPatchesVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, numPatchCoords, patchCoords, patchTable, numStartEvents, startEvents, endEvent);
                 delete instance;
                 return r;
             }
@@ -1744,30 +1360,12 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    bool EvalPatchesVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) const {
-
-        return EvalPatches(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc,
-                           dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc,
-                           duBuffer->BindCLBuffer(_clCommandQueue), duDesc,
-                           dvBuffer->BindCLBuffer(_clCommandQueue), dvDesc,
-                           numPatchCoords,
-                           patchCoords->BindCLBuffer(_clCommandQueue),
-                           patchTable->GetVaryingPatchArrayBuffer(),
-                           patchTable->GetVaryingPatchIndexBuffer(),
-                           patchTable->GetPatchParamBuffer(),
-                           numStartEvents, startEvents, endEvent);
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    bool EvalPatchesVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                            int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL) const
+    {
+        return EvalPatches(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc, dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc, duBuffer->BindCLBuffer(_clCommandQueue), duDesc, dvBuffer->BindCLBuffer(_clCommandQueue), dvDesc, numPatchCoords,
+                           patchCoords->BindCLBuffer(_clCommandQueue), patchTable->GetVaryingPatchArrayBuffer(), patchTable->GetVaryingPatchIndexBuffer(), patchTable->GetPatchParamBuffer(), numStartEvents, startEvents, endEvent);
     }
 
     /// \brief Generic limit eval function. This function has a same
@@ -1848,57 +1446,25 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE,
-              typename DEVICE_CONTEXT>
-    static bool EvalPatchesVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        CLEvaluator const *instance,
-        DEVICE_CONTEXT deviceContext,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) {
-
-        if (instance) {
-            return instance->EvalPatchesVarying(
-                                         srcBuffer, srcDesc,
-                                         dstBuffer, dstDesc,
-                                         duBuffer, duDesc,
-                                         dvBuffer, dvDesc,
-                                         duuBuffer, duuDesc,
-                                         duvBuffer, duvDesc,
-                                         dvvBuffer, dvvDesc,
-                                         numPatchCoords, patchCoords,
-                                         patchTable,
-                                         numStartEvents, startEvents, endEvent);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE, typename DEVICE_CONTEXT>
+    static bool EvalPatchesVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                                   DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords,
+                                   PATCH_TABLE *patchTable, CLEvaluator const *instance, DEVICE_CONTEXT deviceContext, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalPatchesVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, duuBuffer, duuDesc, duvBuffer, duvDesc, dvvBuffer, dvvDesc, numPatchCoords, patchCoords, patchTable, numStartEvents, startEvents,
+                                                endEvent);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
-            instance = Create(srcDesc, dstDesc,
-                              duDesc, dvDesc,
-                              duuDesc, duvDesc, dvvDesc,
-                              deviceContext);
-            if (instance) {
-                bool r = instance->EvalPatchesVarying(
-                                               srcBuffer, srcDesc,
-                                               dstBuffer, dstDesc,
-                                               duBuffer, duDesc,
-                                               dvBuffer, dvDesc,
-                                               duuBuffer, duuDesc,
-                                               duvBuffer, duvDesc,
-                                               dvvBuffer, dvvDesc,
-                                               numPatchCoords, patchCoords,
-                                               patchTable,
-                                               numStartEvents, startEvents, endEvent);
+            (void)deviceContext; // unused
+            instance = Create(srcDesc, dstDesc, duDesc, dvDesc, duuDesc, duvDesc, dvvDesc, deviceContext);
+            if (instance)
+            {
+                bool r = instance->EvalPatchesVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, duuBuffer, duuDesc, duvBuffer, duvDesc, dvvBuffer, dvvDesc, numPatchCoords, patchCoords, patchTable, numStartEvents,
+                                                      startEvents, endEvent);
                 delete instance;
                 return r;
             }
@@ -1973,36 +1539,14 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    bool EvalPatchesVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) const {
-
-        return EvalPatches(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc,
-                           dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc,
-                           duBuffer->BindCLBuffer(_clCommandQueue), duDesc,
-                           dvBuffer->BindCLBuffer(_clCommandQueue), dvDesc,
-                           duuBuffer->BindCLBuffer(_clCommandQueue), duuDesc,
-                           duvBuffer->BindCLBuffer(_clCommandQueue), duvDesc,
-                           dvvBuffer->BindCLBuffer(_clCommandQueue), dvvDesc,
-                           numPatchCoords,
-                           patchCoords->BindCLBuffer(_clCommandQueue),
-                           patchTable->GetVaryingPatchArrayBuffer(),
-                           patchTable->GetVaryingPatchIndexBuffer(),
-                           patchTable->GetPatchParamBuffer(),
-                           numStartEvents, startEvents, endEvent);
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    bool EvalPatchesVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                            DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords,
+                            PATCH_TABLE *patchTable, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL) const
+    {
+        return EvalPatches(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc, dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc, duBuffer->BindCLBuffer(_clCommandQueue), duDesc, dvBuffer->BindCLBuffer(_clCommandQueue), dvDesc,
+                           duuBuffer->BindCLBuffer(_clCommandQueue), duuDesc, duvBuffer->BindCLBuffer(_clCommandQueue), duvDesc, dvvBuffer->BindCLBuffer(_clCommandQueue), dvvDesc, numPatchCoords, patchCoords->BindCLBuffer(_clCommandQueue),
+                           patchTable->GetVaryingPatchArrayBuffer(), patchTable->GetVaryingPatchIndexBuffer(), patchTable->GetPatchParamBuffer(), numStartEvents, startEvents, endEvent);
     }
 
     /// \brief Generic limit eval function. This function has a same
@@ -2055,43 +1599,22 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE,
-              typename DEVICE_CONTEXT>
-    static bool EvalPatchesFaceVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        int fvarChannel,
-        CLEvaluator const *instance,
-        DEVICE_CONTEXT deviceContext,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) {
-
-        if (instance) {
-            return instance->EvalPatchesFaceVarying(
-                                         srcBuffer, srcDesc,
-                                         dstBuffer, dstDesc,
-                                         numPatchCoords, patchCoords,
-                                         patchTable, fvarChannel,
-                                         numStartEvents, startEvents, endEvent);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE, typename DEVICE_CONTEXT>
+    static bool EvalPatchesFaceVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, int fvarChannel,
+                                       CLEvaluator const *instance, DEVICE_CONTEXT deviceContext, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalPatchesFaceVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, numPatchCoords, patchCoords, patchTable, fvarChannel, numStartEvents, startEvents, endEvent);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
-            instance = Create(srcDesc, dstDesc,
-                              BufferDescriptor(),
-                              BufferDescriptor(),
-                              deviceContext);
-            if (instance) {
-                bool r = instance->EvalPatchesFaceVarying(
-                                               srcBuffer, srcDesc,
-                                               dstBuffer, dstDesc,
-                                               numPatchCoords, patchCoords,
-                                               patchTable, fvarChannel,
-                                               numStartEvents, startEvents, endEvent);
+            (void)deviceContext; // unused
+            instance = Create(srcDesc, dstDesc, BufferDescriptor(), BufferDescriptor(), deviceContext);
+            if (instance)
+            {
+                bool r = instance->EvalPatchesFaceVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, numPatchCoords, patchCoords, patchTable, fvarChannel, numStartEvents, startEvents, endEvent);
                 delete instance;
                 return r;
             }
@@ -2138,29 +1661,12 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    bool EvalPatchesFaceVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        int fvarChannel = 0,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) const {
-
-        return EvalPatches(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc,
-                           dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc,
-                           0, BufferDescriptor(),
-                           0, BufferDescriptor(),
-                           numPatchCoords,
-                           patchCoords->BindCLBuffer(_clCommandQueue),
-                           patchTable->GetFVarPatchArrayBuffer(fvarChannel),
-                           patchTable->GetFVarPatchIndexBuffer(fvarChannel),
-                           patchTable->GetFVarPatchParamBuffer(fvarChannel),
-                           numStartEvents, startEvents, endEvent);
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    bool EvalPatchesFaceVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, int fvarChannel = 0,
+                                unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL) const
+    {
+        return EvalPatches(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc, dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc, 0, BufferDescriptor(), 0, BufferDescriptor(), numPatchCoords, patchCoords->BindCLBuffer(_clCommandQueue),
+                           patchTable->GetFVarPatchArrayBuffer(fvarChannel), patchTable->GetFVarPatchIndexBuffer(fvarChannel), patchTable->GetFVarPatchParamBuffer(fvarChannel), numStartEvents, startEvents, endEvent);
     }
 
     /// \brief Generic limit eval function. This function has a same
@@ -2225,47 +1731,23 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE,
-              typename DEVICE_CONTEXT>
-    static bool EvalPatchesFaceVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        int fvarChannel,
-        CLEvaluator const *instance,
-        DEVICE_CONTEXT deviceContext,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) {
-
-        if (instance) {
-            return instance->EvalPatchesFaceVarying(
-                                         srcBuffer, srcDesc,
-                                         dstBuffer, dstDesc,
-                                         duBuffer, duDesc,
-                                         dvBuffer, dvDesc,
-                                         numPatchCoords, patchCoords,
-                                         patchTable, fvarChannel,
-                                         numStartEvents, startEvents, endEvent);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE, typename DEVICE_CONTEXT>
+    static bool EvalPatchesFaceVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer,
+                                       BufferDescriptor const &dvDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, int fvarChannel, CLEvaluator const *instance, DEVICE_CONTEXT deviceContext, unsigned int numStartEvents = 0,
+                                       const cl_event *startEvents = NULL, cl_event *endEvent = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalPatchesFaceVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, numPatchCoords, patchCoords, patchTable, fvarChannel, numStartEvents, startEvents, endEvent);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
-            instance = Create(srcDesc, dstDesc,
-                              duDesc, dvDesc, deviceContext);
-            if (instance) {
-                bool r = instance->EvalPatchesFaceVarying(
-                                               srcBuffer, srcDesc,
-                                               dstBuffer, dstDesc,
-                                               duBuffer, duDesc,
-                                               dvBuffer, dvDesc,
-                                               numPatchCoords, patchCoords,
-                                               patchTable, fvarChannel,
-                                               numStartEvents, startEvents, endEvent);
+            (void)deviceContext; // unused
+            instance = Create(srcDesc, dstDesc, duDesc, dvDesc, deviceContext);
+            if (instance)
+            {
+                bool r = instance->EvalPatchesFaceVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, numPatchCoords, patchCoords, patchTable, fvarChannel, numStartEvents, startEvents, endEvent);
                 delete instance;
                 return r;
             }
@@ -2324,31 +1806,13 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    bool EvalPatchesFaceVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        int fvarChannel = 0,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) const {
-
-        return EvalPatches(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc,
-                           dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc,
-                           duBuffer->BindCLBuffer(_clCommandQueue), duDesc,
-                           dvBuffer->BindCLBuffer(_clCommandQueue), dvDesc,
-                           numPatchCoords,
-                           patchCoords->BindCLBuffer(_clCommandQueue),
-                           patchTable->GetFVarPatchArrayBuffer(fvarChannel),
-                           patchTable->GetFVarPatchIndexBuffer(fvarChannel),
-                           patchTable->GetFVarPatchParamBuffer(fvarChannel),
-                           numStartEvents, startEvents, endEvent);
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    bool EvalPatchesFaceVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                                int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, int fvarChannel = 0, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL) const
+    {
+        return EvalPatches(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc, dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc, duBuffer->BindCLBuffer(_clCommandQueue), duDesc, dvBuffer->BindCLBuffer(_clCommandQueue), dvDesc, numPatchCoords,
+                           patchCoords->BindCLBuffer(_clCommandQueue), patchTable->GetFVarPatchArrayBuffer(fvarChannel), patchTable->GetFVarPatchIndexBuffer(fvarChannel), patchTable->GetFVarPatchParamBuffer(fvarChannel), numStartEvents, startEvents,
+                           endEvent);
     }
 
     /// \brief Generic limit eval function. This function has a same
@@ -2431,58 +1895,26 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE,
-              typename DEVICE_CONTEXT>
-    static bool EvalPatchesFaceVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        int fvarChannel,
-        CLEvaluator const *instance,
-        DEVICE_CONTEXT deviceContext,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) {
-
-        if (instance) {
-            return instance->EvalPatchesFaceVarying(
-                                         srcBuffer, srcDesc,
-                                         dstBuffer, dstDesc,
-                                         duBuffer, duDesc,
-                                         dvBuffer, dvDesc,
-                                         duuBuffer, duuDesc,
-                                         duvBuffer, duvDesc,
-                                         dvvBuffer, dvvDesc,
-                                         numPatchCoords, patchCoords,
-                                         patchTable, fvarChannel,
-                                         numStartEvents, startEvents, endEvent);
-        } else {
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE, typename DEVICE_CONTEXT>
+    static bool EvalPatchesFaceVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer,
+                                       BufferDescriptor const &dvDesc, DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
+                                       int numPatchCoords, PATCHCOORD_BUFFER *patchCoords, PATCH_TABLE *patchTable, int fvarChannel, CLEvaluator const *instance, DEVICE_CONTEXT deviceContext, unsigned int numStartEvents = 0,
+                                       const cl_event *startEvents = NULL, cl_event *endEvent = NULL)
+    {
+        if (instance)
+        {
+            return instance->EvalPatchesFaceVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, duuBuffer, duuDesc, duvBuffer, duvDesc, dvvBuffer, dvvDesc, numPatchCoords, patchCoords, patchTable, fvarChannel,
+                                                    numStartEvents, startEvents, endEvent);
+        }
+        else
+        {
             // Create an instance on demand (slow)
-            (void)deviceContext;  // unused
-            instance = Create(srcDesc, dstDesc,
-                              duDesc, dvDesc,
-                              duuDesc, duvDesc, dvvDesc,
-                              deviceContext);
-            if (instance) {
-                bool r = instance->EvalPatchesFaceVarying(
-                                               srcBuffer, srcDesc,
-                                               dstBuffer, dstDesc,
-                                               duBuffer, duDesc,
-                                               dvBuffer, dvDesc,
-                                               duuBuffer, duuDesc,
-                                               duvBuffer, duvDesc,
-                                               dvvBuffer, dvvDesc,
-                                               numPatchCoords, patchCoords,
-                                               patchTable, fvarChannel,
-                                               numStartEvents, startEvents, endEvent);
+            (void)deviceContext; // unused
+            instance = Create(srcDesc, dstDesc, duDesc, dvDesc, duuDesc, duvDesc, dvvDesc, deviceContext);
+            if (instance)
+            {
+                bool r = instance->EvalPatchesFaceVarying(srcBuffer, srcDesc, dstBuffer, dstDesc, duBuffer, duDesc, dvBuffer, dvDesc, duuBuffer, duuDesc, duvBuffer, duvDesc, dvvBuffer, dvvDesc, numPatchCoords, patchCoords, patchTable, fvarChannel,
+                                                          numStartEvents, startEvents, endEvent);
                 delete instance;
                 return r;
             }
@@ -2559,37 +1991,14 @@ public:
     ///                       reference count and should be released via
     ///                       clReleaseEvent().  NULL if not required.
     ///
-    template <typename SRC_BUFFER, typename DST_BUFFER,
-              typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
-    bool EvalPatchesFaceVarying(
-        SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc,
-        DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc,
-        DST_BUFFER *duBuffer,  BufferDescriptor const &duDesc,
-        DST_BUFFER *dvBuffer,  BufferDescriptor const &dvDesc,
-        DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc,
-        DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc,
-        DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc,
-        int numPatchCoords,
-        PATCHCOORD_BUFFER *patchCoords,
-        PATCH_TABLE *patchTable,
-        int fvarChannel = 0,
-        unsigned int numStartEvents=0,
-        const cl_event* startEvents=NULL,
-        cl_event* endEvent=NULL) const {
-
-        return EvalPatches(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc,
-                           dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc,
-                           duBuffer->BindCLBuffer(_clCommandQueue), duDesc,
-                           dvBuffer->BindCLBuffer(_clCommandQueue), dvDesc,
-                           duuBuffer->BindCLBuffer(_clCommandQueue), duuDesc,
-                           duvBuffer->BindCLBuffer(_clCommandQueue), duvDesc,
-                           dvvBuffer->BindCLBuffer(_clCommandQueue), dvvDesc,
-                           numPatchCoords,
-                           patchCoords->BindCLBuffer(_clCommandQueue),
-                           patchTable->GetFVarPatchArrayBuffer(fvarChannel),
-                           patchTable->GetFVarPatchIndexBuffer(fvarChannel),
-                           patchTable->GetFVarPatchParamBuffer(fvarChannel),
-                           numStartEvents, startEvents, endEvent);
+    template <typename SRC_BUFFER, typename DST_BUFFER, typename PATCHCOORD_BUFFER, typename PATCH_TABLE>
+    bool EvalPatchesFaceVarying(SRC_BUFFER *srcBuffer, BufferDescriptor const &srcDesc, DST_BUFFER *dstBuffer, BufferDescriptor const &dstDesc, DST_BUFFER *duBuffer, BufferDescriptor const &duDesc, DST_BUFFER *dvBuffer, BufferDescriptor const &dvDesc,
+                                DST_BUFFER *duuBuffer, BufferDescriptor const &duuDesc, DST_BUFFER *duvBuffer, BufferDescriptor const &duvDesc, DST_BUFFER *dvvBuffer, BufferDescriptor const &dvvDesc, int numPatchCoords, PATCHCOORD_BUFFER *patchCoords,
+                                PATCH_TABLE *patchTable, int fvarChannel = 0, unsigned int numStartEvents = 0, const cl_event *startEvents = NULL, cl_event *endEvent = NULL) const
+    {
+        return EvalPatches(srcBuffer->BindCLBuffer(_clCommandQueue), srcDesc, dstBuffer->BindCLBuffer(_clCommandQueue), dstDesc, duBuffer->BindCLBuffer(_clCommandQueue), duDesc, dvBuffer->BindCLBuffer(_clCommandQueue), dvDesc,
+                           duuBuffer->BindCLBuffer(_clCommandQueue), duuDesc, duvBuffer->BindCLBuffer(_clCommandQueue), duvDesc, dvvBuffer->BindCLBuffer(_clCommandQueue), dvvDesc, numPatchCoords, patchCoords->BindCLBuffer(_clCommandQueue),
+                           patchTable->GetFVarPatchArrayBuffer(fvarChannel), patchTable->GetFVarPatchIndexBuffer(fvarChannel), patchTable->GetFVarPatchParamBuffer(fvarChannel), numStartEvents, startEvents, endEvent);
     }
 
     /// ----------------------------------------------------------------------
@@ -2600,37 +2009,28 @@ public:
 
     /// Configure OpenCL kernel.
     /// Returns false if it fails to compile the kernel.
-    bool Compile(BufferDescriptor const &srcDesc,
-                 BufferDescriptor const &dstDesc,
-                 BufferDescriptor const &duDesc = BufferDescriptor(),
-                 BufferDescriptor const &dvDesc = BufferDescriptor(),
-                 BufferDescriptor const &duuDesc = BufferDescriptor(),
-                 BufferDescriptor const &duvDesc = BufferDescriptor(),
-                 BufferDescriptor const &dvvDesc = BufferDescriptor());
+    bool Compile(BufferDescriptor const &srcDesc, BufferDescriptor const &dstDesc, BufferDescriptor const &duDesc = BufferDescriptor(), BufferDescriptor const &dvDesc = BufferDescriptor(), BufferDescriptor const &duuDesc = BufferDescriptor(),
+                 BufferDescriptor const &duvDesc = BufferDescriptor(), BufferDescriptor const &dvvDesc = BufferDescriptor());
 
     /// Wait the OpenCL kernels finish.
-    template <typename DEVICE_CONTEXT>
-    static void Synchronize(DEVICE_CONTEXT deviceContext) {
-        Synchronize(deviceContext->GetCommandQueue());
-    }
+    template <typename DEVICE_CONTEXT> static void Synchronize(DEVICE_CONTEXT deviceContext) { Synchronize(deviceContext->GetCommandQueue()); }
 
     static void Synchronize(cl_command_queue queue);
 
-private:
-    cl_context _clContext;
+  private:
+    cl_context       _clContext;
     cl_command_queue _clCommandQueue;
-    cl_program _program;
-    cl_kernel _stencilKernel;
-    cl_kernel _stencilDerivKernel;
-    cl_kernel _patchKernel;
+    cl_program       _program;
+    cl_kernel        _stencilKernel;
+    cl_kernel        _stencilDerivKernel;
+    cl_kernel        _patchKernel;
 };
 
-}  // end namespace Osd
+} // end namespace Osd
 
-}  // end namespace OPENSUBDIV_VERSION
+} // end namespace OPENSUBDIV_VERSION
 using namespace OPENSUBDIV_VERSION;
 
-}  // end namespace OpenSubdiv
+} // end namespace OpenSubdiv
 
-
-#endif  // OPENSUBDIV3_OSD_CL_EVALUATOR_H
+#endif // OPENSUBDIV3_OSD_CL_EVALUATOR_H

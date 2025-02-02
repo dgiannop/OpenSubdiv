@@ -30,41 +30,33 @@
 
 #include <stdio.h>
 
-namespace ViewerArgsUtils {
+namespace ViewerArgsUtils
+{
 
-const ObjAnim *
-PopulateAnimShapes(const ArgOptions &args, 
-                   std::vector<ShapeDesc> *defaultShapes)
+const ObjAnim *PopulateAnimShapes(const ArgOptions &args, std::vector<ShapeDesc> *defaultShapes)
 {
     if (args.GetObjFiles().empty())
         return NULL;
 
-    const ObjAnim *objAnim = ObjAnim::Create(args.GetObjFiles(),
-        args.GetDefaultScheme());
+    const ObjAnim *objAnim = ObjAnim::Create(args.GetObjFiles(), args.GetDefaultScheme());
 
-    if (objAnim && defaultShapes) {
-        defaultShapes->push_back(ShapeDesc(args.GetObjFiles()[0], "", 
-            args.GetDefaultScheme()));
+    if (objAnim && defaultShapes)
+    {
+        defaultShapes->push_back(ShapeDesc(args.GetObjFiles()[0], "", args.GetDefaultScheme()));
     }
 
     return objAnim;
-
 }
 
-void 
-PopulateShapes(const ArgOptions &args,
-               std::vector<ShapeDesc> *defaultShapes)
+void PopulateShapes(const ArgOptions &args, std::vector<ShapeDesc> *defaultShapes)
 {
-    if (defaultShapes) {
+    if (defaultShapes)
+    {
         args.AppendObjShapes(*defaultShapes, true /* print warnings */);
     }
 }
 
-void 
-PopulateShapesOrAnimShapes(
-    const ArgOptions &args, 
-    std::vector<ShapeDesc> *defaultShapes, 
-    const ObjAnim **objAnim)
+void PopulateShapesOrAnimShapes(const ArgOptions &args, std::vector<ShapeDesc> *defaultShapes, const ObjAnim **objAnim)
 {
     if (!defaultShapes)
         return;
@@ -72,21 +64,23 @@ PopulateShapesOrAnimShapes(
     if (args.GetObjFiles().empty())
         return;
 
-    if (args.GetObjsAreAnim()) {
+    if (args.GetObjsAreAnim())
+    {
 
-        if (!objAnim) {
+        if (!objAnim)
+        {
             printf("Warning: animations of objs are unsupported in this "
                    "viewer.\n");
             return;
         }
 
         *objAnim = PopulateAnimShapes(args, defaultShapes);
-
-    } else {
+    }
+    else
+    {
 
         PopulateShapes(args, defaultShapes);
-
     }
 }
 
-}
+} // namespace ViewerArgsUtils

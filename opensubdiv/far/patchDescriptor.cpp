@@ -27,12 +27,13 @@
 #include <cassert>
 #include <cstdio>
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace Far {
-
-
+namespace Far
+{
 
 //
 // Lists of valid patch Descriptors for each subdivision scheme
@@ -43,9 +44,8 @@ namespace Far {
 // linear quads (e.g. a pentagon becoming five quads).
 //
 
-ConstPatchDescriptorArray
-PatchDescriptor::GetAdaptivePatchDescriptors(Sdc::SchemeType type) {
-
+ConstPatchDescriptorArray PatchDescriptor::GetAdaptivePatchDescriptors(Sdc::SchemeType type)
+{
     static PatchDescriptor _loopDescriptors[] = {
         PatchDescriptor(LOOP),
         PatchDescriptor(GREGORY_TRIANGLE),
@@ -58,33 +58,27 @@ PatchDescriptor::GetAdaptivePatchDescriptors(Sdc::SchemeType type) {
         PatchDescriptor(GREGORY_BASIS),
     };
 
-    switch (type) {
-        case Sdc::SCHEME_BILINEAR :
-            return ConstPatchDescriptorArray(0, 0);
-        case Sdc::SCHEME_CATMARK :
-            return ConstPatchDescriptorArray(_catmarkDescriptors,
-                (int)(sizeof(_catmarkDescriptors)/sizeof(PatchDescriptor)));
-        case Sdc::SCHEME_LOOP :
-            return ConstPatchDescriptorArray(_loopDescriptors,
-                (int)(sizeof(_loopDescriptors)/sizeof(PatchDescriptor)));
-        default:
-          assert(0);
+    switch (type)
+    {
+    case Sdc::SCHEME_BILINEAR:
+        return ConstPatchDescriptorArray(0, 0);
+    case Sdc::SCHEME_CATMARK:
+        return ConstPatchDescriptorArray(_catmarkDescriptors, (int)(sizeof(_catmarkDescriptors) / sizeof(PatchDescriptor)));
+    case Sdc::SCHEME_LOOP:
+        return ConstPatchDescriptorArray(_loopDescriptors, (int)(sizeof(_loopDescriptors) / sizeof(PatchDescriptor)));
+    default:
+        assert(0);
     }
-    return ConstPatchDescriptorArray(0, 0);;
+    return ConstPatchDescriptorArray(0, 0);
+    ;
 }
 
-void
-PatchDescriptor::print() const {
-    static char const * types[13] = {
-        "NON_PATCH", "POINTS", "LINES", "QUADS", "TRIANGLES", "LOOP",
-            "REGULAR", "GREGORY", "GREGORY_BOUNDARY", "GREGORY_BASIS",
-            "GREGORY_TRIANGLE"};
+void PatchDescriptor::print() const
+{
+    static char const *types[13] = {"NON_PATCH", "POINTS", "LINES", "QUADS", "TRIANGLES", "LOOP", "REGULAR", "GREGORY", "GREGORY_BOUNDARY", "GREGORY_BASIS", "GREGORY_TRIANGLE"};
 
-    printf("    type %s\n",
-        types[_type]);
+    printf("    type %s\n", types[_type]);
 }
-
-
 
 } // end namespace Far
 

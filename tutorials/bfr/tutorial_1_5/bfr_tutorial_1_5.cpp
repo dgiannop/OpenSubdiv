@@ -34,15 +34,15 @@
 //      each control point affecting the Surface.
 //
 
-#include <opensubdiv/far/topologyRefiner.h>
 #include <opensubdiv/bfr/refinerSurfaceFactory.h>
 #include <opensubdiv/bfr/surface.h>
 #include <opensubdiv/bfr/tessellation.h>
+#include <opensubdiv/far/topologyRefiner.h>
 
-#include <vector>
-#include <string>
-#include <cstring>
 #include <cstdio>
+#include <cstring>
+#include <string>
+#include <vector>
 
 //  Local headers with support for this tutorial in "namespace tutorial"
 #include "./meshLoader.h"
@@ -53,61 +53,75 @@ using namespace OpenSubdiv;
 //
 //  Simple command line arguments to provide input and run-time options:
 //
-class Args {
-public:
+class Args
+{
+  public:
     std::string     inputObjFile;
     std::string     outputObjFile;
     Sdc::SchemeType schemeType;
     int             tessUniformRate;
     bool            tessQuadsFlag;
 
-public:
-    Args(int argc, char * argv[]) :
-        inputObjFile(),
-        outputObjFile(),
-        schemeType(Sdc::SCHEME_CATMARK),
-        tessUniformRate(5),
-        tessQuadsFlag(false) {
+  public:
+    Args(int argc, char *argv[]) : inputObjFile(), outputObjFile(), schemeType(Sdc::SCHEME_CATMARK), tessUniformRate(5), tessQuadsFlag(false)
+    {
 
-        for (int i = 1; i < argc; ++i) {
-            if (strstr(argv[i], ".obj")) {
-                if (inputObjFile.empty()) {
+        for (int i = 1; i < argc; ++i)
+        {
+            if (strstr(argv[i], ".obj"))
+            {
+                if (inputObjFile.empty())
+                {
                     inputObjFile = std::string(argv[i]);
-                } else {
-                    fprintf(stderr,
-                        "Warning: Extra Obj file '%s' ignored\n", argv[i]);
                 }
-            } else if (!strcmp(argv[i], "-o")) {
-                if (++i < argc) outputObjFile = std::string(argv[i]);
-            } else if (!strcmp(argv[i], "-bilinear")) {
+                else
+                {
+                    fprintf(stderr, "Warning: Extra Obj file '%s' ignored\n", argv[i]);
+                }
+            }
+            else if (!strcmp(argv[i], "-o"))
+            {
+                if (++i < argc)
+                    outputObjFile = std::string(argv[i]);
+            }
+            else if (!strcmp(argv[i], "-bilinear"))
+            {
                 schemeType = Sdc::SCHEME_BILINEAR;
-            } else if (!strcmp(argv[i], "-catmark")) {
+            }
+            else if (!strcmp(argv[i], "-catmark"))
+            {
                 schemeType = Sdc::SCHEME_CATMARK;
-            } else if (!strcmp(argv[i], "-loop")) {
+            }
+            else if (!strcmp(argv[i], "-loop"))
+            {
                 schemeType = Sdc::SCHEME_LOOP;
-            } else if (!strcmp(argv[i], "-res")) {
-                if (++i < argc) tessUniformRate = atoi(argv[i]);
-            } else if (!strcmp(argv[i], "-quads")) {
+            }
+            else if (!strcmp(argv[i], "-res"))
+            {
+                if (++i < argc)
+                    tessUniformRate = atoi(argv[i]);
+            }
+            else if (!strcmp(argv[i], "-quads"))
+            {
                 tessQuadsFlag = true;
-            } else {
-                fprintf(stderr,
-                    "Warning: Unrecognized argument '%s' ignored\n", argv[i]);
+            }
+            else
+            {
+                fprintf(stderr, "Warning: Unrecognized argument '%s' ignored\n", argv[i]);
             }
         }
     }
 
-private:
-    Args() { }
+  private:
+    Args() {}
 };
 
 //
 //  The main tessellation function:  given a mesh and vertex positions,
 //  tessellate each face -- writing results in Obj format.
 //
-void
-tessellateToObj(Far::TopologyRefiner const & meshTopology,
-                std::vector<float>   const & meshVertexPositions,
-                Args                 const & options) {
+void tessellateToObj(Far::TopologyRefiner const &meshTopology, std::vector<float> const &meshVertexPositions, Args const &options)
+{
 
     //
     //  Use simpler local type names for the Surface and its factory:
@@ -167,12 +181,14 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
     tutorial::ObjWriter objWriter(options.outputObjFile);
 
     int numFaces = meshSurfaceFactory.GetNumFaces();
-    for (int faceIndex = 0; faceIndex < numFaces; ++faceIndex) {
+    for (int faceIndex = 0; faceIndex < numFaces; ++faceIndex)
+    {
         //
         //  Initialize the Surface for this face -- if valid (skipping
         //  holes and boundary faces in some rare cases):
         //
-        if (!meshSurfaceFactory.InitVertexSurface(faceIndex, &faceSurface)) {
+        if (!meshSurfaceFactory.InitVertexSurface(faceIndex, &faceSurface))
+        {
             continue;
         }
 
@@ -184,9 +200,9 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
 
         limitStencils.resize(3 * numControlPoints);
 
-        float * pStencil  = limitStencils.data();
-        float * duStencil = limitStencils.data() + numControlPoints;
-        float * dvStencil = limitStencils.data() + numControlPoints * 2;
+        float *pStencil  = limitStencils.data();
+        float *duStencil = limitStencils.data() + numControlPoints;
+        float *dvStencil = limitStencils.data() + numControlPoints * 2;
 
         //
         //  Limit stencils can be applied using the control points in a
@@ -194,19 +210,18 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
         //  if using the local array, resize and populate it:
         //
         bool gatherControlPoints = true;
-        if (gatherControlPoints) {
+        if (gatherControlPoints)
+        {
             faceControlPoints.resize(numControlPoints * 3);
 
-            faceSurface.GatherControlPoints(meshVertexPositions.data(), 3,
-                                            faceControlPoints.data(), 3);
+            faceSurface.GatherControlPoints(meshVertexPositions.data(), 3, faceControlPoints.data(), 3);
         }
 
         //
         //  Declare a simple uniform Tessellation for the Parameterization
         //  of this face and identify coordinates of the points to evaluate:
         //
-        Bfr::Tessellation tessPattern(faceSurface.GetParameterization(),
-                                      options.tessUniformRate, tessOptions);
+        Bfr::Tessellation tessPattern(faceSurface.GetParameterization(), options.tessUniformRate, tessOptions);
 
         int numOutCoords = tessPattern.GetNumCoords();
 
@@ -214,32 +229,36 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
 
         tessPattern.GetCoords(outCoords.data());
 
-        //  
+        //
         //  Evaluate and apply stencils to compute points of the tessellation:
-        //  
+        //
         outPos.resize(numOutCoords * 3);
         outDu.resize(numOutCoords * 3);
         outDv.resize(numOutCoords * 3);
 
-        for (int i = 0; i < numOutCoords; ++i) {
-            float const * uv = outCoords.data() + i * 2;
+        for (int i = 0; i < numOutCoords; ++i)
+        {
+            float const *uv = outCoords.data() + i * 2;
 
             faceSurface.EvaluateStencil(uv, pStencil, duStencil, dvStencil);
 
-            float * p  = outPos.data() + i * 3;
-            float * du = outDu.data()  + i * 3;
-            float * dv = outDv.data()  + i * 3;
+            float *p  = outPos.data() + i * 3;
+            float *du = outDu.data() + i * 3;
+            float *dv = outDv.data() + i * 3;
 
-            if (gatherControlPoints) {
-                float const * controlPoints = faceControlPoints.data();
+            if (gatherControlPoints)
+            {
+                float const *controlPoints = faceControlPoints.data();
 
-                faceSurface.ApplyStencil(pStencil,  controlPoints, 3, p);
+                faceSurface.ApplyStencil(pStencil, controlPoints, 3, p);
                 faceSurface.ApplyStencil(duStencil, controlPoints, 3, du);
                 faceSurface.ApplyStencil(dvStencil, controlPoints, 3, dv);
-            } else {
-                float const * meshPoints = meshVertexPositions.data();
+            }
+            else
+            {
+                float const *meshPoints = meshVertexPositions.data();
 
-                faceSurface.ApplyStencilFromMesh(pStencil,  meshPoints, 3, p);
+                faceSurface.ApplyStencilFromMesh(pStencil, meshPoints, 3, p);
                 faceSurface.ApplyStencilFromMesh(duStencil, meshPoints, 3, du);
                 faceSurface.ApplyStencilFromMesh(dvStencil, meshPoints, 3, dv);
             }
@@ -259,8 +278,7 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
         outFacets.resize(numFacets * tessFacetSize);
         tessPattern.GetFacets(outFacets.data());
 
-        tessPattern.TransformFacetCoordIndices(outFacets.data(),
-                                               objVertexIndexOffset);
+        tessPattern.TransformFacetCoordIndices(outFacets.data(), objVertexIndexOffset);
 
         //
         //  Write the evaluated points and faces connecting them as Obj:
@@ -277,18 +295,18 @@ tessellateToObj(Far::TopologyRefiner const & meshTopology,
 //
 //  Load command line arguments, specified or default geometry and process:
 //
-int
-main(int argc, char * argv[]) {
+int main(int argc, char *argv[])
+{
 
     Args args(argc, argv);
 
-    Far::TopologyRefiner * meshTopology = 0;
-    std::vector<float>     meshVtxPositions;
-    std::vector<float>     meshFVarUVs;
+    Far::TopologyRefiner *meshTopology = 0;
+    std::vector<float>    meshVtxPositions;
+    std::vector<float>    meshFVarUVs;
 
-    meshTopology = tutorial::createTopologyRefiner(
-            args.inputObjFile, args.schemeType, meshVtxPositions, meshFVarUVs);
-    if (meshTopology == 0) {
+    meshTopology = tutorial::createTopologyRefiner(args.inputObjFile, args.schemeType, meshVtxPositions, meshFVarUVs);
+    if (meshTopology == 0)
+    {
         return EXIT_FAILURE;
     }
 

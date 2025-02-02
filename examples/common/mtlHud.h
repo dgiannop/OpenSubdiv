@@ -36,37 +36,33 @@
 #include "hud.h"
 #include "mtlUtils.h"
 
-class MTLhud : public Hud {
+class MTLhud : public Hud
+{
 
-public:
+  public:
     MTLhud();
     ~MTLhud();
 
-    virtual void Init(id<MTLDevice> device, MTLRenderPipelineDescriptor* parentPipelineDescriptor, MTLDepthStencilDescriptor* depthStencilStateDescriptor,
-    				  int width, int height, int framebufferWidth, int framebufferHeight);
+    virtual void Init(id<MTLDevice> device, MTLRenderPipelineDescriptor *parentPipelineDescriptor, MTLDepthStencilDescriptor *depthStencilStateDescriptor, int width, int height, int framebufferWidth, int framebufferHeight);
 
-    virtual void Rebuild(int width, int height,
-                         int framebufferWidth, int framebufferHeight);
+    virtual void Rebuild(int width, int height, int framebufferWidth, int framebufferHeight);
 
     virtual bool Flush(id<MTLRenderCommandEncoder> encoder);
 
-    id<MTLTexture> GetFontTexture() const {
-        return _fontTexture;
-    }
+    id<MTLTexture> GetFontTexture() const { return _fontTexture; }
 
     void FillBackground(id<MTLRenderCommandEncoder> encoder);
-    
+
     float UIScale = 1.0f;
 
-private:
-	id<MTLDevice> _device;
-    id<MTLTexture> _fontTexture;
-	OpenSubdiv::OPENSUBDIV_VERSION::Osd::MTLRingBuffer<float, 1> _staticBuffer;
-	OpenSubdiv::OPENSUBDIV_VERSION::Osd::MTLRingBuffer<float, 3> _dynamicBuffer;
+  private:
+    id<MTLDevice>                                                _device;
+    id<MTLTexture>                                               _fontTexture;
+    OpenSubdiv::OPENSUBDIV_VERSION::Osd::MTLRingBuffer<float, 1> _staticBuffer;
+    OpenSubdiv::OPENSUBDIV_VERSION::Osd::MTLRingBuffer<float, 3> _dynamicBuffer;
 
     id<MTLRenderPipelineState> _fgPipelineState, _bgPipelineState;
-    id<MTLDepthStencilState> _depthStencilState;
+    id<MTLDepthStencilState>   _depthStencilState;
 };
 
-
-#endif //OPENSUBDIV_EXAMPLES_MTL_HUD_H
+#endif // OPENSUBDIV_EXAMPLES_MTL_HUD_H

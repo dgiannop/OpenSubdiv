@@ -25,18 +25,20 @@
 #ifndef OPENSUBDIV3_IRREGULAR_PATCH_BUILDER_H
 #define OPENSUBDIV3_IRREGULAR_PATCH_BUILDER_H
 
-#include "../version.h"
+#include <map>
 
 #include "../bfr/faceSurface.h"
 #include "../bfr/irregularPatchType.h"
+#include "../version.h"
 #include "../vtr/stackBuffer.h"
 
-#include <map>
+namespace OpenSubdiv
+{
+namespace OPENSUBDIV_VERSION
+{
 
-namespace OpenSubdiv {
-namespace OPENSUBDIV_VERSION {
-
-namespace Bfr {
+namespace Bfr
+{
 
 //
 //  IrregularPatchBuilder takes a FaceSurface (that has been flagged as not
@@ -51,40 +53,41 @@ namespace Bfr {
 //      - we need some way of specifying the options of PatchTree in a
 //        way that's more in line with the Factory's public interface
 //
-class IrregularPatchBuilder {
-public:
+class IrregularPatchBuilder
+{
+  public:
     typedef FaceSurface::Index Index;
 
-public:
+  public:
     //  WIP - see note above
-    struct Options {
-        Options() : sharpLevel(6), smoothLevel(2), doublePrecision(false) { }
+    struct Options
+    {
+        Options() : sharpLevel(6), smoothLevel(2), doublePrecision(false) {}
 
         int  sharpLevel;
         int  smoothLevel;
         bool doublePrecision;
     };
 
-public:
-    IrregularPatchBuilder(FaceSurface const & surfaceDescription,
-                          Options     const & options = Options());
-    ~IrregularPatchBuilder() { }
+  public:
+    IrregularPatchBuilder(FaceSurface const &surfaceDescription, Options const &options = Options());
+    ~IrregularPatchBuilder() {}
 
     //  Debugging:
     void print() const;
 
-public:
+  public:
     //  Methods to query the number and indices of control vertices:
     int GetNumControlVertices() const { return _numControlVerts; }
 
     int GatherControlVertexIndices(Index cvIndices[]) const;
 
-public:
+  public:
     //  Methods to build irregular patches:
 
     internal::IrregularPatchSharedPtr Build();
 
-private:
+  private:
     //  Private methods to assemble the control hull:
 
     //  A simple struct keeps track of the contribution of each corner to
@@ -96,8 +99,9 @@ private:
     //  not included as part of this inventory for each corner, e.g. the
     //  number of control vertices or control faces may be zero if the
     //  corner has no incident faces.
-    //  
-    struct CornerHull {
+    //
+    struct CornerHull
+    {
         void Clear() { std::memset(this, 0, sizeof(*this)); }
 
         int          numControlFaces;
@@ -111,25 +115,21 @@ private:
     void initializeControlHullInventory();
 
     //  Methods to access the control vertex indices:
-    Index const * getSurfaceIndices() const;
-    Index const * getBaseFaceIndices() const;
-    Index const * getCornerIndices(int corner) const;
-    Index const * getCornerFaceIndices(int corner, int face) const;
+    Index const *getSurfaceIndices() const;
+    Index const *getBaseFaceIndices() const;
+    Index const *getCornerIndices(int corner) const;
+    Index const *getCornerFaceIndices(int corner, int face) const;
 
     //  Methods to gather topology defining the control hull:
     int gatherControlFaces(int faceSizes[], int faceVertices[]) const;
 
     int gatherControlVertexSharpness(int indices[], float sharpness[]) const;
-    int gatherControlEdgeSharpness(  int indices[], float sharpness[]) const;
+    int gatherControlEdgeSharpness(int indices[], float sharpness[]) const;
 
     //  Methods to identify face-verts for an individual control face:
-    void getControlFaceVertices(int  faceVerts[], int numFaceVerts,
-                                int  corner,      int nextPerimeterVert) const;
-    void getControlFaceVertices(int  faceVerts[], int numFaceVerts,
-                                int  corner,      int nextPerimeterVert,
-                                bool lastFace) const;
-    void getControlFaceVertices(int  faceVerts[], int numFaceVerts,
-                                int  corner,      Index const srcVerts[]) const;
+    void getControlFaceVertices(int faceVerts[], int numFaceVerts, int corner, int nextPerimeterVert) const;
+    void getControlFaceVertices(int faceVerts[], int numFaceVerts, int corner, int nextPerimeterVert, bool lastFace) const;
+    void getControlFaceVertices(int faceVerts[], int numFaceVerts, int corner, Index const srcVerts[]) const;
 
     //  Methods for dealing with the control vertex map:
     void initializeControlVertexMap();
@@ -138,24 +138,22 @@ private:
     void addMeshControlVertices(Index const faceVertIndices[], int faceSize);
 
     int   getLocalControlVertex(Index meshVertexIndex) const;
-    Index getMeshControlVertex( int   localVertexIndex) const;
+    Index getMeshControlVertex(int localVertexIndex) const;
 
     //  Methods for dealing with potentially overlapping faces:
     bool controlFacesMayOverlap() const { return _controlFacesOverlap; }
 
-    void removeDuplicateControlFaces(int faceSizes[], int faceVerts[],
-                                     int * numFaces, int * numFaceVerts) const;
-    void sharpenBoundaryControlEdges(int edgeIndices[], float edgeSharpness[],
-                                     int * numSharpEdges) const;
+    void removeDuplicateControlFaces(int faceSizes[], int faceVerts[], int *numFaces, int *numFaceVerts) const;
+    void sharpenBoundaryControlEdges(int edgeIndices[], float edgeSharpness[], int *numSharpEdges) const;
 
-private:
+  private:
     //  Private members:
-    FaceSurface const & _surface;
-    Options             _options;
+    FaceSurface const &_surface;
+    Options            _options;
 
     //  Members defining the control hull of the surface -- some storing
     //  contributions to the control hull for each corner:
-    typedef Vtr::internal::StackBuffer<CornerHull,8,true> CornerHullArray;
+    typedef Vtr::internal::StackBuffer<CornerHull, 8, true> CornerHullArray;
 
     int  _numControlVerts;
     int  _numControlFaces;
@@ -165,8 +163,8 @@ private:
 
     CornerHullArray _cornerHullInfo;
 
-    std::map<Index,int> _controlVertMap;
-    std::vector<Index>  _controlVerts;
+    std::map<Index, int> _controlVertMap;
+    std::vector<Index>   _controlVerts;
 };
 
 } // end namespace Bfr

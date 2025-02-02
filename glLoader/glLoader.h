@@ -138,23 +138,25 @@
 ///
 
 #if defined(OSD_USES_INTERNAL_GLAPILOADER)
-    // -- GLAPILOADER
-    #include "glApi.h"
+// -- GLAPILOADER
+#include "glApi.h"
 
-    #define OSD_OPENGL_HAS(token) (GLAPILOADER_GL_##token)
+#define OSD_OPENGL_HAS(token) (GLAPILOADER_GL_##token)
 
 #elif defined(OSD_USES_GLEW)
-    // -- GLEW
-    #include <GL/glew.h>
+// -- GLEW
+#include <GL/glew.h>
 
-    #define OSD_OPENGL_HAS(token) (GLEW_##token)
+#define OSD_OPENGL_HAS(token) (GLEW_##token)
 
 #endif
 
-namespace OpenSubdiv {
-namespace internal {
-namespace GLLoader {
-
+namespace OpenSubdiv
+{
+namespace internal
+{
+namespace GLLoader
+{
 
 // Initialize OpenGL loader library from the application. This is used
 // only by examples and tests in this code base.
@@ -165,15 +167,12 @@ extern bool applicationInitializeGL();
 // the application's responsibility to initialize the loader library.
 extern bool libraryInitializeGL();
 
-
-}  // namespace GLLoader
-}  // namespace internal
-}  // namespace OpenSubdiv
-
+} // namespace GLLoader
+} // namespace internal
+} // namespace OpenSubdiv
 
 #if defined(OSD_USES_INTERNAL_GLAPILOADER)
 using namespace OpenSubdiv::internal::GLApi;
 #endif
 
-
-#endif  // OPENSUBDIV3_GLLOADER_H
+#endif // OPENSUBDIV3_GLLOADER_H

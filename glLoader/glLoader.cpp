@@ -27,14 +27,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+namespace OpenSubdiv
+{
+namespace internal
+{
+namespace GLLoader
+{
 
-namespace OpenSubdiv {
-namespace internal {
-namespace GLLoader {
-
-
-bool
-applicationInitializeGL()
+bool applicationInitializeGL()
 {
 #if defined(OSD_USES_INTERNAL_GLAPILOADER)
     // -- GLAPILOADER
@@ -49,9 +49,9 @@ applicationInitializeGL()
     glewExperimental = true;
 #endif
     GLenum status = glewInit();
-    if (status != GLEW_OK) {
-        printf("Failed to initialize glew. Error = %s\n",
-               glewGetErrorString(status));
+    if (status != GLEW_OK)
+    {
+        printf("Failed to initialize glew. Error = %s\n", glewGetErrorString(status));
         return false;
     }
 #ifdef CORE_PROFILE
@@ -62,8 +62,7 @@ applicationInitializeGL()
     return true;
 }
 
-bool
-libraryInitializeGL()
+bool libraryInitializeGL()
 {
 #if defined(OSD_USES_INTERNAL_GLAPILOADER)
     return OpenSubdiv::internal::GLApi::glApiLoad();
@@ -73,7 +72,6 @@ libraryInitializeGL()
 #endif
 }
 
-
-}  // namespace GLLoader
-}  // namespace internal
-}  // namespace OpenSubdiv
+} // namespace GLLoader
+} // namespace internal
+} // namespace OpenSubdiv

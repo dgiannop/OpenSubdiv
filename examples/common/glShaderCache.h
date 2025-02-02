@@ -27,26 +27,25 @@
 
 #include "glLoader.h"
 
+#include "./shaderCache.h"
 #include <map>
 #include <string>
-#include "./shaderCache.h"
 
-class GLDrawConfig {
-public:
+class GLDrawConfig
+{
+  public:
     explicit GLDrawConfig(const std::string &version);
     ~GLDrawConfig();
 
     bool CompileAndAttachShader(GLenum shaderType, const std::string &source);
     bool Link();
 
-    GLuint GetProgram() const {
-        return _program;
-    }
+    GLuint GetProgram() const { return _program; }
 
-private:
-    GLuint _program;
+  private:
+    GLuint      _program;
     std::string _version;
-    int _numShaders;
+    int         _numShaders;
 };
 
 // workaround for template alias
@@ -54,10 +53,9 @@ private:
 template <typename DESC_TYPE>
 using GLShaderCache = ShaderCacheT<DESC_TYPE, GLDrawConfig>;
 #else
-template <typename DESC_TYPE>
-class GLShaderCache : public ShaderCacheT<DESC_TYPE, GLDrawConfig> {
+template <typename DESC_TYPE> class GLShaderCache : public ShaderCacheT<DESC_TYPE, GLDrawConfig>
+{
 };
 #endif
 
-
-#endif  // OPENSUBDIV_EXAMPLES_GL_SHADER_CACHE_H
+#endif // OPENSUBDIV_EXAMPLES_GL_SHADER_CACHE_H
